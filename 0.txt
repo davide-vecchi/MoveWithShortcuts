@@ -1,0 +1,3 @@
+dutil.system.OSUtilities#readWinShortcut
+
+dutil.system.OSUtilities#updateTargetPath
