@@ -78,7 +78,6 @@ public final class RenameWithLinks {
 
       throw new InvalidExternalValueException(dq(existingPath) + " does not exist.");
     }
-
     // 5.3 : Ask for new name/path (may include a different path → move) :
 
     final String newName = this.appContext.userIO.in("Enter the new name for the file or folder (may include a path) :"
@@ -103,7 +102,6 @@ public final class RenameWithLinks {
 
       throw new InvalidExternalValueException(dq(searchPath) + " does not exist or is not a directory.");
     }
-
     // 5.5 : Rename / move the file or folder :
 
     this.appContext.outUser(NL + "Renaming " + dq(existingPath) + " to " + dq(newName) + "...");
@@ -112,7 +110,6 @@ public final class RenameWithLinks {
 
       FileUtils.forceMkdir(newFile.getParentFile());
     }
-
     Files.move(existingFileOrFolder.toPath(), newFile.toPath()
                        , StandardCopyOption.REPLACE_EXISTING);
 
