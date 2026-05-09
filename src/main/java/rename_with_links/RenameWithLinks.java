@@ -92,7 +92,7 @@ public final class RenameWithLinks {
     // 5.4 : Ask for search path for .lnk files :
 
     final String searchPath = this.appContext.userIO.in("Enter the path to scan for .lnk shortcuts to update :"
-                                   , EMPTY, CANCEL_CHARS);
+                                                 , EMPTY, CANCEL_CHARS);
     if (searchPath == null) {
 
       throw new UserRequestedTermination();
