@@ -50,19 +50,18 @@ public class RenameWithLinksTest {
 
   private AppContext mockAppContext;
 
-  private static Path tempDir;
-
+  private Path tempDir;
 
   @BeforeClass
-  static void createTempDir() throws IOException {
+  void createTempDir() throws IOException {
 
-    tempDir = Files.createTempDirectory("RenameWithLinksTest_");
+    this.tempDir = Files.createTempDirectory("RenameWithLinksTest_");
   }
 
   @AfterClass
-  static void deleteTempDir() throws IOException {
+  void deleteTempDir() throws IOException {
 
-    FileUtils.deleteDirectory(tempDir.toFile());
+    FileUtils.deleteDirectory(this.tempDir.toFile());
   }
 
   @BeforeMethod
@@ -112,7 +111,7 @@ public class RenameWithLinksTest {
     // 5.3 : in() returns null (cancel at new name)
     // → UserRequestedTermination
 
-    final File existingFile = Files.createTempFile(tempDir, "cancel2_", ".txt").toFile();
+    final File existingFile = Files.createTempFile(this.tempDir, "cancel2_", ".txt").toFile();
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(existingFile.getAbsolutePath())
@@ -131,7 +130,7 @@ public class RenameWithLinksTest {
     // 5.4 : in() returns null (cancel at search path)
     // → UserRequestedTermination
 
-    final File existingFile = Files.createTempFile(tempDir, "cancel3_", ".txt").toFile();
+    final File existingFile = Files.createTempFile(this.tempDir, "cancel3_", ".txt").toFile();
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(existingFile.getAbsolutePath())
@@ -151,7 +150,7 @@ public class RenameWithLinksTest {
     // 5.2 : in() returns a non-existent path
     // → MissingExternalValueException
 
-    final String nonExistentPath = new File(tempDir.toFile(), "does_not_exist.txt").getAbsolutePath();
+    final String nonExistentPath = new File(this.tempDir.toFile(), "does_not_exist.txt").getAbsolutePath();
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString())).thenReturn(nonExistentPath);
 
@@ -168,9 +167,9 @@ public class RenameWithLinksTest {
     // 5.4 : search dir → a file, not a directory
     // → InvalidExternalValueException
 
-    final File existingDir = Files.createTempDirectory(tempDir, "searchTest_").toFile();
+    final File existingDir = Files.createTempDirectory(this.tempDir, "searchTest_").toFile();
 
-    final File aFile = Files.createTempFile(tempDir, "notADir_", ".txt").toFile();
+    final File aFile = Files.createTempFile(this.tempDir, "notADir_", ".txt").toFile();
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(existingDir.getAbsolutePath())
@@ -189,13 +188,13 @@ public class RenameWithLinksTest {
 
     // Full happy path: rename a real file
 
-    final File srcFile = Files.createTempFile(tempDir, "src_", ".txt").toFile();
+    final File srcFile = Files.createTempFile(this.tempDir, "src_", ".txt").toFile();
 
     Files.writeString(srcFile.toPath(), "test content");
 
-    final File searchDir = Files.createTempDirectory(tempDir, "lnkSearch_").toFile();
+    final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch_").toFile();
 
-    final File newFile = new File(tempDir.toFile(), "renamed_file.txt");
+    final File newFile = new File(this.tempDir.toFile(), "renamed_file.txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(srcFile.getAbsolutePath())
@@ -216,15 +215,15 @@ public class RenameWithLinksTest {
   @Test
   void renameFolder() throws Throwable {
 
-    final File srcFolder = Files.createTempDirectory(tempDir, "srcFolder_").toFile();
+    final File srcFolder = Files.createTempDirectory(this.tempDir, "srcFolder_").toFile();
 
     final File innerFile = new File(srcFolder, "inner.txt");
 
     Files.writeString(innerFile.toPath(), "inner content");
 
-    final File searchDir = Files.createTempDirectory(tempDir, "lnkSearch2_").toFile();
+    final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch2_").toFile();
 
-    final File newFolder = new File(tempDir.toFile(), "renamed_folder");
+    final File newFolder = new File(this.tempDir.toFile(), "renamed_folder");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(srcFolder.getAbsolutePath())
@@ -249,13 +248,13 @@ public class RenameWithLinksTest {
 
     // New path has a parent that does not exist yet
 
-    final File srcFile = Files.createTempFile(tempDir, "srcParent_", ".txt").toFile();
+    final File srcFile = Files.createTempFile(this.tempDir, "srcParent_", ".txt").toFile();
 
     Files.writeString(srcFile.toPath(), "parent test");
 
-    final File searchDir = Files.createTempDirectory(tempDir, "lnkSearch3_").toFile();
+    final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch3_").toFile();
 
-    final File newFile = new File(tempDir.toFile(), "newParent/sub/renamed.txt");
+    final File newFile = new File(this.tempDir.toFile(), "newParent/sub/renamed.txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(srcFile.getAbsolutePath())
@@ -278,17 +277,17 @@ public class RenameWithLinksTest {
 
     // Create a .lnk that points to the source file, verify it's updated
 
-    final File srcFile = Files.createTempFile(tempDir, "lnkSrc_", ".txt").toFile();
+    final File srcFile = Files.createTempFile(this.tempDir, "lnkSrc_", ".txt").toFile();
 
     Files.writeString(srcFile.toPath(), "lnk test");
 
-    final File searchDir = Files.createTempDirectory(tempDir, "lnkSearch4_").toFile();
+    final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch4_").toFile();
 
     final File lnkFile = new File(searchDir, "shortcut.lnk");
 
     ShellLink.createLink(srcFile.getCanonicalPath()).saveTo(lnkFile.getAbsolutePath());
 
-    final File newFile = new File(tempDir.toFile(), "lnk_renamed.txt");
+    final File newFile = new File(this.tempDir.toFile(), "lnk_renamed.txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(srcFile.getAbsolutePath())
@@ -311,19 +310,19 @@ public class RenameWithLinksTest {
 
     // Create a .lnk pointing to a different file (not the one being renamed)
 
-    final File srcFile = Files.createTempFile(tempDir, "otherSrc_", ".txt").toFile();
+    final File srcFile = Files.createTempFile(this.tempDir, "otherSrc_", ".txt").toFile();
 
     Files.writeString(srcFile.toPath(), "other");
 
-    final File otherFile = Files.createTempFile(tempDir, "otherTarget_", ".txt").toFile();
+    final File otherFile = Files.createTempFile(this.tempDir, "otherTarget_", ".txt").toFile();
 
-    final File searchDir = Files.createTempDirectory(tempDir, "lnkSearch5_").toFile();
+    final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch5_").toFile();
 
     final File lnkFile = new File(searchDir, "other.lnk");
 
     ShellLink.createLink(otherFile.getCanonicalPath()).saveTo(lnkFile.getAbsolutePath());
 
-    final File newFile = new File(tempDir.toFile(), "other_renamed.txt");
+    final File newFile = new File(this.tempDir.toFile(), "other_renamed.txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(srcFile.getAbsolutePath())
@@ -346,17 +345,17 @@ public class RenameWithLinksTest {
 
     // A corrupted .lnk should be skipped with a warning
 
-    final File srcFile = Files.createTempFile(tempDir, "corruptSrc_", ".txt").toFile();
+    final File srcFile = Files.createTempFile(this.tempDir, "corruptSrc_", ".txt").toFile();
 
     Files.writeString(srcFile.toPath(), "corrupt");
 
-    final File searchDir = Files.createTempDirectory(tempDir, "lnkSearch6_").toFile();
+    final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch6_").toFile();
 
     final File corruptedLnk = new File(searchDir, "bad.lnk");
 
     Files.writeString(corruptedLnk.toPath(), "this is not a valid shortcut");
 
-    final File newFile = new File(tempDir.toFile(), "corrupt_renamed.txt");
+    final File newFile = new File(this.tempDir.toFile(), "corrupt_renamed.txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(srcFile.getAbsolutePath())
