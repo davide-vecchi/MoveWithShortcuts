@@ -8,7 +8,7 @@ package rename_with_links;
 
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
-import dutil.system.OSUtilities;
+import dutil.exception.exceptions.MissingExternalValueException;import dutil.system.OSUtilities;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -76,7 +76,7 @@ public final class RenameWithLinks {
 
     if (! existingFileOrFolder.exists()) {
 
-      throw new InvalidExternalValueException(dq(existingPath) + " does not exist.");
+      throw new MissingExternalValueException(dq(existingPath) + " does not exist.");
     }
     // 5.3 : Ask for new name/path (may include a different path → move) :
 
