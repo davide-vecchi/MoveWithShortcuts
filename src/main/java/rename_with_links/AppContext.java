@@ -83,8 +83,8 @@ public class AppContext implements AutoCloseable {
     
     this.devLog =    assertNonNull(devLog);
   }
-
-
+  
+  
   /**
    * Factory method.
    *
@@ -308,8 +308,8 @@ public class AppContext implements AutoCloseable {
       this.devLog.close();
     }
   }
-
-
+  
+  
   /**
    * @param cancelChars If the entered value is 1-char long and contained in this string, returns {@code null}.<br>Pass
    *                    an {@link StringUtils#EMPTY empty string} to prevent the user from canceling.
@@ -333,5 +333,5 @@ public class AppContext implements AutoCloseable {
       throw new UserRequestedTermination();
     }
   }
-
+  
 }
