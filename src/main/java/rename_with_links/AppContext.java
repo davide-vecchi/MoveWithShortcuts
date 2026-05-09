@@ -96,7 +96,7 @@ public class AppContext implements AutoCloseable {
    * @return A new {@link AppContext} instantiated with the given values.
    */
   public static AppContext newAppContext(@NotNull AUserInputOutput userIO, @NotNull Log screenLog, @NotNull Log userLog
-                                                                          , @NotNull Log devLog) {
+                                                                         , @NotNull Log devLog) {
     return new AppContext(userIO, screenLog, userLog, devLog);
   }
   
