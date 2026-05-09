@@ -36,6 +36,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 @Getter
 @ToString
 public final class RenameWithLinks {
+  
 
   static final String CANCEL_CHARS = "Aa/";
 
