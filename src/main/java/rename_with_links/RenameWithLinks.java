@@ -72,9 +72,9 @@ public final class RenameWithLinks {
 
       throw new UserRequestedTermination();
     }
-    final File existingFile = new File(existingPath);
+    final File existingFileOrFolder = new File(existingPath);
 
-    if (! existingFile.exists()) {
+    if (! existingFileOrFolder.exists()) {
 
       throw new InvalidExternalValueException(dq(existingPath) + " does not exist.");
     }
@@ -113,7 +113,7 @@ public final class RenameWithLinks {
       FileUtils.forceMkdir(newFile.getParentFile());
     }
 
-    Files.move(existingFile.toPath(), newFile.toPath()
+    Files.move(existingFileOrFolder.toPath(), newFile.toPath()
                        , StandardCopyOption.REPLACE_EXISTING);
 
     // 5.6 : Recursively scan the search path for .lnk files :
@@ -131,11 +131,11 @@ public final class RenameWithLinks {
 
         final ShellLink sl = new ShellLink(lnk);
 
-        if (getCanonicalPath(existingFile).equalsIgnoreCase(sl.resolveTarget())) {
+        if (getCanonicalPath(existingFileOrFolder).equalsIgnoreCase(sl.resolveTarget())) {
 
           OSUtilities.updateTargetPath(lnk, getCanonicalPath(newFile));
 
-          this.appContext.outUser("Updated target of " + dq(getCanonicalPath(lnk)) + " from " + dq(getCanonicalPath(existingFile)) + " to " + dq(getCanonicalPath(newFile)) + ".");
+          this.appContext.outUser("Updated target of " + dq(getCanonicalPath(lnk)) + " from " + dq(getCanonicalPath(existingFileOrFolder)) + " to " + dq(getCanonicalPath(newFile)) + ".");
         }
       }
       catch (IOException | ShellLinkException e) {
