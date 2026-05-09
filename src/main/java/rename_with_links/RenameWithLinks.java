@@ -87,7 +87,7 @@ public final class RenameWithLinks {
       throw new UserRequestedTermination();
     }
     final File newFile = new File(newName);
-
+    
     // 5.4 : Ask for search path for .lnk files :
 
     final String searchPath = this.appContext.userIO.in("Enter the path to scan for .lnk shortcuts to update :"
