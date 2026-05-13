@@ -11,6 +11,7 @@ import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
 import jakarta.validation.constraints.NotNull;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Date;
 
@@ -21,7 +22,6 @@ import static dutil.string.TextUtilities.CHARSET_UTF_8;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
-import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.dq;
 import static org.fusesource.jansi.Ansi.Color.BLACK;
 import static org.fusesource.jansi.Ansi.Color.CYAN;
@@ -76,18 +76,11 @@ public class RenameWithLinksMain {
         
         app.run();
       }
-      catch (InterruptedException ie) {
-      
-        // Compliant; the interrupted state is restored
-        ac.outDevLog(NLT + "Interrupted !!!!!" + NL + getFullDescriptionWithRootCause(ie));
-        
-        Thread.currentThread().interrupt();
-      }
       catch (UserRequestedTermination t) {
       
         ac.warnUser(NL + (t.getMessage() != null ? t.getMessage() : "Terminated on user request."));
       }
-      catch (Exception e) {
+      catch (IOException e) {
       
         ac.errUser(NL2 + "Terminated due to an error : " + e.getClass().getSimpleName() + " :" + NL2T + e.getLocalizedMessage().trim() + NL2);
         

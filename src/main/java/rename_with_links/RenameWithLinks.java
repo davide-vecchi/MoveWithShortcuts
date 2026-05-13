@@ -59,7 +59,7 @@ public final class RenameWithLinks {
   }
   
   
-  public void run() throws UserRequestedTermination, InterruptedException, IOException {
+  public void run() throws UserRequestedTermination, IOException {
   
     // 5.1 : Check OS is Windows :
     
