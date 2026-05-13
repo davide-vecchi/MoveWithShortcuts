@@ -119,5 +119,44 @@
 		</dependency>
 
 	</dependencies>
+	
+	<build>
+		
+		<plugins>
+			
+			<plugin>
+				
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				
+				<executions>
+					
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<archive>
+								<manifest>
+									<mainClass>
+										rename_with_links.RenameWithLinksMain
+									</mainClass>
+								</manifest>
+							</archive>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+						</configuration>
+					</execution>
+				
+				</executions>
+			
+			</plugin>
+		
+		</plugins>
+	
+	</build>
 
 </project>
