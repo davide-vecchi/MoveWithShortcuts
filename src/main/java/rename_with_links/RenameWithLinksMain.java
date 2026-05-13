@@ -23,6 +23,7 @@ import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.dq;
+import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static org.fusesource.jansi.Ansi.Color.BLACK;
 import static org.fusesource.jansi.Ansi.Color.CYAN;
 import static org.fusesource.jansi.Ansi.Color.RED;
@@ -44,7 +45,7 @@ public class RenameWithLinksMain {
   /**
    * The description of this program. Description, not a Short name (see #APP_NAME).
    */
-  public static final String APP_DESCR = APP_NAME + " - Renames a file or folder and updates all .lnk shortcuts that point to it.";
+  public static final String APP_DESCR = APP_NAME + " - Renames / Updates a file or folder and updates all " + WIN_SHORTCUT_EXTENSION + " shortcuts that point to it.";
   
   
   /**

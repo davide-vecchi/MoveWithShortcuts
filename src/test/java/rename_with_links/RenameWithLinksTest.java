@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
+import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -283,7 +285,7 @@ public class RenameWithLinksTest {
 
     final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch4_").toFile();
 
-    final File lnkFile = new File(searchDir, "shortcut.lnk");
+    final File lnkFile = new File(searchDir, "shortcut" + WIN_SHORTCUT_EXTENSION);
 
     ShellLink.createLink(srcFile.getCanonicalPath()).saveTo(lnkFile.getAbsolutePath());
 
@@ -318,7 +320,7 @@ public class RenameWithLinksTest {
 
     final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch5_").toFile();
 
-    final File lnkFile = new File(searchDir, "other.lnk");
+    final File lnkFile = new File(searchDir, "other" + WIN_SHORTCUT_EXTENSION);
 
     ShellLink.createLink(otherFile.getCanonicalPath()).saveTo(lnkFile.getAbsolutePath());
 
@@ -351,7 +353,7 @@ public class RenameWithLinksTest {
 
     final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch6_").toFile();
 
-    final File corruptedLnk = new File(searchDir, "bad.lnk");
+    final File corruptedLnk = new File(searchDir, "bad" + WIN_SHORTCUT_EXTENSION);
 
     Files.writeString(corruptedLnk.toPath(), "this is not a valid shortcut");
 
@@ -366,7 +368,7 @@ public class RenameWithLinksTest {
 
     app.run();
 
-    Assert.assertTrue(newFile.exists(), "Rename should complete despite corrupted .lnk");
+    Assert.assertTrue(newFile.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
 
     verify(this.mockUserIO).warnChars(org.mockito.ArgumentMatchers.contains("Warning"));
 

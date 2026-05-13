@@ -32,6 +32,7 @@ import static dutil.object.ObjectUtilities.assertTrue;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.dq;
+import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 
@@ -91,7 +92,7 @@ public final class RenameWithLinks {
     
     // 5.4 : Ask for search path for .lnk files :
     
-    final String searchPath = this.appContext.userIO.in("Enter the path to scan for .lnk shortcuts to update :"
+    final String searchPath = this.appContext.userIO.in("Enter the path to scan for " + WIN_SHORTCUT_EXTENSION + " shortcuts to update :"
                                                  , EMPTY, CANCEL_CHARS);
     if (searchPath == null) {
     
