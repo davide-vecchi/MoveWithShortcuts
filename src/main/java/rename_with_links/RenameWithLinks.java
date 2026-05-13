@@ -28,9 +28,11 @@ import java.util.Collection;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
+import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.object.ObjectUtilities.assertTrue;
 import static dutil.string.TextUtilities.NL;
+import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
@@ -74,14 +76,18 @@ public final class RenameWithLinks {
                                                             + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS);
     if (existingPath == null) {
-    
+      
+      this.appContext.warnUser(NL + "Terminating as requested by the user.");
+      
       throw new UserRequestedTermination();
     }
     final File existingFileOrFolder = new File(existingPath);
     
     if (! existingFileOrFolder.exists()) {
-    
-      throw new MissingExternalValueException(dq(existingPath) + " does not exist.");
+      
+      final String msg = dq(existingPath) + " does not exist.";
+      
+      throw new MissingExternalValueException(msg);
     }
     // 5.3 : Ask for new name/path (may include a different path â†’ move) :
     
@@ -90,7 +96,9 @@ public final class RenameWithLinks {
                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
                                 , EMPTY, CANCEL_CHARS);
     if (newName == null) {
-    
+      
+      this.appContext.warnUser(NL + "Terminating as requested by the user.");
+      
       throw new UserRequestedTermination();
     }
     final File newFile = new File(newName);
@@ -102,6 +110,8 @@ public final class RenameWithLinks {
                                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
                                                  , EMPTY, CANCEL_CHARS);
     if (searchPath == null) {
+      
+      this.appContext.warnUser(NL + "Terminating as requested by the user.");
     
       throw new UserRequestedTermination();
     }
@@ -113,7 +123,7 @@ public final class RenameWithLinks {
     }
     // 5.5 : Rename / move the file or folder :
     
-    this.appContext.outUser(NL + "Renaming " + dq(existingPath) + " to " + dq(newName) + "...");
+    this.appContext.outUser(NL + "Renaming " + dq(existingPath) + " to " + dq(getCanonicalPath(newFile)) + "...");
     
     if (! newFile.getParentFile().exists()) {
     
@@ -137,6 +147,8 @@ public final class RenameWithLinks {
         final ShellLink sl = new ShellLink(lnk);
         
         if (getCanonicalPath(existingFileOrFolder).equalsIgnoreCase(sl.resolveTarget())) {
+          
+          this.appContext.outUser_Chars("Updating target of " + dq(getCanonicalPath(lnk)) + " from " + dq(getCanonicalPath(existingFileOrFolder)) + " to " + dq(getCanonicalPath(newFile)) + "...");
         
           OSUtilities.updateTargetPath(lnk, getCanonicalPath(newFile));
           
@@ -150,7 +162,7 @@ public final class RenameWithLinks {
         this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
       }
     }
-    this.appContext.outUser(NL + "Done.");
+    this.appContext.outUser(NL2 + "Finished updating " + numUpdated + " shortcuts out of " + lnkFiles.size() + " .");
   }
   
 }
