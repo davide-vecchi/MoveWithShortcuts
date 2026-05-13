@@ -279,7 +279,7 @@ public class RenameWithLinksTest {
 
     // Create a .lnk that points to the source file, verify it's updated
 
-    final File srcFile = Files.createTempFile(this.tempDir, "lnkSrc_", ".txt").toFile();
+    final File srcFile = Files.createTempFile(this.tempDir, "lnkSrc_", EXTENSION_SEPARATOR + "txt").toFile();
 
     Files.writeString(srcFile.toPath(), "lnk test");
 
@@ -289,7 +289,7 @@ public class RenameWithLinksTest {
 
     ShellLink.createLink(srcFile.getCanonicalPath()).saveTo(lnkFile.getAbsolutePath());
 
-    final File newFile = new File(this.tempDir.toFile(), "lnk_renamed.txt");
+    final File newFile = new File(this.tempDir.toFile(), "lnk_renamed" + EXTENSION_SEPARATOR + "txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(srcFile.getAbsolutePath())
@@ -312,7 +312,7 @@ public class RenameWithLinksTest {
 
     // Create a .lnk pointing to a different file (not the one being renamed)
 
-    final File srcFile = Files.createTempFile(this.tempDir, "otherSrc_", ".txt").toFile();
+    final File srcFile = Files.createTempFile(this.tempDir, "otherSrc_", EXTENSION_SEPARATOR + "txt").toFile();
 
     Files.writeString(srcFile.toPath(), "other");
 
@@ -324,7 +324,7 @@ public class RenameWithLinksTest {
 
     ShellLink.createLink(otherFile.getCanonicalPath()).saveTo(lnkFile.getAbsolutePath());
 
-    final File newFile = new File(this.tempDir.toFile(), "other_renamed.txt");
+    final File newFile = new File(this.tempDir.toFile(), "other_renamed" + EXTENSION_SEPARATOR + "txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(srcFile.getAbsolutePath())
@@ -347,7 +347,7 @@ public class RenameWithLinksTest {
 
     // A corrupted .lnk should be skipped with a warning
 
-    final File srcFile = Files.createTempFile(this.tempDir, "corruptSrc_", ".txt").toFile();
+    final File srcFile = Files.createTempFile(this.tempDir, "corruptSrc_", EXTENSION_SEPARATOR + "txt").toFile();
 
     Files.writeString(srcFile.toPath(), "corrupt");
 
@@ -357,7 +357,7 @@ public class RenameWithLinksTest {
 
     Files.writeString(corruptedLnk.toPath(), "this is not a valid shortcut");
 
-    final File newFile = new File(this.tempDir.toFile(), "corrupt_renamed.txt");
+    final File newFile = new File(this.tempDir.toFile(), "corrupt_renamed" + EXTENSION_SEPARATOR + "txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(srcFile.getAbsolutePath())
