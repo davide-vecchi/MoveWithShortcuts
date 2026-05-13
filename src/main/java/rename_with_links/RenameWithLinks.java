@@ -41,7 +41,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 public final class RenameWithLinks {
   
 
-  static final String CANCEL_CHARS = "Aa/";
+  static final String CANCEL_CHARS = "Cc/";
   
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
