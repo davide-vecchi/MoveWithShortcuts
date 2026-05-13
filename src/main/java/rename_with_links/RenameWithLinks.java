@@ -26,6 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
+import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.object.ObjectUtilities.assertTrue;
@@ -68,8 +69,10 @@ public final class RenameWithLinks {
     
     // 5.2 : Ask for existing file/folder path :
     
-    final String existingPath = this.appContext.userIO.in("RenameWithLinks : enter the path of the file or folder to rename :"
-                                                   , EMPTY, CANCEL_CHARS);
+    final String existingPath = this.appContext.userIO.in(
+                                                  "Enter the path of the file or folder to rename, or type "
+                                                            + calcCancelCharsPrompt(CANCEL_CHARS)
+                                           , EMPTY, CANCEL_CHARS);
     if (existingPath == null) {
     
       throw new UserRequestedTermination();
@@ -82,7 +85,9 @@ public final class RenameWithLinks {
     }
     // 5.3 : Ask for new name/path (may include a different path â†’ move) :
     
-    final String newName = this.appContext.userIO.in("Enter the new name for the file or folder (may include a path) :"
+    final String newName = this.appContext.userIO.in(
+                                      "Enter the new name for the file or folder (may include a path), or type "
+                                                + calcCancelCharsPrompt(CANCEL_CHARS)
                                 , EMPTY, CANCEL_CHARS);
     if (newName == null) {
     
@@ -92,7 +97,9 @@ public final class RenameWithLinks {
     
     // 5.4 : Ask for search path for .lnk files :
     
-    final String searchPath = this.appContext.userIO.in("Enter the path to scan for " + WIN_SHORTCUT_EXTENSION + " shortcuts to update :"
+    final String searchPath = this.appContext.userIO.in("Enter the path to scan for " + WIN_SHORTCUT_EXTENSION
+                                                                + " shortcuts to update, or type "
+                                                                + calcCancelCharsPrompt(CANCEL_CHARS)
                                                  , EMPTY, CANCEL_CHARS);
     if (searchPath == null) {
     
@@ -117,7 +124,7 @@ public final class RenameWithLinks {
                        
     // 5.6 : Recursively scan the search path for .lnk files :
     
-    final Collection<File> lnkFiles = FileUtils.listFiles(searchDir, new String[]{"lnk"}, true);
+    final Collection<File> lnkFiles = FileUtils.listFiles(searchDir, new String[] { "lnk" }, true);
     
     this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(searchPath) + ". Checking their targets...");
               
