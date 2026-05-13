@@ -141,6 +141,8 @@ public final class RenameWithLinks {
               
     // 5.7 : For each .lnk whose target matches the original path, update it :
     
+    int numUpdated = ZERO_i;
+    
     for (final File lnk : lnkFiles) {
     
       try {
@@ -153,7 +155,9 @@ public final class RenameWithLinks {
         
           OSUtilities.updateTargetPath(lnk, getCanonicalPath(newFile));
           
-          this.appContext.outUser("Updated target of " + dq(getCanonicalPath(lnk)) + " from " + dq(getCanonicalPath(existingFileOrFolder)) + " to " + dq(getCanonicalPath(newFile)) + ".");
+          this.appContext.outUser(" done.");
+          
+          ++numUpdated;
         }
       }
       catch (IOException | ShellLinkException e) {
