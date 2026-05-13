@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 
+import static dfile.file.FileUtilities.assertValidPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
@@ -101,7 +102,7 @@ public final class RenameWithLinks {
       
       throw new UserRequestedTermination();
     }
-    final File newFile = new File(newName);
+    final File newFile = new File(assertValidPath(newName, existingFileOrFolder.isDirectory()));
     
     // 5.4 : Ask for search path for .lnk files :
     
@@ -115,7 +116,7 @@ public final class RenameWithLinks {
     
       throw new UserRequestedTermination();
     }
-    final File searchDir = new File(searchPath);
+    final File searchDir = new File(assertValidPath(searchPath, true));
     
     if (! searchDir.exists() || ! searchDir.isDirectory()) {
     
