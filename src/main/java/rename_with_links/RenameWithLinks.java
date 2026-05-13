@@ -113,14 +113,13 @@ public final class RenameWithLinks {
       FileUtils.forceMkdir(newFile.getParentFile());
     }
     Files.move(existingFileOrFolder.toPath(), newFile.toPath()
-                       , StandardCopyOption.REPLACE_EXISTING);
+         , StandardCopyOption.REPLACE_EXISTING);
                        
     // 5.6 : Recursively scan the search path for .lnk files :
     
     final Collection<File> lnkFiles = FileUtils.listFiles(searchDir, new String[]{"lnk"}, true);
     
-    this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(searchPath)
-              + ". Checking their targets...");
+    this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(searchPath) + ". Checking their targets...");
               
     // 5.7 : For each .lnk whose target matches the original path, update it :
     
