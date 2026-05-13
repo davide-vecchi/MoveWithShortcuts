@@ -56,9 +56,11 @@ public class RenameWithLinksMain {
   public static void main(String[] args) throws Exception {
   
     try (
+      
       final Log screenLog = new Log(APP_DESCR + " - screen log",    APP_NAME + "_screen-log.LOG", true);
       final Log userLog =   new Log(APP_DESCR + " - user log",      APP_NAME + "_user-log.LOG",   true);
       final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
+      
       final PrintStream out = new PrintStream(     System.out, true, CHARSET_UTF_8);
       final PrintStream err = new PrintStream(System.err, true, CHARSET_UTF_8);
       final AppContext ac = AppContext.newAppContext(
