@@ -32,9 +32,11 @@ import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.object.ObjectUtilities.assertTrue;
+import static dutil.string.TextUtilities.COLON;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
+import static dutil.string.TextUtilities.SLASH;
 import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
@@ -103,7 +105,27 @@ public final class RenameWithLinks {
       
       throw new UserRequestedTermination();
     }
-    final File newFile = new File(assertValidPath(newName, existingFileOrFolder.isDirectory()));
+    final String effectiveNewName;
+
+    if (newName.contains(File.separator) || newName.contains(SLASH) || newName.contains(COLON)) {
+
+      effectiveNewName = newName;
+    }
+    else {
+
+      final File parent = existingFileOrFolder.getAbsoluteFile().getParentFile();
+
+      if (parent == null) {
+
+        throw new InvalidExternalValueException("Cannot determine parent directory of " + dq(existingPath) + ".");
+      }
+      if (newName.equalsIgnoreCase(existingFileOrFolder.getName())) {
+
+        throw new InvalidExternalValueException(dq(newName) + ": new name is identical to current name.");
+      }
+      effectiveNewName = new File(parent, newName).getPath();
+    }
+    final File newFile = new File(assertValidPath(effectiveNewName, existingFileOrFolder.isDirectory()));
     
     // 5.4 : Ask for search path for .lnk files :
     
