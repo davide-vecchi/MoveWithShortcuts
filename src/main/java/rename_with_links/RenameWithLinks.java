@@ -35,6 +35,7 @@ import static dutil.object.ObjectUtilities.assertTrue;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
+import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -143,11 +144,13 @@ public final class RenameWithLinks {
     
     int numUpdated = ZERO_i;
     
-    for (final File lnk : lnkFiles) {
+    ShellLink sl = null;
     
+    for (final File lnk : lnkFiles) {
+      
       try {
       
-        final ShellLink sl = new ShellLink(lnk);
+        sl = new ShellLink(lnk);
         
         if (getCanonicalPath(existingFileOrFolder).equalsIgnoreCase(sl.resolveTarget())) {
           
@@ -162,7 +165,9 @@ public final class RenameWithLinks {
       }
       catch (IOException | ShellLinkException e) {
       
-        this.appContext.warnUser("  Warning: could not read shortcut " + getCanonicalPath(lnk) + ": " + e.getMessage());
+        this.appContext.warnUser(NL + "Warning: could not read shortcut " + dq(getCanonicalPath(lnk)) + ": " + e.getMessage());
+        
+        this.appContext.warnUser(TAB + "Shortcut representation : " + sl);
         
         this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
       }
