@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 
+import static dfile.file.FileUtilities.getCanonicalPath;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -116,7 +117,7 @@ public class RenameWithLinksTest {
     final File existingFile = Files.createTempFile(this.tempDir, "cancel2_", ".txt").toFile();
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(existingFile.getAbsolutePath())
+             .thenReturn(getCanonicalPath(existingFile))
              .thenReturn(null);
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
@@ -135,7 +136,7 @@ public class RenameWithLinksTest {
     final File existingFile = Files.createTempFile(this.tempDir, "cancel3_", ".txt").toFile();
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(existingFile.getAbsolutePath())
+             .thenReturn(getCanonicalPath(existingFile))
              .thenReturn("renamed_file.txt")
              .thenReturn(null);
 
@@ -152,7 +153,7 @@ public class RenameWithLinksTest {
     // 5.2 : in() returns a non-existent path
     // → MissingExternalValueException
 
-    final String nonExistentPath = new File(this.tempDir.toFile(), "does_not_exist.txt").getAbsolutePath();
+    final String nonExistentPath = getCanonicalPath(new File(this.tempDir.toFile(), "does_not_exist.txt"));
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString())).thenReturn(nonExistentPath);
 
@@ -174,9 +175,9 @@ public class RenameWithLinksTest {
     final File aFile = Files.createTempFile(this.tempDir, "notADir_", ".txt").toFile();
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(existingDir.getAbsolutePath())
+             .thenReturn(getCanonicalPath(existingDir))
              .thenReturn("renamed")
-             .thenReturn(aFile.getAbsolutePath());
+             .thenReturn(getCanonicalPath(aFile));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -199,9 +200,9 @@ public class RenameWithLinksTest {
     final File newFile = new File(this.tempDir.toFile(), "renamed_file.txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(srcFile.getAbsolutePath())
-             .thenReturn(newFile.getAbsolutePath())
-             .thenReturn(searchDir.getAbsolutePath());
+             .thenReturn(getCanonicalPath(srcFile))
+             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -228,9 +229,9 @@ public class RenameWithLinksTest {
     final File newFolder = new File(this.tempDir.toFile(), "renamed_folder");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(srcFolder.getAbsolutePath())
-             .thenReturn(newFolder.getAbsolutePath())
-             .thenReturn(searchDir.getAbsolutePath());
+             .thenReturn(getCanonicalPath(srcFolder))
+             .thenReturn(getCanonicalPath(newFolder))
+             .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -259,9 +260,9 @@ public class RenameWithLinksTest {
     final File newFile = new File(this.tempDir.toFile(), "newParent/sub/renamed.txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(srcFile.getAbsolutePath())
-             .thenReturn(newFile.getAbsolutePath())
-             .thenReturn(searchDir.getAbsolutePath());
+             .thenReturn(getCanonicalPath(srcFile))
+             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -287,14 +288,14 @@ public class RenameWithLinksTest {
 
     final File lnkFile = new File(searchDir, "shortcut" + WIN_SHORTCUT_EXTENSION);
 
-    ShellLink.createLink(srcFile.getCanonicalPath()).saveTo(lnkFile.getAbsolutePath());
+    ShellLink.createLink(getCanonicalPath(srcFile)).saveTo(getCanonicalPath(lnkFile));
 
     final File newFile = new File(this.tempDir.toFile(), "lnk_renamed" + EXTENSION_SEPARATOR + "txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(srcFile.getAbsolutePath())
-             .thenReturn(newFile.getAbsolutePath())
-             .thenReturn(searchDir.getAbsolutePath());
+             .thenReturn(getCanonicalPath(srcFile))
+             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -304,7 +305,7 @@ public class RenameWithLinksTest {
 
     final ShellLink updatedLnk = new ShellLink(lnkFile);
 
-    Assert.assertEquals(updatedLnk.resolveTarget(), newFile.getCanonicalPath());
+    Assert.assertEquals(updatedLnk.resolveTarget(), getCanonicalPath(newFile));
   }
 
   @Test
@@ -322,14 +323,14 @@ public class RenameWithLinksTest {
 
     final File lnkFile = new File(searchDir, "other" + WIN_SHORTCUT_EXTENSION);
 
-    ShellLink.createLink(otherFile.getCanonicalPath()).saveTo(lnkFile.getAbsolutePath());
+    ShellLink.createLink(getCanonicalPath(otherFile)).saveTo(getCanonicalPath(lnkFile));
 
     final File newFile = new File(this.tempDir.toFile(), "other_renamed" + EXTENSION_SEPARATOR + "txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(srcFile.getAbsolutePath())
-             .thenReturn(newFile.getAbsolutePath())
-             .thenReturn(searchDir.getAbsolutePath());
+             .thenReturn(getCanonicalPath(srcFile))
+             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -339,7 +340,7 @@ public class RenameWithLinksTest {
 
     final ShellLink unchangedLnk = new ShellLink(lnkFile);
 
-    Assert.assertEquals(unchangedLnk.resolveTarget(), otherFile.getCanonicalPath());
+    Assert.assertEquals(unchangedLnk.resolveTarget(), getCanonicalPath(otherFile));
   }
 
   @Test
@@ -360,9 +361,9 @@ public class RenameWithLinksTest {
     final File newFile = new File(this.tempDir.toFile(), "corrupt_renamed" + EXTENSION_SEPARATOR + "txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(srcFile.getAbsolutePath())
-             .thenReturn(newFile.getAbsolutePath())
-             .thenReturn(searchDir.getAbsolutePath());
+             .thenReturn(getCanonicalPath(srcFile))
+             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
