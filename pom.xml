@@ -68,20 +68,12 @@
 		
 		
 		
-		<!-- https://mvnrepository.com/artifact/com.github.vatbub/mslinks -->
-		<dependency>
-			<groupId>com.github.vatbub</groupId>
-			<artifactId>mslinks</artifactId>
-			<version>1.0.6.2</version>
-		</dependency>
-		
-		<!-- https://central.sonatype.com/artifact/org.jabref/mslinks/1.2
+		<!-- https://central.sonatype.com/artifact/org.jabref/mslinks/1.2 -->
 		<dependency>
 			<groupId>org.jabref</groupId>
 			<artifactId>mslinks</artifactId>
 			<version>1.2</version>
 		</dependency>
-		-->
 		
 		
 		<!-- https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api -->

@@ -8,7 +8,6 @@ package rename_with_links;
 import dlog.log.Log;
 import duser_input_output.AUserInputOutput;
 import dutil.exception.UserRequestedTermination;
-import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
 import dutil.exception.exceptions.MissingValueException;
 import mslinks.ShellLink;
@@ -25,6 +24,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
@@ -167,7 +167,7 @@ public class RenameWithLinksTest {
     // 5.2 : existing path → temp dir
     // 5.3 : new name → any string
     // 5.4 : search dir → a file, not a directory
-    // → InvalidExternalValueException
+    // → InvalidPathException
 
     final File existingDir = Files.createTempDirectory(this.tempDir, "searchTest_").toFile();
 
@@ -180,7 +180,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(InvalidExternalValueException.class, app::run);
+    Assert.expectThrows(InvalidPathException.class, app::run);
   }
 
   // ====== Integration: file system operations ======
