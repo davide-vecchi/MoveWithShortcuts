@@ -147,7 +147,7 @@ public final class RenameWithLinks {
     }
     // 5.5 : Rename / move the file or folder :
     
-    this.appContext.outUser(NL + "Renaming " + dq(existingPath) + " to " + dq(getCanonicalPath(newFile)) + "...");
+    this.appContext.outUser(NL + "Renaming / moving " + dq(existingPath) + " to " + dq(getCanonicalPath(newFile)) + "...");
     
     if (! newFile.getParentFile().exists()) {
     
