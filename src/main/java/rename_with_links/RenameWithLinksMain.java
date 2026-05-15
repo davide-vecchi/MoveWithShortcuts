@@ -5,9 +5,9 @@ package rename_with_links;
 
 
 import dlog.log.Log;
-import duser_input_output.ConditionallyCloseablePrintStream;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
+import dutil.io.ConditionallyCloseablePrintStream;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.IOException;
