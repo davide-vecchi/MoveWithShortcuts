@@ -1,7 +1,5 @@
 /**
  * Created by OpenCode on 2026-05-08 .
- *
- * @formatter:off
  */
 package rename_with_links;
 
@@ -41,6 +39,9 @@ import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+
+// @formatter:off
 
 
 @Getter

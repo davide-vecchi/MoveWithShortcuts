@@ -1,7 +1,5 @@
 /**
  * Created by OpenCode on 2026-05-09 .
- *
- * @formatter:off
  */
 package rename_with_links;
 
@@ -34,6 +32,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertNotNull;
+
+
+// @formatter:off
 
 
 @Listeners(MockitoTestNGListener.class)
