@@ -1,7 +1,5 @@
 /**
  * Created by OpenCode on 2026-05-08 .
- *
- * @formatter:off
  */
 package rename_with_links;
 
@@ -28,6 +26,9 @@ import static org.fusesource.jansi.Ansi.Color.BLACK;
 import static org.fusesource.jansi.Ansi.Color.CYAN;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.Color.YELLOW;
+
+
+// @formatter:off
 
 
 /**
