@@ -5,12 +5,12 @@ package rename_with_links;
 
 
 import dlog.log.Log;
+import duser_input_output.ConditionallyCloseablePrintStream;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Date;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
@@ -62,13 +62,17 @@ public class RenameWithLinksMain {
       final Log userLog =   new Log(APP_DESCR + " - user log",      APP_NAME + "_user-log.LOG",   true);
       final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
       
-      final PrintStream out = new PrintStream(     System.out, true, CHARSET_UTF_8);
-      final PrintStream err = new PrintStream(System.err, true, CHARSET_UTF_8);
+      final ConditionallyCloseablePrintStream out = new ConditionallyCloseablePrintStream(System.out,   true
+                                                                                        , CHARSET_UTF_8, false);
+      
+      final ConditionallyCloseablePrintStream err = new ConditionallyCloseablePrintStream(
+                                                                             System.err,   true
+                                                                                        , CHARSET_UTF_8, false);
       final AppContext ac = AppContext.newAppContext(
                          ColorConsoleUserIO.newInstance1(System.in,         out,                 err
                                                              , CYAN,   BLACK,   RED
                                                              , BLACK, YELLOW, BLACK)
-                                                                       , screenLog,          userLog,            devLog))
+                                                                        , screenLog,          userLog,            devLog))
     {
       try {
       
