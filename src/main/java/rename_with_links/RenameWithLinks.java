@@ -77,7 +77,7 @@ public final class RenameWithLinks {
     // 5.2 : Ask for existing file/folder path :
     
     final String existingPath = this.appContext.userIO.in(
-                                                  "Enter the path of the file or folder to rename, or type "
+                                                  "Enter the path of the file or folder to rename / move, or type "
                                                             + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS);
     if (existingPath == null) {
