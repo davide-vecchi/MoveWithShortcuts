@@ -80,11 +80,17 @@ public final class RenameWithLinks {
     updateShortcuts(existingFileOrFolder, newFile, searchDir);
   }
 
+  /**
+   * Checks that the OS is Windows.
+   */
   private static void assertWindowsOS() {
 
     assertTrue(SystemUtils.IS_OS_WINDOWS, "The OS is not Windows. Instead it is :" + NL2T + OSUtilities.getDescription());
   }
 
+  /**
+   * Asks the user for the path of the file or folder to rename / move.
+   */
   private File readExistingPath() throws UserRequestedTermination {
 
     final String existingPath = this.appContext.userIO.in(
@@ -108,6 +114,9 @@ public final class RenameWithLinks {
     return existingFileOrFolder;
   }
 
+  /**
+   * Asks the user for the new name/path (may include a different path → move).
+   */
   private File readNewFile(final File existingFileOrFolder) throws UserRequestedTermination {
 
     final String newName = this.appContext.userIO.in(
@@ -143,6 +152,9 @@ public final class RenameWithLinks {
     return new File(assertValidPath(effectiveNewName, existingFileOrFolder.isDirectory()));
   }
 
+  /**
+   * Asks the user for the path to scan for {@code .lnk} shortcuts to update.
+   */
   private File readSearchDirectory() throws UserRequestedTermination {
 
     final String searchPath = this.appContext.userIO.in("Enter the path to scan for " + WIN_SHORTCUT_EXTENSION
@@ -164,6 +176,9 @@ public final class RenameWithLinks {
     return searchDir;
   }
 
+  /**
+   * Renames / moves the file or folder from the existing path to the new path.
+   */
   private void renameFileOrFolder(final File existingFileOrFolder, final File newFile) throws IOException {
 
     this.appContext.outUser(NL + "Renaming / moving " + dq(getCanonicalPath(existingFileOrFolder)) + " to " + dq(getCanonicalPath(newFile)) + "...");
@@ -175,6 +190,10 @@ public final class RenameWithLinks {
     Files.move(existingFileOrFolder.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
   }
 
+  /**
+   * Recursively scans the search directory for {@code .lnk} files and, for each
+   * shortcut whose target matches the original path, updates it to the new path.
+   */
   private void updateShortcuts(final File existingFileOrFolder, final File newFile, final File searchDir) {
 
     final Collection<File> lnkFiles = FileUtils.listFiles(searchDir, new String[] { "lnk" }, true);
