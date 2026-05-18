@@ -72,11 +72,11 @@ public final class RenameWithLinks {
 
     assertWindowsOS();
 
-    final File existingFileOrFolder = readExistingPath();
+    final File existingFileOrFolder = askExistingPath();
 
-    final File newFile = readNewFile(existingFileOrFolder);
+    final File newFile = askNewFile(existingFileOrFolder);
 
-    final File searchDir = readSearchDirectory();
+    final File searchDir = askSearchDirectory();
 
     renameFileOrFolder(existingFileOrFolder, newFile);
 
@@ -94,7 +94,7 @@ public final class RenameWithLinks {
   /**
    * Asks the user for the path of the file or folder to rename / move.
    */
-  private File readExistingPath() throws UserRequestedTermination {
+  private File askExistingPath() throws UserRequestedTermination {
 
     final String existingPath = this.appContext.userIO.in(
                                                   "Enter the path of the file or folder to rename / move, or type "
@@ -120,7 +120,7 @@ public final class RenameWithLinks {
   /**
    * Asks the user for the new name/path (may include a different path → move).
    */
-  private File readNewFile(final File existingFileOrFolder) throws UserRequestedTermination {
+  private File askNewFile(final File existingFileOrFolder) throws UserRequestedTermination {
 
     final String newName = this.appContext.userIO.in(
                                       "Enter the new name for the file or folder (may include a path), or type "
@@ -158,7 +158,7 @@ public final class RenameWithLinks {
   /**
    * Asks the user for the path to scan for {@code .lnk} shortcuts to update.
    */
-  private File readSearchDirectory() throws UserRequestedTermination {
+  private File askSearchDirectory() throws UserRequestedTermination {
 
     final String searchPath = this.appContext.userIO.in("Enter the path to scan for " + WIN_SHORTCUT_EXTENSION
                                                                 + " shortcuts to update, or type "
