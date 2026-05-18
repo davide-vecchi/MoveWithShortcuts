@@ -69,41 +69,55 @@ public final class RenameWithLinks {
   
   
   public void run() throws UserRequestedTermination, IOException {
-  
-    // 5.1 : Check OS is Windows :
-    
+
+    assertWindowsOS();
+
+    final File existingFileOrFolder = readExistingPath();
+    final File newFile = readNewFile(existingFileOrFolder);
+    final File searchDir = readSearchDirectory();
+
+    renameFileOrFolder(existingFileOrFolder, newFile);
+    updateShortcuts(existingFileOrFolder, newFile, searchDir);
+  }
+
+  private static void assertWindowsOS() {
+
     assertTrue(SystemUtils.IS_OS_WINDOWS, "The OS is not Windows. Instead it is :" + NL2T + OSUtilities.getDescription());
-    
-    // 5.2 : Ask for existing file/folder path :
-    
+  }
+
+  private File readExistingPath() throws UserRequestedTermination {
+
     final String existingPath = this.appContext.userIO.in(
                                                   "Enter the path of the file or folder to rename / move, or type "
-                                                            + calcCancelCharsPrompt(CANCEL_CHARS)
-                                           , EMPTY, CANCEL_CHARS);
+                                                             + calcCancelCharsPrompt(CANCEL_CHARS)
+                                            , EMPTY, CANCEL_CHARS);
     if (existingPath == null) {
-      
+
       this.appContext.warnUser(NL + "Terminating as requested by the user.");
-      
+
       throw new UserRequestedTermination();
     }
     final File existingFileOrFolder = new File(existingPath);
-    
+
     if (! existingFileOrFolder.exists()) {
-      
+
       final String msg = dq(existingPath) + " does not exist.";
-      
+
       throw new MissingExternalValueException(msg);
     }
-    // 5.3 : Ask for new name/path (may include a different path â†’ move) :
-    
+    return existingFileOrFolder;
+  }
+
+  private File readNewFile(final File existingFileOrFolder) throws UserRequestedTermination {
+
     final String newName = this.appContext.userIO.in(
                                       "Enter the new name for the file or folder (may include a path), or type "
                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
                                 , EMPTY, CANCEL_CHARS);
     if (newName == null) {
-      
+
       this.appContext.warnUser(NL + "Terminating as requested by the user.");
-      
+
       throw new UserRequestedTermination();
     }
     final String effectiveNewName;
@@ -118,7 +132,7 @@ public final class RenameWithLinks {
 
       if (parent == null) {
 
-        throw new InvalidExternalValueException("Cannot determine parent directory of " + dq(existingPath) + ".");
+        throw new InvalidExternalValueException("Cannot determine parent directory of " + dq(getCanonicalPath(existingFileOrFolder)) + ".");
       }
       if (newName.equalsIgnoreCase(existingFileOrFolder.getName())) {
 
@@ -126,76 +140,77 @@ public final class RenameWithLinks {
       }
       effectiveNewName = new File(parent, newName).getPath();
     }
-    final File newFile = new File(assertValidPath(effectiveNewName, existingFileOrFolder.isDirectory()));
-    
-    // 5.4 : Ask for search path for .lnk files :
-    
+    return new File(assertValidPath(effectiveNewName, existingFileOrFolder.isDirectory()));
+  }
+
+  private File readSearchDirectory() throws UserRequestedTermination {
+
     final String searchPath = this.appContext.userIO.in("Enter the path to scan for " + WIN_SHORTCUT_EXTENSION
                                                                 + " shortcuts to update, or type "
                                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
                                                  , EMPTY, CANCEL_CHARS);
     if (searchPath == null) {
-      
+
       this.appContext.warnUser(NL + "Terminating as requested by the user.");
-    
+
       throw new UserRequestedTermination();
     }
     final File searchDir = new File(assertValidPath(searchPath, true));
-    
+
     if (! searchDir.exists() || ! searchDir.isDirectory()) {
-    
+
       throw new InvalidExternalValueException(dq(searchPath) + " does not exist or is not a directory.");
     }
-    // 5.5 : Rename / move the file or folder :
-    
-    this.appContext.outUser(NL + "Renaming / moving " + dq(existingPath) + " to " + dq(getCanonicalPath(newFile)) + "...");
-    
+    return searchDir;
+  }
+
+  private void renameFileOrFolder(final File existingFileOrFolder, final File newFile) throws IOException {
+
+    this.appContext.outUser(NL + "Renaming / moving " + dq(getCanonicalPath(existingFileOrFolder)) + " to " + dq(getCanonicalPath(newFile)) + "...");
+
     if (! newFile.getParentFile().exists()) {
-    
+
       FileUtils.forceMkdir(newFile.getParentFile());
     }
-    Files.move(existingFileOrFolder.toPath(), newFile.toPath()
-         , StandardCopyOption.REPLACE_EXISTING);
-                       
-    // 5.6 : Recursively scan the search path for .lnk files :
-    
+    Files.move(existingFileOrFolder.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+  }
+
+  private void updateShortcuts(final File existingFileOrFolder, final File newFile, final File searchDir) {
+
     final Collection<File> lnkFiles = FileUtils.listFiles(searchDir, new String[] { "lnk" }, true);
-    
-    this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(searchPath) + ". Checking their targets...");
-              
-    // 5.7 : For each .lnk whose target matches the original path, update it :
-    
+
+    this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchDir)) + ". Checking their targets...");
+
     int numUpdated = ZERO_i;
-    
     ShellLink sl = null;
-    
+
     for (final File lnk : lnkFiles) {
-      
+
       try {
-      
+
         sl = new ShellLink(lnk);
-        
+
         if (getCanonicalPath(existingFileOrFolder).equalsIgnoreCase(sl.resolveTarget())) {
-          
+
           this.appContext.outUser_Chars("Updating target of " + dq(getCanonicalPath(lnk)) + " from " + dq(getCanonicalPath(existingFileOrFolder)) + " to " + dq(getCanonicalPath(newFile)) + "...");
-        
+
           OSUtilities.updateTargetPath(lnk, getCanonicalPath(newFile));
-          
+
           this.appContext.outUser(" done.");
-          
+
           ++numUpdated;
         }
       }
-      catch (IOException | ShellLinkException e) {
-      
+      catch (final IOException | ShellLinkException e) {
+
         this.appContext.warnUser(NL + "Warning: could not read shortcut " + dq(getCanonicalPath(lnk)) + ": " + e.getMessage());
-        
+
         this.appContext.warnUser(TAB + "Shortcut representation : " + sl);
-        
+
         this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
       }
     }
     this.appContext.outUser(NL2 + "Finished updating " + numUpdated + " shortcuts out of " + lnkFiles.size() + " .");
   }
-  
+
 }
