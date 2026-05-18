@@ -73,10 +73,13 @@ public final class RenameWithLinks {
     assertWindowsOS();
 
     final File existingFileOrFolder = readExistingPath();
+
     final File newFile = readNewFile(existingFileOrFolder);
+
     final File searchDir = readSearchDirectory();
 
     renameFileOrFolder(existingFileOrFolder, newFile);
+
     updateShortcuts(existingFileOrFolder, newFile, searchDir);
   }
 
@@ -201,6 +204,7 @@ public final class RenameWithLinks {
     this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchDir)) + ". Checking their targets...");
 
     int numUpdated = ZERO_i;
+
     ShellLink sl = null;
 
     for (final File lnk : lnkFiles) {
