@@ -194,8 +194,8 @@ public final class RenameWithLinks {
   }
 
   /**
-   * Recursively scans the search directory for {@code .lnk} files and, for each
-   * shortcut whose target matches the original path, updates it to the new path.
+   * Recursively scans the search directory for {@code .lnk} files and, for each shortcut whose target matches the
+   * original path, updates it to the new path.
    */
   private void updateShortcuts(final File existingFileOrFolder, final File newFile, final File searchDir) {
 
