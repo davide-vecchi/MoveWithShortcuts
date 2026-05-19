@@ -228,7 +228,7 @@ public final class RenameWithLinks {
 
         this.appContext.warnUser(NL + "Warning: could not read shortcut " + dq(getCanonicalPath(lnk)) + ": " + e.getMessage());
 
-        this.appContext.warnUser(TAB + "Shortcut representation : " + sl);
+        this.appContext.warnUser(TAB + "Shortcut : " + sl);
 
         this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
       }
