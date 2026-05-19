@@ -15,7 +15,6 @@ import lombok.ToString;
 import mslinks.ShellLink;
 import mslinks.ShellLinkException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +37,7 @@ import static dutil.string.TextUtilities.SLASH;
 import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
+import static dutil.system.OSUtilities.assertWindowsOS;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 
