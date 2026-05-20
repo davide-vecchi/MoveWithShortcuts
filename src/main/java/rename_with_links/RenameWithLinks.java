@@ -136,7 +136,7 @@ public final class RenameWithLinks {
    * @throws InvalidPathException If the specified destination is a folder but the given {@code original} is a file, or
    *                              viceversa.
    */
-  private File askDestinationFileOrFolder(final File original) throws UserRequestedTermination {
+  private File askDestinationFileOrFolder(File original) throws UserRequestedTermination {
 
     final String newName = this.appContext.userIO.in(
                                       "Enter the new name for the file or folder (may include a path), or type "
@@ -202,7 +202,7 @@ public final class RenameWithLinks {
   /**
    * Renames / moves the file or folder from the existing path to the new path.
    */
-  private void renameFileOrFolder(final File originalFileOrFolder, final File destinationFileOrFolder) throws IOException {
+  private void renameFileOrFolder(File originalFileOrFolder, File destinationFileOrFolder) throws IOException {
 
     this.appContext.outUser(NL + "Renaming / moving " + dq(getCanonicalPath(originalFileOrFolder)) + " to " + dq(getCanonicalPath(destinationFileOrFolder)) + "...");
 
@@ -219,7 +219,7 @@ public final class RenameWithLinks {
    * Recursively scans the search directory for {@code .lnk} files and, for each shortcut whose target matches the
    * original path, updates it to the new path.
    */
-  private void updateShortcuts(final File originalFileOrFolder, final File destinationFileOrFolder, final File searchFolder) {
+  private void updateShortcuts(File originalFileOrFolder, File destinationFileOrFolder, File searchFolder) {
 
     final Collection<File> lnkFiles = FileUtils.listFiles(searchFolder, new String[] { "lnk" }, true);
     
