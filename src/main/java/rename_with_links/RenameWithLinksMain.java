@@ -46,7 +46,7 @@ public class RenameWithLinksMain {
   /**
    * The description of this program. Description, not a Short name (see #APP_NAME).
    */
-  public static final String APP_DESCR = APP_NAME + " - Renames / Moves a file or folder and updates all " + WIN_SHORTCUT_EXTENSION + " shortcuts that point to it.";
+  public static final String APP_DESCR = APP_NAME + " - Renames / moves a file or folder and updates all " + WIN_SHORTCUT_EXTENSION + " shortcuts that point to it.";
   
   
   /**
