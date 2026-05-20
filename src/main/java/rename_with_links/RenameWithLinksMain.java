@@ -101,7 +101,6 @@ public class RenameWithLinksMain {
     }
   }
   
-  
   /**
    * Shows the startup messages.
    *

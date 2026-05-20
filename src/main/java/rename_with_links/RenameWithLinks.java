@@ -69,7 +69,7 @@ public final class RenameWithLinks {
   
   
   public void run() throws UserRequestedTermination, IOException {
-
+    
     assertWindowsOS();
 
     final File existingFileOrFolder = askExistingPath();
@@ -129,14 +129,16 @@ public final class RenameWithLinks {
     if (newName == null) {
 
       this.appContext.warnUser(NL + "Terminating as requested by the user.");
-
+      
       throw new UserRequestedTermination();
     }
     final String effectiveNewName;
-
-    if (newName.contains(File.separator) || newName.contains(SLASH) || newName.contains(COLON)) {
-
-      effectiveNewName = newName;
+    
+    if (hasPath(newName)) {
+      
+      // : The specified destination represents a file or folder with path info.
+      
+      effectiveNewName = getCanonicalPath(newName);
     }
     else {
 
@@ -210,7 +212,7 @@ public final class RenameWithLinks {
     for (final File lnk : lnkFiles) {
 
       try {
-
+        
         sl = new ShellLink(lnk);
 
         if (getCanonicalPath(existingFileOrFolder).equalsIgnoreCase(sl.resolveTarget())) {
