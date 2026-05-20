@@ -55,11 +55,20 @@ public class RenameWithLinksMain {
    * @param args The command line args (currently unused).
    */
   public static void main(String[] args) throws Exception {
-  
+
+    if (args.length != 0 && args.length != 3) {
+
+      showUsage();
+
+      return;
+    }
+
     try (
       
       final Log screenLog = new Log(APP_DESCR + " - screen log",    APP_NAME + "_screen-log.LOG", true);
+
       final Log userLog =   new Log(APP_DESCR + " - user log",      APP_NAME + "_user-log.LOG",   true);
+
       final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
       
       final ConditionallyCloseablePrintStream out = new ConditionallyCloseablePrintStream(System.out,   true
@@ -67,13 +76,15 @@ public class RenameWithLinksMain {
       
       final ConditionallyCloseablePrintStream err = new ConditionallyCloseablePrintStream(
                                                                              System.err,   true
-                                                                                        , CHARSET_UTF_8, false);
+                                                                                         , CHARSET_UTF_8, false);
+
       final AppContext ac = AppContext.newAppContext(
                          ColorConsoleUserIO.newInstance1(System.in,         out,                 err
                                                              , CYAN,   BLACK,   RED
                                                              , BLACK, YELLOW, BLACK)
-                                                                        , screenLog,          userLog,            devLog))
+                                                                         , screenLog,          userLog,            devLog))
     {
+
       try {
       
         writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
@@ -81,8 +92,15 @@ public class RenameWithLinksMain {
         showStartupMessages(ac);
         
         final RenameWithLinks app = RenameWithLinks.newInstance(ac);
-        
-        app.run();
+
+        if (args.length == 0) {
+
+          app.run();
+        }
+        else {
+
+          app.run(args[0], args[1], args[2]);
+        }
       }
       catch (UserRequestedTermination t) {
       
@@ -117,6 +135,25 @@ public class RenameWithLinksMain {
     ac.outUser("  User log: " + getCanonicalPath(ac.userLog.logFile));
     
     ac.outUser("   Dev log: " + getCanonicalPath(ac.devLog.logFile));
+  }
+
+  private static void showUsage() {
+
+    System.out.println();
+
+    System.out.println(APP_DESCR);
+
+    System.out.println();
+
+    System.out.println("Usage: RenameWithLinksMain [<originalPath> <destinationPath> <searchPath>]");
+
+    System.out.println();
+
+    System.out.println("  When no arguments are provided, the program prompts interactively.");
+
+    System.out.println("  When 3 arguments are provided, they are used as the paths (no prompts).");
+
+    System.out.println("  Any other number of arguments prints this message.");
   }
   
 }

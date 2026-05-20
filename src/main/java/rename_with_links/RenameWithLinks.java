@@ -92,6 +92,80 @@ public final class RenameWithLinks {
   }
 
   /**
+   * Runs the rename-and-update operation using the specified paths instead of prompting the user.
+   *
+   * @param originalPath    The path of the file or folder to rename / move.
+   * @param destinationPath The new name/path for the file or folder (may include a path → move).
+   * @param searchPath      The path to scan for {@code .lnk} shortcuts to update.
+   *
+   * @throws IOException                    If the rename/move operation fails.
+   * @throws MissingExternalValueException  If the specified {@code originalPath} does not exist.
+   * @throws InvalidExternalValueException  If {@code searchPath} does not exist or is not a directory.
+   * @throws NonUniqueExternalValueException If the specified destination is the same as the original.
+   */
+  public void run(final String originalPath, final String destinationPath, final String searchPath) throws IOException {
+
+    assertWindowsOS();
+
+    final File originalFileOrFolder = resolveOriginalPath(originalPath);
+
+    final File destinationFileOrFolder = resolveDestinationFileOrFolder(destinationPath, originalFileOrFolder);
+
+    final File searchDir = resolveSearchDirectory(searchPath);
+
+    renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
+
+    updateShortcuts(originalFileOrFolder, destinationFileOrFolder, searchDir);
+  }
+
+  private static File resolveOriginalPath(final String path) {
+
+    final File file = new File(path);
+
+    if (! file.exists()) {
+
+      throw new MissingExternalValueException(dq(path) + " does not exist.");
+    }
+    return file;
+  }
+
+  private static File resolveDestinationFileOrFolder(final String destinationPath, final File original) {
+
+    final String effectiveNewName;
+
+    if (hasPath(destinationPath)) {
+
+      effectiveNewName = getCanonicalPath(destinationPath);
+    }
+    else {
+
+      final File parent = original.getAbsoluteFile().getParentFile();
+
+      if (parent == null) {
+
+        throw new InvalidExternalValueException("Cannot determine parent folder of " + dq(getCanonicalPath(original)) + ".");
+      }
+      effectiveNewName = getCanonicalPath(new File(parent, destinationPath).getPath());
+    }
+    final File destination = new File(effectiveNewName);
+
+    if (destination.equals(original)) {
+
+      throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
+    }
+    return new File(assertValidPath(effectiveNewName, original.isDirectory()));
+  }
+
+  private static File resolveSearchDirectory(final String searchPath) {
+
+    final File searchDir = new File(assertValidPath(searchPath, true));
+
+    assertExistingFile(searchDir, true);
+
+    return searchDir;
+  }
+
+  /**
    * Asks the user for the path of the file or folder to rename / move.
    *
    * @throws UserRequestedTermination If the user responds to the question with one of the {@#link #CANCEL_CHARS}.
@@ -104,6 +178,7 @@ public final class RenameWithLinks {
                                                   "Enter the path of the file or folder to rename / move, or type "
                                                              + calcCancelCharsPrompt(CANCEL_CHARS)
                                             , EMPTY, CANCEL_CHARS);
+
     if (existingPath == null) {
 
       throw new UserRequestedTermination();
@@ -142,6 +217,7 @@ public final class RenameWithLinks {
                                       "Enter the new name for the file or folder (may include a path), or type "
                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
                                 , EMPTY, CANCEL_CHARS);
+
     if (newName == null) {
       
       throw new UserRequestedTermination();
@@ -184,6 +260,7 @@ public final class RenameWithLinks {
                                                                 + " shortcuts to update, or type "
                                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
                                                  , EMPTY, CANCEL_CHARS);
+
     if (searchPath == null) {
 
       throw new UserRequestedTermination();
@@ -220,6 +297,7 @@ public final class RenameWithLinks {
     final Collection<File> lnkFiles = FileUtils.listFiles(searchFolder, new String[] { "lnk" }, true);
     
     this.appContext.outUser();
+
     this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Checking their targets..." + NL);
 
     int numUpdated = ZERO_i;
@@ -240,14 +318,15 @@ public final class RenameWithLinks {
           
           // : The current shortcut has its target set to the original file / folder. Set it to the destination one :
           
-          this.appContext.warnUser_Chars("Updating target from :"
-                                         + NLT2 + dq(getCanonicalPath(originalShortcutTarget))  + " to "
-                                         + NLT2 + dq(getCanonicalPath(      destinationFileOrFolder)) + " ... ");
+          this.appContext.warnUser("Updating target from :"
+                                          + NLT2 + dq(getCanonicalPath(originalShortcutTarget))  + NLT + " to "
+                                          + NLT2 + dq(getCanonicalPath(      destinationFileOrFolder)) + " ... ");
+
           try {
             
             OSUtilities.updateTargetPath(lnk, getCanonicalPath(destinationFileOrFolder));
   
-            this.appContext.outUser(" done.");
+            this.appContext.outUser(NLT2 + "done.");
   
             ++numUpdated;
           }
