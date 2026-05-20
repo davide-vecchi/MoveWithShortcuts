@@ -36,6 +36,8 @@ import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
+import static dutil.string.TextUtilities.NLT;
+import static dutil.string.TextUtilities.NLT2;
 import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
@@ -226,18 +228,21 @@ public final class RenameWithLinks {
 
     for (final File lnk : lnkFiles) {
       
-      this.appContext.outUser_Chars("Processing " + getCanonicalPathAsDescr(lnk) + " ... ");
+      this.appContext.outUser_Chars("Processing " + getCanonicalPathAsDescr(lnk) + " ..." + NLT);
       
       try {
         
         sl = new ShellLink(lnk);
-
-        if (getCanonicalPath(originalFileOrFolder).equalsIgnoreCase(sl.resolveTarget())) {
+        
+        final String originalShortcutTarget = sl.resolveTarget();
+        
+        if (getCanonicalPath(originalFileOrFolder).equalsIgnoreCase(originalShortcutTarget)) {
           
           // : The current shortcut has its target set to the original file / folder. Set it to the destination one :
           
-          this.appContext.warnUser_Chars("Updating target to " + dq(getCanonicalPath(destinationFileOrFolder)) + " ... ");
-          
+          this.appContext.warnUser_Chars("Updating target from :"
+                                         + NLT2 + dq(getCanonicalPath(originalShortcutTarget))  + " to "
+                                         + NLT2 + dq(getCanonicalPath(      destinationFileOrFolder)) + " ... ");
           try {
             
             OSUtilities.updateTargetPath(lnk, getCanonicalPath(destinationFileOrFolder));
