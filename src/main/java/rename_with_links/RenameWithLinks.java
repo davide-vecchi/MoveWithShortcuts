@@ -117,7 +117,12 @@ public final class RenameWithLinks {
 
     updateShortcuts(originalFileOrFolder, destinationFileOrFolder, searchDir);
   }
-
+  
+  /**
+   * TODO @@@@@@ COMMENT
+   * @param path
+   * @return
+   */
   private static File resolveOriginalPath(final String path) {
 
     final File file = new File(path);
@@ -128,7 +133,13 @@ public final class RenameWithLinks {
     }
     return file;
   }
-
+  
+  /**
+   * TODO @@@@@@ COMMENT
+   * @param destinationPath
+   * @param original
+   * @return
+   */
   private static File resolveDestinationFileOrFolder(final String destinationPath, final File original) {
 
     final String effectiveNewName;
@@ -155,7 +166,13 @@ public final class RenameWithLinks {
     }
     return new File(assertValidPath(effectiveNewName, original.isDirectory()));
   }
-
+  
+  /**
+   * TODO @@@@@@ COMMENT
+   *
+   * @param searchPath
+   * @return
+   */
   private static File resolveSearchDirectory(final String searchPath) {
 
     final File searchDir = new File(assertValidPath(searchPath, true));
