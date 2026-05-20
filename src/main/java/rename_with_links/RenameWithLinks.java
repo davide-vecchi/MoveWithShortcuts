@@ -98,9 +98,9 @@ public final class RenameWithLinks {
    * @param destinationPath The new name/path for the file or folder (may include a path → move).
    * @param searchPath      The path to scan for {@code .lnk} shortcuts to update.
    *
-   * @throws IOException                    If the rename/move operation fails.
-   * @throws MissingExternalValueException  If the specified {@code originalPath} does not exist.
-   * @throws InvalidExternalValueException  If {@code searchPath} does not exist or is not a directory.
+   * @throws IOException                     If the rename/move operation fails.
+   * @throws MissingExternalValueException   If the specified {@code originalPath} does not exist.
+   * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.
    * @throws NonUniqueExternalValueException If the specified destination is the same as the original.
    */
   public void run(final String originalPath, final String destinationPath, final String searchPath) throws IOException {
