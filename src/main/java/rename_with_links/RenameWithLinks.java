@@ -104,8 +104,6 @@ public final class RenameWithLinks {
                                             , EMPTY, CANCEL_CHARS);
     if (existingPath == null) {
 
-      this.appContext.warnUser(NL + "Terminating as requested by the user.");
-
       throw new UserRequestedTermination();
     }
     final File originalFileOrFolder = new File(existingPath);
@@ -143,8 +141,6 @@ public final class RenameWithLinks {
                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
                                 , EMPTY, CANCEL_CHARS);
     if (newName == null) {
-
-      this.appContext.warnUser(NL + "Terminating as requested by the user.");
       
       throw new UserRequestedTermination();
     }
@@ -187,8 +183,6 @@ public final class RenameWithLinks {
                                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
                                                  , EMPTY, CANCEL_CHARS);
     if (searchPath == null) {
-
-      this.appContext.warnUser(NL + "Terminating as requested by the user.");
 
       throw new UserRequestedTermination();
     }
