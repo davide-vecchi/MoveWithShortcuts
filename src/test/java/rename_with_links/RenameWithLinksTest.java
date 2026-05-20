@@ -198,11 +198,11 @@ public class RenameWithLinksTest {
 
     final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch_").toFile();
 
-    final File newFile = new File(this.tempDir.toFile(), "renamed_file.txt");
+    final File destinationFileOrFolder = new File(this.tempDir.toFile(), "renamed_file.txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
-             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(destinationFileOrFolder))
              .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
@@ -211,9 +211,9 @@ public class RenameWithLinksTest {
 
     Assert.assertFalse(srcFile.exists(), "Source file should have been renamed");
 
-    Assert.assertTrue(newFile.exists(), "New file should exist");
+    Assert.assertTrue(destinationFileOrFolder.exists(), "New file should exist");
 
-    Assert.assertEquals(Files.readString(newFile.toPath()), "test content");
+    Assert.assertEquals(Files.readString(destinationFileOrFolder.toPath()), "test content");
   }
 
   @Test
@@ -258,11 +258,11 @@ public class RenameWithLinksTest {
 
     final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch3_").toFile();
 
-    final File newFile = new File(this.tempDir.toFile(), "newParent/sub/renamed.txt");
+    final File destinationFileOrFolder = new File(this.tempDir.toFile(), "newParent/sub/renamed.txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
-             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(destinationFileOrFolder))
              .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
@@ -271,9 +271,9 @@ public class RenameWithLinksTest {
 
     Assert.assertFalse(srcFile.exists(), "Source file should have been renamed");
 
-    Assert.assertTrue(newFile.exists(), "New file should exist");
+    Assert.assertTrue(destinationFileOrFolder.exists(), "New file should exist");
 
-    Assert.assertEquals(Files.readString(newFile.toPath()), "parent test");
+    Assert.assertEquals(Files.readString(destinationFileOrFolder.toPath()), "parent test");
   }
   
   // TODO @@@ FIXME Fails after replacing dependency com.github.vatbub/mslinks with org.jabref/mslinks. Must investigate and update this test accordingly.
@@ -292,22 +292,22 @@ public class RenameWithLinksTest {
 
     ShellLink.createLink(getCanonicalPath(srcFile)).saveTo(getCanonicalPath(lnkFile));
 
-    final File newFile = new File(this.tempDir.toFile(), "lnk_renamed" + EXTENSION_SEPARATOR + "txt");
+    final File destinationFileOrFolder = new File(this.tempDir.toFile(), "lnk_renamed" + EXTENSION_SEPARATOR + "txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
-             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(destinationFileOrFolder))
              .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
     app.run();
 
-    Assert.assertTrue(newFile.exists(), "New file should exist");
+    Assert.assertTrue(destinationFileOrFolder.exists(), "New file should exist");
 
     final ShellLink updatedLnk = new ShellLink(lnkFile);
 
-    Assert.assertEquals(updatedLnk.resolveTarget(), getCanonicalPath(newFile));
+    Assert.assertEquals(updatedLnk.resolveTarget(), getCanonicalPath(destinationFileOrFolder));
   }
 
   @Test
@@ -327,11 +327,11 @@ public class RenameWithLinksTest {
 
     ShellLink.createLink(getCanonicalPath(otherFile)).saveTo(getCanonicalPath(lnkFile));
 
-    final File newFile = new File(this.tempDir.toFile(), "other_renamed" + EXTENSION_SEPARATOR + "txt");
+    final File destinationFileOrFolder = new File(this.tempDir.toFile(), "other_renamed" + EXTENSION_SEPARATOR + "txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
-             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(destinationFileOrFolder))
              .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
@@ -360,18 +360,18 @@ public class RenameWithLinksTest {
 
     Files.writeString(corruptedLnk.toPath(), "this is not a valid shortcut");
 
-    final File newFile = new File(this.tempDir.toFile(), "corrupt_renamed" + EXTENSION_SEPARATOR + "txt");
+    final File destinationFileOrFolder = new File(this.tempDir.toFile(), "corrupt_renamed" + EXTENSION_SEPARATOR + "txt");
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
-             .thenReturn(getCanonicalPath(newFile))
+             .thenReturn(getCanonicalPath(destinationFileOrFolder))
              .thenReturn(getCanonicalPath(searchDir));
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
     app.run();
 
-    Assert.assertTrue(newFile.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
+    Assert.assertTrue(destinationFileOrFolder.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
 
     verify(this.mockUserIO).warnChars(org.mockito.ArgumentMatchers.contains("Warning"));
 
