@@ -219,12 +219,12 @@ public final class RenameWithLinks {
    * Recursively scans the search directory for {@code .lnk} files and, for each shortcut whose target matches the
    * original path, updates it to the new path.
    */
-  private void updateShortcuts(final File originalFileOrFolder, final File destinationFileOrFolder, final File searchDir) {
+  private void updateShortcuts(final File originalFileOrFolder, final File destinationFileOrFolder, final File searchFolder) {
 
-    final Collection<File> lnkFiles = FileUtils.listFiles(searchDir, new String[] { "lnk" }, true);
+    final Collection<File> lnkFiles = FileUtils.listFiles(searchFolder, new String[] { "lnk" }, true);
     
     this.appContext.outUser();
-    this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchDir)) + ". Checking their targets..." + NL);
+    this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Checking their targets..." + NL);
 
     int numUpdated = ZERO_i;
 
