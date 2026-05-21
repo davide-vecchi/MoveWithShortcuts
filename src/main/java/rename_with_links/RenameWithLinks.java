@@ -4,18 +4,15 @@
 package rename_with_links;
 
 
+import dfile.shortcut.IShortcutUpdater;
 import dutil.exception.UserRequestedTermination;
-import dutil.exception.exceptions.FailedIOOperationException;
 import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
 import dutil.exception.exceptions.NonUniqueExternalValueException;
-import dutil.system.OSUtilities;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import mslinks.ShellLink;
-import mslinks.ShellLinkException;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -31,14 +28,11 @@ import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
 import static dfile.file.FileUtilities.hasPath;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
-import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
+import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.NL;
-import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NLT;
-import static dutil.string.TextUtilities.NLT2;
-import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
@@ -72,11 +66,12 @@ public final class RenameWithLinks {
   }
   
   /**
-   * 
+   * @param updater The {@link IShortcutUpdater object} to {@link IShortcutUpdater#updateShortcut update} a shortcut.
+   *
    * @throws UserRequestedTermination
    * @throws IOException
    */
-  public void run() throws UserRequestedTermination, IOException {
+  public void run(@NotNull IShortcutUpdater updater) throws UserRequestedTermination, IOException {
     
     assertWindowsOS();
 
@@ -88,14 +83,19 @@ public final class RenameWithLinks {
     
     renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
     
-    updateShortcuts(originalFileOrFolder, destinationFileOrFolder, searchDir);
+    updateShortcuts(updater, originalFileOrFolder, destinationFileOrFolder, searchDir);
   }
 
   /**
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
-   * @param originalPath    The path of the file or folder to rename / move.
-   * @param destinationPath The new name/path for the file or folder (may include a path → move).
+   * @param updater         The {@link IShortcutUpdater object} to {@link IShortcutUpdater#updateShortcut update} a
+   *                        shortcut.<br>
+   *
+   * @param originalPath    The path of the file or folder to rename / move.<br>
+   *
+   * @param destinationPath The new name/path for the file or folder (may include a path → move).<br>
+   *
    * @param searchPath      The path to scan for {@code .lnk} shortcuts to update.
    *
    * @throws IOException                     If the rename/move operation fails.
@@ -103,10 +103,14 @@ public final class RenameWithLinks {
    * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.
    * @throws NonUniqueExternalValueException If the specified destination is the same as the original.
    */
-  public void run(final String originalPath, final String destinationPath, final String searchPath) throws IOException {
-
+  public void run(@NotNull IShortcutUpdater updater, @NotNull String originalPath, @NotNull String destinationPath
+                                                   , @NotNull String searchPath) throws IOException {
     assertWindowsOS();
-
+    
+    assertNonNull(updater, "IShortcutUpdater updater");
+    
+    assertNoneBlankNorTrimmable(originalPath, destinationPath, searchPath);
+    
     final File originalFileOrFolder = resolveOriginalPath(originalPath);
 
     final File destinationFileOrFolder = resolveDestinationFileOrFolder(destinationPath, originalFileOrFolder);
@@ -115,7 +119,7 @@ public final class RenameWithLinks {
 
     renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
 
-    updateShortcuts(originalFileOrFolder, destinationFileOrFolder, searchDir);
+    updateShortcuts(updater, originalFileOrFolder, destinationFileOrFolder, searchDir);
   }
   
   /**
@@ -158,13 +162,13 @@ public final class RenameWithLinks {
       }
       effectiveNewName = getCanonicalPath(new File(parent, destinationPath).getPath());
     }
-    final File destination = new File(effectiveNewName);
+    final File destination =  new File(effectiveNewName);
 
     if (destination.equals(original)) {
 
       throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
     }
-    return new File(assertValidPath(effectiveNewName, original.isDirectory()));
+    return destination;
   }
   
   /**
@@ -175,7 +179,7 @@ public final class RenameWithLinks {
    */
   private static File resolveSearchDirectory(final String searchPath) {
 
-    final File searchDir = new File(assertValidPath(searchPath, true));
+    final File searchDir = assertExistingFile(new File(assertValidPath(searchPath, true)), true);
 
     assertExistingFile(searchDir, true);
 
@@ -309,70 +313,27 @@ public final class RenameWithLinks {
    * Recursively scans the search directory for {@code .lnk} files and, for each shortcut whose target matches the
    * original path, updates it to the new path.
    */
-  private void updateShortcuts(File originalFileOrFolder, File destinationFileOrFolder, File searchFolder) {
+  private void updateShortcuts(@NotNull IShortcutUpdater updater, File originalFileOrFolder
+                                                                , File destinationFileOrFolder
+                                                                , File searchFolder) {
 
-    final Collection<File> lnkFiles = FileUtils.listFiles(searchFolder, new String[] { "lnk" }, true);
-    
+    final Collection<File> shortcuts = FileUtils.listFiles(searchFolder, new String[] { "lnk" }
+                                                        , true);
     this.appContext.outUser();
 
-    this.appContext.outUser("Found " + lnkFiles.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Checking their targets..." + NL);
-
+    this.appContext.outUser("Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Checking their targets..." + NL);
+    
     int numUpdated = ZERO_i;
 
-    ShellLink sl = null;
-
-    for (final File lnk : lnkFiles) {
+    for (final File shortcut : shortcuts) {
       
-      this.appContext.outUser_Chars("Processing " + getCanonicalPathAsDescr(lnk) + " ..." + NLT);
+      this.appContext.outUser_Chars("Processing " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
       
-      try {
-        
-        sl = new ShellLink(lnk);
-        
-        final String originalShortcutTarget = sl.resolveTarget();
-        
-        if (getCanonicalPath(originalFileOrFolder).equalsIgnoreCase(originalShortcutTarget)) {
-          
-          // : The current shortcut has its target set to the original file / folder. Set it to the destination one :
-          
-          this.appContext.warnUser("Updating target from :"
-                                          + NLT2 + dq(getCanonicalPath(originalShortcutTarget))  + NLT + " to "
-                                          + NLT2 + dq(getCanonicalPath(      destinationFileOrFolder)) + " ... ");
-
-          try {
-            
-            OSUtilities.updateTargetPath(lnk, getCanonicalPath(destinationFileOrFolder));
-  
-            this.appContext.outUser(NLT2 + "done.");
-  
-            ++numUpdated;
-          }
-          catch (FailedIOOperationException e) {
-            
-            // : The update was attempted and it failed.
-            
-            this.appContext.errUser("FAILED : " + e.getClass().getSimpleName() + " : " + e.getLocalizedMessage());
-            
-            this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
-          }
-        }
-        else {
-          
-          // : The current shortcut does not have its target set to the original file / folder, so no update is needed :
-          
-          this.appContext.outUser("No update needed.");
-        }
-      }
-      catch (IOException | ShellLinkException e) {
-        
-        this.appContext.warnUser(NL + "Warning: could not read shortcut " + dq(getCanonicalPath(lnk)) + ": " + e.getMessage());
-
-        this.appContext.warnUser(TAB + "Shortcut : " + sl);
-
-        this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
-      }
+      updater.updateShortcut(shortcut, originalFileOrFolder, destinationFileOrFolder
+                  , this.appContext::outUser,                 this.appContext::warnUser
+                 , this.appContext::errUser,                             this.appContext::outUserLog);
     }
-    this.appContext.outUser(NL2 + "Finished updating " + numUpdated + " shortcuts out of " + lnkFiles.size() + " .");
+    this.appContext.outUser(NL + "Finished updating " + numUpdated + " shortcuts out of " + shortcuts.size() + " .");
   }
 
 }

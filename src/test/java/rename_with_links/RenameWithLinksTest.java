@@ -3,6 +3,8 @@
  */
 package rename_with_links;
 
+import dfile.shortcut.IShortcutUpdater;
+import dfile.shortcut.WinShortcutUpdater_mslinks;
 import dlog.log.Log;
 import duser_input_output.AUserInputOutput;
 import dutil.exception.UserRequestedTermination;
@@ -40,6 +42,7 @@ import static org.testng.Assert.assertNotNull;
 @Listeners(MockitoTestNGListener.class)
 public class RenameWithLinksTest {
 
+  
   @Mock
   private AUserInputOutput mockUserIO;
 
@@ -55,21 +58,28 @@ public class RenameWithLinksTest {
   private AppContext mockAppContext;
 
   private Path tempDir;
+  
+  private IShortcutUpdater shortcutUpdater;
+  
 
   @BeforeClass
-  void createTempDir() throws IOException {
+  void beforeClass() throws IOException {
 
     this.tempDir = Files.createTempDirectory("RenameWithLinksTest_");
+    
+    this.shortcutUpdater = WinShortcutUpdater_mslinks.newInstance();
   }
 
   @AfterClass
-  void deleteTempDir() throws IOException {
+  void afterClass() throws IOException {
 
     FileUtils.deleteDirectory(this.tempDir.toFile());
+    
+    this.shortcutUpdater = null;
   }
 
   @BeforeMethod
-  void setUp() {
+  void beforeMethod() {
 
     lenient().when(this.mockUserIO.outChars(anyString())).thenAnswer(i -> i.getArgument(0));
 
@@ -105,7 +115,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(UserRequestedTermination.class, app::run);
+    Assert.expectThrows(UserRequestedTermination.class, () -> app.run(this.shortcutUpdater));
   }
 
   @Test
@@ -123,7 +133,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(UserRequestedTermination.class, app::run);
+    Assert.expectThrows(UserRequestedTermination.class, () -> app.run(this.shortcutUpdater));
   }
 
   @Test
@@ -143,7 +153,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(UserRequestedTermination.class, app::run);
+    Assert.expectThrows(UserRequestedTermination.class, () -> app.run(this.shortcutUpdater));
   }
 
   // ====== Invalid input scenarios ======
@@ -160,7 +170,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(MissingExternalValueException.class, app::run);
+    Assert.expectThrows(MissingExternalValueException.class, () -> app.run(this.shortcutUpdater));
   }
 
   @Test
@@ -182,7 +192,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(InvalidPathException.class, app::run);
+    Assert.expectThrows(InvalidPathException.class, () -> app.run(this.shortcutUpdater));
   }
 
   // ====== Integration: file system operations ======
@@ -207,7 +217,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run();
+    app.run(this.shortcutUpdater);
 
     Assert.assertFalse(srcFile.exists(), "Source file should have been renamed");
 
@@ -236,7 +246,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run();
+    app.run(this.shortcutUpdater);
 
     Assert.assertFalse(srcFolder.exists(), "Source folder should have been renamed");
 
@@ -267,7 +277,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run();
+    app.run(this.shortcutUpdater);
 
     Assert.assertFalse(srcFile.exists(), "Source file should have been renamed");
 
@@ -301,7 +311,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run();
+    app.run(this.shortcutUpdater);
 
     Assert.assertTrue(destinationFileOrFolder.exists(), "New file should exist");
 
@@ -336,7 +346,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run();
+    app.run(this.shortcutUpdater);
 
     // The .lnk should still point to the other file
 
@@ -369,7 +379,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run();
+    app.run(this.shortcutUpdater);
 
     Assert.assertTrue(destinationFileOrFolder.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
 
