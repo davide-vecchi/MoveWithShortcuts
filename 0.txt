@@ -1,3 +1,5 @@
+Remove 605 and update 109 adding "and from Apache Commons" after "DJavaLibraries group" ?
+
 dutil.system.OSUtilities#readWinShortcut
 
 dutil.system.OSUtilities#updateTargetPath
