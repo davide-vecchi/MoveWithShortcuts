@@ -66,7 +66,7 @@ public final class RenameWithLinks {
   }
   
   /**
-   * @param updater The {@link IShortcutUpdater object} to {@link IShortcutUpdater#updateShortcutIfMatch update} a shortcut.
+   * @param updater The {@link IShortcutUpdater object} to {@link IShortcutUpdater#updateTargetIfMatch update} a shortcut.
    *
    * @throws UserRequestedTermination
    * @throws IOException
@@ -89,7 +89,7 @@ public final class RenameWithLinks {
   /**
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
-   * @param updater         The {@link IShortcutUpdater object} to {@link IShortcutUpdater#updateShortcutIfMatch update} a
+   * @param updater         The {@link IShortcutUpdater object} to {@link IShortcutUpdater#updateTargetIfMatch update} a
    *                        shortcut.<br>
    *
    * @param originalPath    The path of the file or folder to rename / move.<br>
@@ -329,7 +329,7 @@ public final class RenameWithLinks {
       
       this.appContext.outUser_Chars("Processing " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
       
-      updater.updateShortcutIfMatch(shortcut, originalFileOrFolder, destinationFileOrFolder
+      updater.updateTargetIfMatch(shortcut, originalFileOrFolder, destinationFileOrFolder
                          , this.appContext::outUser,                  this.appContext::warnUser
                          ,this.appContext::errUser,                             this.appContext::outUserLog);
     }
