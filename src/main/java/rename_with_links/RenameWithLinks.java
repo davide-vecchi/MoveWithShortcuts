@@ -320,7 +320,7 @@ public final class RenameWithLinks {
     final Collection<File> shortcuts = FileUtils.listFiles(searchFolder, new String[] { "lnk" }
                                                         , true);
     this.appContext.outUser();
-
+    
     this.appContext.outUser("Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Checking their targets..." + NL);
     
     int numUpdated = ZERO_i;
