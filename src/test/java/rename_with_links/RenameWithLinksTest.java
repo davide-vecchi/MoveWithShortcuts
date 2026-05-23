@@ -3,7 +3,7 @@
  */
 package rename_with_links;
 
-import dfile.shortcut.IShortcutUpdater;
+import dfile.shortcut.IShortcutTargetUpdater;
 import dfile.shortcut.WinShortcutUpdater_mslinks;
 import dlog.log.Log;
 import duser_input_output.AUserInputOutput;
@@ -59,7 +59,7 @@ public class RenameWithLinksTest {
 
   private Path tempDir;
   
-  private IShortcutUpdater shortcutUpdater;
+  private IShortcutTargetUpdater shortcutUpdater;
   
 
   @BeforeClass

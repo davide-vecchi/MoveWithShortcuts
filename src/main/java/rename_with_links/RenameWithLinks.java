@@ -4,7 +4,7 @@
 package rename_with_links;
 
 
-import dfile.shortcut.IShortcutUpdater;
+import dfile.shortcut.IShortcutTargetUpdater;
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
@@ -66,12 +66,12 @@ public final class RenameWithLinks {
   }
   
   /**
-   * @param updater The {@link IShortcutUpdater object} to {@link IShortcutUpdater#updateTargetIfMatch update} a shortcut.
+   * @param updater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch update} a shortcut.
    *
    * @throws UserRequestedTermination
    * @throws IOException
    */
-  public void run(@NotNull IShortcutUpdater updater) throws UserRequestedTermination, IOException {
+  public void run(@NotNull IShortcutTargetUpdater updater) throws UserRequestedTermination, IOException {
     
     assertWindowsOS();
 
@@ -89,8 +89,8 @@ public final class RenameWithLinks {
   /**
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
-   * @param updater         The {@link IShortcutUpdater object} to {@link IShortcutUpdater#updateTargetIfMatch update} a
-   *                        shortcut.<br>
+   * @param updater         The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
+   *                        update} the target of a shortcut.<br>
    *
    * @param originalPath    The path of the file or folder to rename / move.<br>
    *
@@ -103,11 +103,11 @@ public final class RenameWithLinks {
    * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.
    * @throws NonUniqueExternalValueException If the specified destination is the same as the original.
    */
-  public void run(@NotNull IShortcutUpdater updater, @NotNull String originalPath, @NotNull String destinationPath
-                                                   , @NotNull String searchPath) throws IOException {
+  public void run(@NotNull IShortcutTargetUpdater updater, @NotNull String originalPath, @NotNull String destinationPath
+                                                         , @NotNull String searchPath) throws IOException {
     assertWindowsOS();
     
-    assertNonNull(updater, "IShortcutUpdater updater");
+    assertNonNull(updater, IShortcutTargetUpdater.class.getSimpleName() + " updater");
     
     assertNoneBlankNorTrimmable(originalPath, destinationPath, searchPath);
     
@@ -313,7 +313,7 @@ public final class RenameWithLinks {
    * Recursively scans the search directory for {@code .lnk} files and, for each shortcut whose target matches the
    * original path, updates it to the new path.
    */
-  private void updateShortcuts(@NotNull IShortcutUpdater updater, File originalFileOrFolder
+  private void updateShortcuts(@NotNull IShortcutTargetUpdater updater, File originalFileOrFolder
                                                                 , File destinationFileOrFolder
                                                                 , File searchFolder) {
 

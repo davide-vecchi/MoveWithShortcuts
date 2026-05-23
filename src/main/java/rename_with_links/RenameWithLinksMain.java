@@ -4,7 +4,7 @@
 package rename_with_links;
 
 
-import dfile.shortcut.IShortcutUpdater;
+import dfile.shortcut.IShortcutTargetUpdater;
 import dfile.shortcut.WinShortcutUpdater_mslinks;
 import dlog.log.Log;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
@@ -95,7 +95,7 @@ public class RenameWithLinksMain {
           
           // Create the desired type of updater instance :
           
-          final IShortcutUpdater updater = WinShortcutUpdater_mslinks.newInstance();
+          final IShortcutTargetUpdater updater = WinShortcutUpdater_mslinks.newInstance();
           
           // Perform the renaming operation using the chosen updater :
           
