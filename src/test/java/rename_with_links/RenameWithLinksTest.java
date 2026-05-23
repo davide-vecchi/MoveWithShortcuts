@@ -383,7 +383,7 @@ public class RenameWithLinksTest {
 
     Assert.assertTrue(destinationFileOrFolder.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
 
-    verify(this.mockUserIO).warnChars(org.mockito.ArgumentMatchers.contains("Warning"));
+    verify(this.mockUserIO).warnChars(org.mockito.ArgumentMatchers.contains("Could not read"));
 
     verify(this.mockUserLog).log(org.mockito.ArgumentMatchers.contains("Exception"));
   }
