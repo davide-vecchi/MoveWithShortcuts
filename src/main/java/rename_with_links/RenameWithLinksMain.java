@@ -5,7 +5,7 @@ package rename_with_links;
 
 
 import dfile.shortcut.IShortcutTargetUpdater;
-import dfile.shortcut.WinShortcutUpdater_mslinks;
+import dfile.shortcut.WinShortcutUpdater_PS_COM_WScript_Shell01;
 import dlog.log.Log;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
@@ -95,17 +95,18 @@ public class RenameWithLinksMain {
           
           // Create the desired type of updater instance :
           
-          final IShortcutTargetUpdater updater = WinShortcutUpdater_mslinks.newInstance();
+          final IShortcutTargetUpdater shortcutTargetUpdater = WinShortcutUpdater_PS_COM_WScript_Shell01.newInstance(
+                                                                              false, ac.devLog);
           
           // Perform the renaming operation using the chosen updater :
           
           if (args.length == ZERO_i) {
   
-            app.run(updater);
+            app.run(shortcutTargetUpdater);
           }
           else {
             
-            app.run(updater, args[ZERO_i], args[ONE_i], args[TWO_i]);
+            app.run(shortcutTargetUpdater, args[ZERO_i], args[ONE_i], args[TWO_i]);
           }
         }
         catch (UserRequestedTermination t) {

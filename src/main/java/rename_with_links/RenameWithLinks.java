@@ -66,12 +66,13 @@ public final class RenameWithLinks {
   }
   
   /**
-   * @param updater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch update} a shortcut.
+   * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
+   *                              update} the target of a shortcut.
    *
    * @throws UserRequestedTermination
    * @throws IOException
    */
-  public void run(@NotNull IShortcutTargetUpdater updater) throws UserRequestedTermination, IOException {
+  public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws UserRequestedTermination, IOException {
     
     assertWindowsOS();
 
@@ -83,31 +84,32 @@ public final class RenameWithLinks {
     
     renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
     
-    updateShortcuts(updater, originalFileOrFolder, destinationFileOrFolder, searchDir);
+    updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder, searchDir);
   }
 
   /**
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
-   * @param updater         The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
-   *                        update} the target of a shortcut.<br>
+   * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
+   *                              update} the target of a shortcut.<br>
    *
-   * @param originalPath    The path of the file or folder to rename / move.<br>
+   * @param originalPath          The path of the file or folder to rename / move.<br>
    *
-   * @param destinationPath The new name/path for the file or folder (may include a path → move).<br>
+   * @param destinationPath       The new name/path for the file or folder (may include a path → move).<br>
    *
-   * @param searchPath      The path to scan for {@code .lnk} shortcuts to update.
+   * @param searchPath            The path to scan for {@code .lnk} shortcuts to update.
    *
    * @throws IOException                     If the rename/move operation fails.
    * @throws MissingExternalValueException   If the specified {@code originalPath} does not exist.
    * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.
    * @throws NonUniqueExternalValueException If the specified destination is the same as the original.
    */
-  public void run(@NotNull IShortcutTargetUpdater updater, @NotNull String originalPath, @NotNull String destinationPath
-                                                         , @NotNull String searchPath) throws IOException {
+  public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater, @NotNull String originalPath
+                , @NotNull String                 destinationPath,       @NotNull String searchPath) throws IOException {
+    
     assertWindowsOS();
     
-    assertNonNull(updater, IShortcutTargetUpdater.class.getSimpleName() + " updater");
+    assertNonNull(shortcutTargetUpdater, shortcutTargetUpdater.getClass().getSimpleName() + " updater");
     
     assertNoneBlankNorTrimmable(originalPath, destinationPath, searchPath);
     
@@ -119,7 +121,7 @@ public final class RenameWithLinks {
 
     renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
 
-    updateShortcuts(updater, originalFileOrFolder, destinationFileOrFolder, searchDir);
+    updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder, searchDir);
   }
   
   /**
@@ -313,9 +315,8 @@ public final class RenameWithLinks {
    * Recursively scans the search directory for {@code .lnk} files and, for each shortcut whose target matches the
    * original path, updates it to the new path.
    */
-  private void updateShortcuts(@NotNull IShortcutTargetUpdater updater, File originalFileOrFolder
-                                                                      , File destinationFileOrFolder
-                                                                      , File searchFolder) {
+  private void updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater,   File originalFileOrFolder
+                             , @NotNull File                   destinationFileOrFolder, File searchFolder) {
 
     final Collection<File> shortcuts = FileUtils.listFiles(searchFolder, new String[] { "lnk" }
                                                         , true);
@@ -329,9 +330,10 @@ public final class RenameWithLinks {
       
       this.appContext.outUser_Chars("Processing " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
       
-      updater.updateTargetIfMatch(shortcut, originalFileOrFolder, destinationFileOrFolder
-                       , this.appContext::outUser,                  this.appContext::warnUser
-                       ,this.appContext::errUser);
+      shortcutTargetUpdater.updateTargetIfMatch(shortcut
+                                   , originalFileOrFolder,     destinationFileOrFolder
+                                     , this.appContext::outUser,this.appContext::warnUser
+                                     ,this.appContext::errUser);
     }
     this.appContext.outUser(NL + "Finished updating " + numUpdated + " shortcuts out of " + shortcuts.size() + " .");
   }
