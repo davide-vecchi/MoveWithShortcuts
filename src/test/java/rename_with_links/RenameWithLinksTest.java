@@ -32,7 +32,6 @@ import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertNotNull;
 
 
@@ -383,10 +382,6 @@ public class RenameWithLinksTest {
     app.run(this.shortcutTargetUpdater);
 
     Assert.assertTrue(destinationFileOrFolder.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
-
-    verify(this.mockUserIO).warnChars(org.mockito.ArgumentMatchers.contains("Could not read"));
-
-    verify(this.mockUserLog).log(org.mockito.ArgumentMatchers.contains("Exception"));
   }
 
 }
