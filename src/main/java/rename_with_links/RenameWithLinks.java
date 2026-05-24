@@ -314,8 +314,8 @@ public final class RenameWithLinks {
    * original path, updates it to the new path.
    */
   private void updateShortcuts(@NotNull IShortcutTargetUpdater updater, File originalFileOrFolder
-                                                                , File destinationFileOrFolder
-                                                                , File searchFolder) {
+                                                                      , File destinationFileOrFolder
+                                                                      , File searchFolder) {
 
     final Collection<File> shortcuts = FileUtils.listFiles(searchFolder, new String[] { "lnk" }
                                                         , true);
