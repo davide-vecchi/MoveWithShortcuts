@@ -339,12 +339,15 @@ public final class RenameWithLinks {
       try {
         
         final String notUpdated = shortcutTargetUpdater.updateTargetIfMatch(shortcut
-                                     , originalFileOrFolder,     destinationFileOrFolder
-                                       , this.appContext::outUser,this.appContext::warnUser
+                                     , originalFileOrFolder, destinationFileOrFolder
+                                       , null,                this.appContext::warnUser
                                        ,this.appContext::errUser);
         if (notUpdated == null) {
         
           ++numUpdated;
+          
+          this.appContext.outUser("Target updated from " + dq(getCanonicalPath(originalFileOrFolder))
+                                                        + " to " + dq(getCanonicalPath(destinationFileOrFolder)) + ".");
         }
         else {
         
