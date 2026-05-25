@@ -330,10 +330,18 @@ public final class RenameWithLinks {
       
       this.appContext.outUser_Chars("Processing " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
       
-      shortcutTargetUpdater.updateTargetIfMatch(shortcut
-                                   , originalFileOrFolder,     destinationFileOrFolder
-                                     , this.appContext::outUser,this.appContext::warnUser
-                                     ,this.appContext::errUser);
+      try {
+        
+        shortcutTargetUpdater.updateTargetIfMatch(shortcut
+                                     , originalFileOrFolder,     destinationFileOrFolder
+                                       , this.appContext::outUser,this.appContext::warnUser
+                                       ,this.appContext::errUser);
+        ++numUpdated;
+      }
+      catch (InvalidExternalValueException e) {
+        
+        this.appContext.warnUser("Skipping. Reason : " + e.getLocalizedMessage());
+      }
     }
     this.appContext.outUser(NL + "Finished updating " + numUpdated + " shortcuts out of " + shortcuts.size() + " .");
   }
