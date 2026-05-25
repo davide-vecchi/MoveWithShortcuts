@@ -33,6 +33,7 @@ import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NLT;
+import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
@@ -327,25 +328,32 @@ public final class RenameWithLinks {
                                                , true);
     this.appContext.outUser();
     
-    this.appContext.outUser("Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Checking their targets..." + NL);
+    this.appContext.outUser("Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Processing them ...");
     
     int numUpdated = ZERO_i;
 
     for (final File shortcut : shortcuts) {
       
-      this.appContext.outUser_Chars("Processing " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
+      this.appContext.outUser_Chars(NL + "Processing " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
       
       try {
         
-        shortcutTargetUpdater.updateTargetIfMatch(shortcut
+        final String notUpdated = shortcutTargetUpdater.updateTargetIfMatch(shortcut
                                      , originalFileOrFolder,     destinationFileOrFolder
                                        , this.appContext::outUser,this.appContext::warnUser
                                        ,this.appContext::errUser);
-        ++numUpdated;
+        if (notUpdated == null) {
+        
+          ++numUpdated;
+        }
+        else {
+        
+          this.appContext.outUser(notUpdated);
+        }
       }
       catch (InvalidExternalValueException e) {
         
-        this.appContext.warnUser("Skipping. Reason : " + e.getLocalizedMessage());
+        this.appContext.errUser(TAB + "Skipping. Reason : " + e.getLocalizedMessage());
       }
     }
     this.appContext.outUser(NL + "Finished updating " + numUpdated + " shortcuts out of " + shortcuts.size() + " .");
