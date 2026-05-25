@@ -36,7 +36,9 @@ import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
+import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.removeStart;
 
 
 // @formatter:off
@@ -318,8 +320,11 @@ public final class RenameWithLinks {
   private void updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater,   File originalFileOrFolder
                              , @NotNull File                   destinationFileOrFolder, File searchFolder) {
 
-    final Collection<File> shortcuts = FileUtils.listFiles(searchFolder, new String[] { "lnk" }
-                                                        , true);
+    final Collection<File> shortcuts = FileUtils.listFiles(
+                                                 searchFolder
+                                              , new String[] { removeStart(WIN_SHORTCUT_EXTENSION
+                                                                                  , EXTENSION_SEPARATOR) }
+                                               , true);
     this.appContext.outUser();
     
     this.appContext.outUser("Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Checking their targets..." + NL);
