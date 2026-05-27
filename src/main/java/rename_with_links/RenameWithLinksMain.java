@@ -12,7 +12,6 @@ import dutil.exception.UserRequestedTermination;
 import dutil.io.ConditionallyCloseablePrintStream;
 import jakarta.validation.constraints.NotNull;
 
-import java.io.IOException;
 import java.util.Date;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
@@ -113,7 +112,7 @@ public class RenameWithLinksMain {
         
           ac.warnUser(NL + (t.getMessage() != null ? t.getMessage() : "Terminated on user request."));
         }
-        catch (IOException e) {
+        catch (Exception e) {
         
           ac.errUser(NL2 + "Terminated due to an error : " + e.getClass().getSimpleName() + " :" + NL2T + e.getLocalizedMessage().trim() + NL2);
           
