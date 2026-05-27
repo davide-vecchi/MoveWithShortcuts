@@ -1,3 +1,22 @@
+
+With the new code the exception doesn't occur but the target is read as complete garbage. Output :
+
+....
+Processing File "2022-11-23 4000 Ôé¼ quotazione e 500 Ôé¼ rata + A.lnk" in folder "H:\Users\Davide\Davide\Sviluppo\LINGUAGGI\Java\Dev areas\OS\Filesystem links\RenameWithLinks\PROVE\02\Shortcut that fails\" ...
+        No update needed because the target is "Ò®êÕò£µò│þì▓õæ£þÖíµæ®Õ▒ÑµàäµÑÂµòñÕì£µÑÂþò¼þü░Õ▒»ÕëÉõØÅÕæàõÑöõà£µæ«µò▓Õ▒íþÖôþ®®µò║µà▓ÒêáÒä░Õ░Áµ¢ôµÑúþæÑÕ▓àþòéµ¢▓þëúþ®íµà®ÕÖ£þëÑµà│µò¡þæ«Õ▒®ÒÇ▓Òê▓Òä¡Ô┤▒Òî▓ÒÉáÒÇ░ÔÇ░ÔÇ┐þò▒þæ»þ®íµ¢®µò«µöáÒöáÒÇ░Ò╝áþêáþæíÔüíÔÇ½ÓÁü´┐¢", not "H:\Users\Davide\Davide\Sviluppo\LINGUAGGI\Java\Dev areas\OS\Filesystem links\RenameWithLinks\PROVE\02\FileToRename.txt".
+....
+
+I don't think you are on top of it with your understanding. Explain me why earlier you had said :
+
+"
+Diagnosis
+The error is not in PowerShell output encoding. The error occurs before PowerShell runs, in your Java code's getCanonicalPath() call.
+"
+
+but you gave me a fix that acts only after the PS process has been started (that 'try( final BufferedReader reader ...' block that you made me replace with your new code was executed *after* the PS process was started (otherwise it could not reference the variable 'p' which IS THE PROCESS)).
+
+
+
 ----------------
 Answer to 1 :
 
