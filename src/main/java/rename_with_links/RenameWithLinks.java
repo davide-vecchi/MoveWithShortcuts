@@ -28,6 +28,7 @@ import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
 import static dfile.file.FileUtilities.hasPath;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
+import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
@@ -355,6 +356,8 @@ public final class RenameWithLinks {
         }
       }
       catch (InvalidExternalValueException e) {
+        
+        this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
         
         this.appContext.errUser(TAB + "Skipping. Reason : " + e.getLocalizedMessage());
       }
