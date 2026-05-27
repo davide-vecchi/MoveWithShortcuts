@@ -15,6 +15,6 @@ ECHO.
 PAUSE
 
 java -jar C:\BuildOrchestrator\BuildOrchestrator.jar ^
-          "H:\Users\Davide\Davide\Sviluppo\REPOS\Accessori\RenameWithLinks\Build List RenameWithLinks ONLY.TXT"
+          "H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\Build List RenameWithLinks ONLY.TXT"
 
 PAUSE

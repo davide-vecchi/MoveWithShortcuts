@@ -1,6 +1,6 @@
 
 # RenameWithLinks artifact Build List.
-# (REPOS subfolder : "Accessori\RenameWithLinks\").
+# (REPOS subfolder : "FileTools\RenameWithLinks\").
 
 
 [Initialization]
@@ -36,6 +36,6 @@
 
 # Build the RenameWithLinks module, as an executable jar, and deploy it :
 
-H:\Users\Davide\Davide\Sviluppo\REPOS\Accessori\RenameWithLinks
+H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks
 mvn clean install
 C:\RenameWithLinks
