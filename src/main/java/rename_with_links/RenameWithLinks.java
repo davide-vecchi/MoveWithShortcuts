@@ -35,6 +35,7 @@ import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.NL;
+import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
@@ -337,7 +338,7 @@ public final class RenameWithLinks {
 
     for (final File shortcut : shortcuts) {
       
-      this.appContext.outUser_Chars(NL + "Processing " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
+      this.appContext.outUser_Chars(NL2 + "Processing " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
       
       try {
         
@@ -364,7 +365,7 @@ public final class RenameWithLinks {
         this.appContext.errUser(TAB + "Skipping. Reason : " + e.getLocalizedMessage());
       }
     }
-    this.appContext.outUser(NL + "Finished updating " + numUpdated + " shortcuts out of " + shortcuts.size() + " .");
+    this.appContext.outUser(NL2 + "Finished updating " + numUpdated + " shortcuts out of " + shortcuts.size() + " .");
   }
 
 }
