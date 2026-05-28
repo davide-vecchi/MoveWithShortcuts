@@ -328,7 +328,7 @@ public final class RenameWithLinks {
     final Collection<File> shortcuts = FileUtilities.listFiles(
                                                    searchFolder.toPath()
                                                   , new String[] { removeStart(WIN_SHORTCUT_EXTENSION
-                                                                                      , EXTENSION_SEPARATOR), "txt" }
+                                                                                      , EXTENSION_SEPARATOR) }
                                                           , true);
     this.appContext.outUser();
     
