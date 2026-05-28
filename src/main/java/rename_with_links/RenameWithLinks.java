@@ -4,6 +4,7 @@
 package rename_with_links;
 
 
+import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
@@ -322,11 +323,11 @@ public final class RenameWithLinks {
   private void updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater,   File originalFileOrFolder
                              , @NotNull File                   destinationFileOrFolder, File searchFolder) {
 
-    final Collection<File> shortcuts = FileUtils.listFiles(
-                                                 searchFolder
-                                              , new String[] { removeStart(WIN_SHORTCUT_EXTENSION
-                                                                                  , EXTENSION_SEPARATOR) }
-                                               , true);
+    final Collection<File> shortcuts = FileUtilities.listFiles(
+                                                   searchFolder.toPath()
+                                                  , new String[] { removeStart(WIN_SHORTCUT_EXTENSION
+                                                                                      , EXTENSION_SEPARATOR), "txt" }
+                                                          , true);
     this.appContext.outUser();
     
     this.appContext.outUser("Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Processing them ...");
