@@ -15,8 +15,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
+import static dfile.file.FileUtilities.getCurrentFolder;
 import static dlog.log.Log.writeLogsHeaders;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
+import static dutil.list.text.TextListUtilities.listToString;
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.TWO_i;
 import static dutil.number.NumberUtilities.ZERO_i;
@@ -26,6 +28,8 @@ import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.fusesource.jansi.Ansi.Color.BLACK;
 import static org.fusesource.jansi.Ansi.Color.CYAN;
 import static org.fusesource.jansi.Ansi.Color.RED;
@@ -88,7 +92,7 @@ public class RenameWithLinksMain {
         
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
-          showStartupMessages(ac);
+          showStartupMessages(ac, args);
           
           final RenameWithLinks app = RenameWithLinks.newInstance(ac);
           
@@ -133,14 +137,23 @@ public class RenameWithLinksMain {
   /**
    * Shows the startup messages.
    *
-   * @param ac The application context.
+   * @param ac   The application context.
+   * @param args
    */
-  private static void showStartupMessages(@NotNull AppContext ac) {
+  private static void showStartupMessages(@NotNull AppContext ac, String[] args) {
   
     ac.outUser();
-    
     ac.outUser("Starting " + dq(APP_DESCR) + " on " + new Date() + NL);
     
+    if (args.length > ZERO_i) {
+      
+      ac.outUser();
+      ac.outUser(listToString(asList(args), "Program arguments", EMPTY, EMPTY, NL));
+    }
+    ac.outUser();
+    ac.outUser("Current folder : " + dq(getCurrentFolder()) + ".");
+    
+    ac.outUser();
     ac.outUser("Screen log: " + getCanonicalPath(ac.screenLog.logFile));
     
     ac.outUser("  User log: " + getCanonicalPath(ac.userLog.logFile));
