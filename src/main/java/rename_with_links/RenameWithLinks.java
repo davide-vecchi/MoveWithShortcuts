@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.StandardCopyOption;
@@ -356,7 +357,7 @@ public final class RenameWithLinks {
           this.appContext.outUser(notUpdated);
         }
       }
-      catch (InvalidExternalValueException e) {
+      catch (InvalidExternalValueException | UncheckedIOException e) {
         
         this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
         
