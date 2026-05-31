@@ -83,6 +83,8 @@ public final class RenameWithLinks {
    */
   public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws UserRequestedTermination, IOException {
     
+    this.appContext.outUser(NL + OSUtilities.getDescription() + NL2);
+    
     assertWindowsOS();
 
     final File originalFileOrFolder = askOriginalPath();
@@ -337,17 +339,20 @@ public final class RenameWithLinks {
    *
    * @return Whether the user has interrupted the process.
    */
-  private void updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater,   File originalFileOrFolder
-                             , @NotNull File                   destinationFileOrFolder, File searchFolder) {
-
-    final Collection<File> shortcuts = FileUtilities.listFiles(
-                                                   searchFolder.toPath()
+  private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater,  File oldTarget
+                                , @NotNull File                   newTarget,              File searchFolder) {
+    
+    this.appContext.outUser(NL + "Retrieving shortcuts to check for needed target update, under folder " + dqStr(searchFolder) + " ...");
+    
+    final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
+    
+    final List<File> shortcuts = FileUtilities.listFiles(
+                                                   effectiveSearchFolder
                                                   , new String[] { removeStart(WIN_SHORTCUT_EXTENSION
                                                                                       , EXTENSION_SEPARATOR) }
                                                           , true);
-    this.appContext.outUser();
     
-    this.appContext.outUser("Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(searchFolder)) + ". Processing them ...");
+    this.appContext.outUser(NL + "Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ". Processing them ...");
     
     int numUpdated = ZERO_i;
 
