@@ -23,24 +23,31 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
+import java.util.List;
 
 import static dfile.file.FileUtilities.assertExistingFile;
 import static dfile.file.FileUtilities.assertValidPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
+import static dfile.file.FileUtilities.getCurrentFolder;
 import static dfile.file.FileUtilities.hasPath;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
+import static dutil.number.NumberUtilities.ONE_d;
+import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.number.NumberUtilities.percent;
 import static dutil.object.ObjectUtilities.assertNonNull;
+import static dutil.string.TextUtilities.FMT0D;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
+import static dutil.string.TextUtilities.dqStr;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
@@ -349,38 +356,47 @@ public final class RenameWithLinks {
     final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
     
     final List<File> shortcuts = FileUtilities.listFiles(
-                                                   effectiveSearchFolder
-                                                  , new String[] { removeStart(WIN_SHORTCUT_EXTENSION
-                                                                                      , EXTENSION_SEPARATOR) }
-                                                          , true);
+                                             effectiveSearchFolder
+                                            , new String[] { removeStart(WIN_SHORTCUT_EXTENSION
+                                                                                , EXTENSION_SEPARATOR) }
+                                      , true);
     
     this.appContext.outUser(NL + "Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ". Processing them ...");
     
     int numUpdated = ZERO_i;
-
-    for (final File shortcut : shortcuts) {
+    
+    boolean userAborted = false;
+    
+    for (int iShortcut = ZERO_i; iShortcut < shortcuts.size() && ! userAborted; iShortcut++) {
       
-      this.appContext.outUser_Chars(NL2 + "Processing " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
+      final File shortcut = shortcuts.get(iShortcut);
+      
+      this.appContext.outUser_Chars(NL2 + "Processing #" + (iShortcut + ONE_i) + " of " + shortcuts.size() + " (" + FMT0D.format(percent(iShortcut + ONE_d, shortcuts.size())) + "%) : " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
       
       try {
         
-        final String notUpdated = shortcutTargetUpdater.updateTargetIfMatch(shortcut
-                                     , originalFileOrFolder, destinationFileOrFolder
-                                       , null,                this.appContext::warnUser
-                                       ,this.appContext::errUser);
+        final String notUpdated = shortcutTargetUpdater.updateTargetIfMatch(shortcut, oldTarget, newTarget
+                                                                 , null, this.appContext::warnUser
+                                                                                   ,this.appContext::errUser);
         if (notUpdated == null) {
         
           ++numUpdated;
           
-          this.appContext.outUser("Target updated from " + dq(getCanonicalPath(originalFileOrFolder))
-                                                        + " to " + dq(getCanonicalPath(destinationFileOrFolder)) + ".");
+          this.appContext.outUser("Target updated from " + dqStr(oldTarget)
+                                                        + " to " + dqStr(newTarget) + ".");
         }
         else {
         
           this.appContext.outUser(notUpdated);
         }
+        userAborted = IOUtilities.handleUserInput();
+        
+        if (userAborted) {
+          
+          this.appContext.warnUser("Interruption requested by the user.");
+        }
       }
-      catch (InvalidExternalValueException | UncheckedIOException e) {
+      catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
         
         this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
         
@@ -388,6 +404,8 @@ public final class RenameWithLinks {
       }
     }
     this.appContext.outUser(NL2 + "Finished updating " + numUpdated + " shortcuts out of " + shortcuts.size() + " .");
+    
+    return userAborted;
   }
 
 }
