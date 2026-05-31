@@ -323,6 +323,19 @@ public final class RenameWithLinks {
   /**
    * Recursively scans the search directory for {@code .lnk} files and, for each shortcut whose target matches the
    * original path, updates it to the new path.
+   *
+   * @param shortcutTargetUpdater The object to use to {@link IShortcutTargetUpdater#updateTargetIfMatch update} the
+   *                              target of the shortcuts found under {@code searchFolder} tree that have it equal to {@code
+   *                              oldTarget}.<br>
+   *
+   * @param oldTarget             The target that - if present in a shortcut - must be updated to {@code newTarget}.<br>
+   *
+   * @param newTarget             The target to set into the shortcuts that have it equal to {@code oldTarget}.<br>
+   *
+   * @param searchFolder          The folder under which to recursively search for shortcuts to update. If {@code null},
+   *                              the {@link FileUtilities#getCurrentFolder() current folder} is used.
+   *
+   * @return Whether the user has interrupted the process.
    */
   private void updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater,   File originalFileOrFolder
                              , @NotNull File                   destinationFileOrFolder, File searchFolder) {
