@@ -95,7 +95,8 @@ public final class RenameWithLinks {
     
     renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
     
-    updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder, searchDir);
+    updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
+     , searchDir);
   }
 
   /**
@@ -132,7 +133,8 @@ public final class RenameWithLinks {
 
     renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
 
-    updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder, searchDir);
+    updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
+     , searchDir);
   }
   
   /**
