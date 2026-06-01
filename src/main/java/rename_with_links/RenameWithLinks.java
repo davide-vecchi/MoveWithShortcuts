@@ -63,6 +63,7 @@ import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.leftPad;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static rename_with_links.RenameWithLinksMain.MAX_VERBOSITY;
 
@@ -525,13 +526,17 @@ public final class RenameWithLinks {
       
       this.appContext.outUser_Chars(TWO_i, NL2 + "Processing #" + FMT0DG.format(iLastProcessed + ONE_l)
                                                                  + " of "         + FMT0DG.format(totToProcess)
-                                                                 + " (" + currentPercent + "%) : " + getCanonicalPathAsDescr(lastProcessed) + " ..." + NLT);
+                                                                 + " ("           + leftPad(currentPercent, 3)
+                                                                 + "%) : "        + getCanonicalPathAsDescr(lastProcessed)
+                                                                 + " ..."         + NLT);
     }
     else if (this.appContext.currentVerbosity >= ONE_i && ! currentPercent.equals(result)) {
       
       result = currentPercent;
       
-      this.appContext.outUser_Chars(ONE_i, result + "% (" + FMT0DG.format(iLastProcessed + ONE_l) + " / " + totToProcess + ")" + TAB2);
+      this.appContext.outUser_Chars(ONE_i, leftPad(result, 3)
+                                                              + "% (" + FMT0DG.format(iLastProcessed + ONE_l)
+                                                              + " / " + totToProcess + ")" + TAB2);
     }
     return result;
   }
