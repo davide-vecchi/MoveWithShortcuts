@@ -47,6 +47,7 @@ import static dutil.number.NumberUtilities.TWO_i;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.number.NumberUtilities.assertNonNegative;
 import static dutil.number.NumberUtilities.percent;
+import static dutil.object.ObjectUtilities.B;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.FMT0D;
 import static dutil.string.TextUtilities.FMT0DG;
@@ -61,6 +62,7 @@ import static dutil.string.TextUtilities.dq;
 import static dutil.string.TextUtilities.dqStr;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
+import static java.lang.Boolean.TRUE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.leftPad;
@@ -268,10 +270,12 @@ public final class RenameWithLinks {
    */
   private static File resolveSearchDirectory(final String argSearchPath) {
 
-    final File searchDir = assertExistingFile(new File(assertValidPath(argSearchPath, true)), true);
+    final File searchDir = assertExistingFile(new File(assertValidPath(argSearchPath
+                                                                                  , TRUE))
+                                               , TRUE);
 
-    assertExistingFile(searchDir, true);
-
+    assertExistingFile(searchDir, TRUE);
+    
     return searchDir;
   }
   
@@ -387,7 +391,7 @@ public final class RenameWithLinks {
       
       throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
     }
-    return new File(assertValidPath(effectiveNewName, original.isDirectory()));
+    return new File(assertValidPath(effectiveNewName, B(original.isDirectory())));
   }
 
   /**
@@ -404,9 +408,9 @@ public final class RenameWithLinks {
 
       throw new UserRequestedTermination();
     }
-    final File searchDir = new File(assertValidPath(searchPath, true));
+    final File searchDir = new File(assertValidPath(searchPath, TRUE));
     
-    assertExistingFile(searchDir, true);
+    assertExistingFile(searchDir, TRUE);
     
     return searchDir;
   }
