@@ -532,7 +532,7 @@ public final class RenameWithLinks {
       
       result = currentPercent;
       
-      this.appContext.outUser_Chars(ONE_i, result + "% (" + FMT0DG.format(iLastProcessed) + " / " + totToProcess + ")" + TAB2);
+      this.appContext.outUser_Chars(ONE_i, result + "% (" + FMT0DG.format(iLastProcessed + ONE_l) + " / " + totToProcess + ")" + TAB2);
     }
     return result;
   }
