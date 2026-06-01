@@ -273,9 +273,10 @@ public final class RenameWithLinks {
   private File askOriginalPath() throws UserRequestedTermination {
 
     final String existingPath = this.appContext.userIO.in(
-                                                  "Enter the path of the file or folder to rename / move, or type "
-                                                             + calcCancelCharsPrompt(CANCEL_CHARS)
-                                            , EMPTY, CANCEL_CHARS);
+                                                  "Enter the path of the file or folder to rename / move, either absolute"
+                                                          + " or relative to the current folder (" + dq(getCurrentFolder()) + "),"
+                                                          + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                           , EMPTY, CANCEL_CHARS);
     if (existingPath == null) {
 
       throw new UserRequestedTermination();
@@ -441,7 +442,9 @@ public final class RenameWithLinks {
     this.appContext.outUser(ONE_i, NL + "Found " + FMT0DG.format(numShortcuts) + " shortcut file(s) under " + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
     
     boolean userAborted = this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(numShortcuts)
-                                                            + " shortcut file(s) (the processing can be paused with the Enter key)"
+                                                            + " shortcut file(s) under " + dq(getCanonicalPath(
+                                                                               effectiveSearchFolder.toFile()))
+                                                            + " (the processing can be paused with the Enter key)"
                                                             + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                              , EMPTY, CANCEL_CHARS) == null;
     if (! userAborted) {
@@ -536,7 +539,8 @@ public final class RenameWithLinks {
       
       this.appContext.outUser_Chars(ONE_i, leftPad(result, 3)
                                                               + "% (" + FMT0DG.format(iLastProcessed + ONE_l)
-                                                              + " / " + totToProcess + ")" + TAB2);
+                                                              + " / " + FMT0DG.format(totToProcess)
+                                                              + ")"   + TAB2);
     }
     return result;
   }
