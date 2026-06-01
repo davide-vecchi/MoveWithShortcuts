@@ -36,6 +36,7 @@ import static dfile.file.FileUtilities.getCurrentFolder;
 import static dfile.file.FileUtilities.hasPath;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
+import static dutil.list.ListUtilities.assertNoneNull;
 import static dutil.list.number.NumberListUtilities.assertNoneNegative;
 import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
 import static dutil.number.NumberUtilities.I;
@@ -417,8 +418,10 @@ public final class RenameWithLinks {
    *
    * @return Whether the user has interrupted the process.
    */
-  private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater,  File oldTarget
-                                , @NotNull File                   newTarget,              File searchFolder) {
+  private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater, @NotNull File oldTarget
+                                , @NotNull File                   newTarget,                      File searchFolder) {
+    
+    assertNoneNull(shortcutTargetUpdater, oldTarget, newTarget);
     
     final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
     
