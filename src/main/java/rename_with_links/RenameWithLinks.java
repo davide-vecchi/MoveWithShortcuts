@@ -109,11 +109,11 @@ public final class RenameWithLinks {
     this.appContext.outUser(ONE_i, NL + OSUtilities.getDescription() + NL2);
     
     assertWindowsOS();
-
+    
     final File originalFileOrFolder = askOriginalPath();
-
+    
     final File destinationFileOrFolder = askDestinationFileOrFolder(originalFileOrFolder);
-
+    
     final File searchDir = askSearchDirectory();
     
     this.appContext.currentVerbosity = askVerbosity();
@@ -320,7 +320,7 @@ public final class RenameWithLinks {
                                                           + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS);
     if (existingPath == null) {
-
+      
       throw new UserRequestedTermination();
     }
     final File originalFileOrFolder = new File(existingPath);
