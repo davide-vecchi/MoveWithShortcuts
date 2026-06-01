@@ -6,17 +6,17 @@ package rename_with_links;
 
 import dlog.log.Log;
 import duser_input_output.AUserInputOutput;
-import dutil.exception.UserRequestedTermination;
+import dutil.exception.exceptions.InvalidValueInternalErrorException;
 import dutil.string.TextUtilities;
 import jakarta.validation.constraints.NotNull;
-import org.apache.commons.lang3.StringUtils;
 
 import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
-import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
+import static dutil.number.NumberUtilities.MINUS1_i;
+import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.removeEnd;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static rename_with_links.RenameWithLinksMain.MAX_VERBOSITY;
 
 
 // @formatter:off
@@ -57,6 +57,15 @@ public class AppContext implements AutoCloseable {
    * The log containing only info for the developer, not for the user. To be set by clients.
    */
   public @NotNull Log devLog;
+  
+  /**
+   * The verbosity level :<ul>
+   *   <li>0 = Only error messages.</li>
+   *   <li>1 = Also messages about startup, logs location, updated shortcuts.</li>
+   *   <li>2 = Everything else (e.g. show every processed shortcut).</li>
+   * </ul>
+   */
+  int currentVerbosity = MINUS1_i; // : Not set to a valid value yet.
   
   
   /**
@@ -103,102 +112,109 @@ public class AppContext implements AutoCloseable {
    * {@link AUserInputOutput#outLine(String) Outputs} the given {@code string}, followed by {@link TextUtilities#NL new
    * line}, to {@link #userIO}, {@link #screenLog}, {@link #userLog} and {@link #devLog}.
    *
+   * @param verbosity The verbosity level for the given {@code string} (see {@link #currentVerbosity}).<br>
+   *
    * @param string The string to output.
    *
-   * @return The outputted string.
+   * @return The given {@code string}.
    */
-  public String outUser(String string) {
+  public String outUser(int verbosity, String string) {
     
-    return outUser_Chars(string + NL);
-  }
-  
-  /**
-   * {@link AUserInputOutput#outLine(String) Outputs} one empty row to {@link #userIO}, {@link #screenLog}, {@link
-     #userLog} and {@link #devLog}.
-   *
-   * @return The outputted string.
-   */
-  public String outUser() {
-    
-    return outUser(EMPTY);
+    return outUser_Chars(verbosity, string + NL);
   }
   
   /**
    * {@link AUserInputOutput#errChars(String) Outputs} the given {@code string} as error, to {@link #userIO}, {@link
-     #screenLog}, {@link #userLog} and {@link #devLog}, followed by {@link TextUtilities#NL new line}.
+   * #screenLog}, {@link #userLog} and {@link #devLog}, followed by {@link TextUtilities#NL new line}.
+   *
+   * @param verbosity The verbosity level for the given {@code string} (see {@link #currentVerbosity}).<br>
    *
    * @param string The string to output.
    *
-   * @return The outputted string.
+   * @return The given {@code string}.
    */
-  public String errUser(String string) {
+  public String errUser(int verbosity, String string) {
     
-    return errUser_Chars(string + NL);
+    return errUser_Chars(verbosity,string + NL);
   }
   
   /**
    * Like {@link #outUser(String)} but the written text is <b>not</b> followed by {@link TextUtilities#NL new line}.
    *
+   * @param verbosity The verbosity level for the given {@code string} (see {@link #currentVerbosity}).<br>
+   *
    * @param string The string to output.
    *
-   * @return The outputted string.
+   * @return The given {@code string}.
    */
-  public String outUser_Chars(String string) {
+  public String outUser_Chars(int verbosity, String string) {
     
-    final String outputted = this.userIO.outChars(string);
+    if (assertValidVerbosity(verbosity) <= this.currentVerbosity) {
     
-    outScreenLog(outputted);
+      this.userIO.outChars(string);
+    }
+    outScreenLog(string);
     
-    return outputted;
+    return string;
   }
   
   /**
    * Like {@link #errUser(String)} but the written text is <b>not</b> followed by {@link TextUtilities#NL new line}.
    *
+   * @param verbosity The verbosity level for the given {@code string} (see {@link #currentVerbosity}).<br>
+   *
    * @param string The string to output.
    *
-   * @return The outputted string.
+   * @return The given {@code string}.
    */
-  public String errUser_Chars(String string) {
+  public String errUser_Chars(int verbosity, String string) {
     
-    final String outputted = this.userIO.errChars(string);
+    if (assertValidVerbosity(verbosity) <= this.currentVerbosity) {
     
-    outScreenLog(outputted);
+      this.userIO.errChars(string);
+    }
+    outScreenLog(string);
     
-    outUserLog(  outputted);
+    outUserLog(  string);
     
-    return outputted;
+    return string;
   }
   
   /**
    * {@link AUserInputOutput#errChars(String) Outputs} the given {@code string} to {@link #userIO} (as a warning), {@link
-     #screenLog}, {@link #userLog} and {@link #devLog}, followed by {@link TextUtilities#NL new line}.
+   * #screenLog}, {@link #userLog} and {@link #devLog}, followed by {@link TextUtilities#NL new line}.
+   *
+   * @param verbosity The verbosity level for the given {@code string} (see {@link #currentVerbosity}).<br>
    *
    * @param string The string to output.
    *
-   * @return The outputted string.
+   * @return The given {@code string}.
    */
-  public String warnUser(String string) {
+  public String warnUser(int verbosity, String string) {
     
-    return warnUser_Chars(string + NL);
+    return warnUser_Chars(verbosity, string + NL);
   }
   
   /**
    * Like {@link #warnUser(String)} but the written text is <b>not</b> followed by {@link TextUtilities#NL new line}.
    *
+   * @param verbosity The verbosity level for the given {@code string} (see {@link #currentVerbosity}).<br>
+   *
    * @param string The string to output.
    *
-   * @return The outputted string.
+   * @return The given {@code string}.
    */
-  public String warnUser_Chars(String string) {
+  public String warnUser_Chars(int verbosity, String string) {
     
-    final String outputted = this.userIO.warnChars(string);
+    if (assertValidVerbosity(verbosity) <= this.currentVerbosity) {
+      
+      this.userIO.warnChars(string);
+    }
+    outScreenLog(string);
     
-    outScreenLog(outputted);
+    outUserLog(  string);
     
-    outUserLog(  outputted);
-    
-    return       outputted;
+    return string;
   }
   
   /**
@@ -235,16 +251,6 @@ public class AppContext implements AutoCloseable {
   }
   
   /**
-   * {@link AUserInputOutput#outLine(String) Outputs} one empty row to {@link #userLog} and {@link #devLog}.
-   *
-   * @return The outputted string.
-   */
-  public String outUserLog() {
-    
-    return outUserLog(EMPTY);
-  }
-  
-  /**
    * {@link AUserInputOutput#outLine(String) Outputs} the given {@code string} to {@link #devLog}.
    *
    * @param string The string to output.
@@ -259,27 +265,17 @@ public class AppContext implements AutoCloseable {
   }
   
   /**
-   * {@link AUserInputOutput#outLine(String) Outputs} one empty row to {@link #devLog}.
+   * @param verbosity The verbosity level for the log info {@code string}. (see {@link #currentVerbosity}).
    *
-   * @return The outputted string.
-   */
-  public String outDevLog() {
-    
-    return outDevLog(EMPTY);
-  }
-  
-  /**
    * {@link AppContext#outUser() Outputs} to the user info on the location of the log files.
    */
-  public void showLogInfo() {
+  public void showLogInfo(int verbosity) {
     
-    outUser();
+    outUser(verbosity, NL + "Screen log: " + getCanonicalPathAsDescr(this.screenLog.logFile) + ".");
     
-    outUser("Screen log: " + getCanonicalPathAsDescr(this.screenLog.logFile) + ".");
+    outUser(verbosity,      "  User log: " + getCanonicalPathAsDescr(this.userLog  .logFile) + ".");
     
-    outUser("  User log: " + getCanonicalPathAsDescr(this.userLog  .logFile) + ".");
-    
-    outUser("   Dev log: " + getCanonicalPathAsDescr(this.devLog   .logFile) + ".");
+    outUser(verbosity,      "   Dev log: " + getCanonicalPathAsDescr(this.devLog   .logFile) + ".");
   }
   
   /**
@@ -306,6 +302,28 @@ public class AppContext implements AutoCloseable {
       
       this.devLog.close();
     }
+  }
+  
+  /**
+   * @param verbosity The verbosity level to validate.
+   *
+   * @return The given {@code verbosity} if it and {@link #currentVerbosity} are both valid.
+   *
+   * @throws InvalidValueInternalErrorException If either the given {@code verbosity} or {@link #currentVerbosity} are
+   *                                            not valid (negative or > {@link RenameWithLinks#MAX_VERBOSITY
+   *                                            MAX_VERBOSITY}).
+   */
+  int assertValidVerbosity(int verbosity) {
+    
+    if (verbosity < ZERO_i || verbosity > MAX_VERBOSITY) {
+      
+      throw new InvalidValueInternalErrorException("The given verbosity level " + verbosity + " is not valid, must be between 0 and " + MAX_VERBOSITY + " .");
+    }
+    if (this.currentVerbosity < ZERO_i || this.currentVerbosity > MAX_VERBOSITY) {
+      
+      throw new InvalidValueInternalErrorException("The currently set verbosity level " + this.currentVerbosity + " is not valid, must be between 0 and " + MAX_VERBOSITY + " .");
+    }
+    return verbosity;
   }
   
 }

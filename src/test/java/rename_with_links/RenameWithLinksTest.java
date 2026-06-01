@@ -28,11 +28,13 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
+import static dutil.string.TextUtilities.S;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.testng.Assert.assertNotNull;
+import static rename_with_links.RenameWithLinksMain.MAX_VERBOSITY;
 
 
 // @formatter:off
@@ -86,6 +88,8 @@ public class RenameWithLinksTest {
     lenient().when(this.mockUserIO.warnChars(anyString())).thenAnswer(i -> i.getArgument(0));
 
     this.mockAppContext = AppContext.newAppContext(this.mockUserIO, this.mockScreenLog, this.mockUserLog, this.mockDevLog);
+    
+    this.mockAppContext.currentVerbosity = MAX_VERBOSITY;
   }
 
   // ====== Construction ======
@@ -209,11 +213,14 @@ public class RenameWithLinksTest {
     final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch_").toFile();
 
     final File destinationFileOrFolder = new File(this.tempDir.toFile(), "renamed_file.txt");
+    
+    final String verbosity = S(MAX_VERBOSITY);
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
              .thenReturn(getCanonicalPath(destinationFileOrFolder))
-             .thenReturn(getCanonicalPath(searchDir));
+             .thenReturn(getCanonicalPath(searchDir))
+             .thenReturn(verbosity);
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -238,11 +245,14 @@ public class RenameWithLinksTest {
     final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch2_").toFile();
 
     final File newFolder = new File(this.tempDir.toFile(), "renamed_folder");
-
+    
+    final String verbosity = S(MAX_VERBOSITY);
+    
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFolder))
              .thenReturn(getCanonicalPath(newFolder))
-             .thenReturn(getCanonicalPath(searchDir));
+             .thenReturn(getCanonicalPath(searchDir))
+             .thenReturn(verbosity);
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -269,11 +279,14 @@ public class RenameWithLinksTest {
     final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch3_").toFile();
 
     final File destinationFileOrFolder = new File(this.tempDir.toFile(), "newParent/sub/renamed.txt");
+    
+    final String verbosity = S(MAX_VERBOSITY);
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
              .thenReturn(getCanonicalPath(destinationFileOrFolder))
-             .thenReturn(getCanonicalPath(searchDir));
+             .thenReturn(getCanonicalPath(searchDir))
+             .thenReturn(verbosity);
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -338,11 +351,14 @@ public class RenameWithLinksTest {
     ShellLink.createLink(getCanonicalPath(otherFile)).saveTo(getCanonicalPath(lnkFile));
 
     final File destinationFileOrFolder = new File(this.tempDir.toFile(), "other_renamed" + EXTENSION_SEPARATOR + "txt");
+    
+    final String verbosity = S(MAX_VERBOSITY);
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
              .thenReturn(getCanonicalPath(destinationFileOrFolder))
-             .thenReturn(getCanonicalPath(searchDir));
+             .thenReturn(getCanonicalPath(searchDir))
+             .thenReturn(verbosity);
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
@@ -371,11 +387,14 @@ public class RenameWithLinksTest {
     Files.writeString(corruptedLnk.toPath(), "this is not a valid shortcut");
 
     final File destinationFileOrFolder = new File(this.tempDir.toFile(), "corrupt_renamed" + EXTENSION_SEPARATOR + "txt");
-
+    
+    final String verbosity = S(MAX_VERBOSITY);
+    
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
              .thenReturn(getCanonicalPath(destinationFileOrFolder))
-             .thenReturn(getCanonicalPath(searchDir));
+             .thenReturn(getCanonicalPath(searchDir))
+             .thenReturn(verbosity);
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 

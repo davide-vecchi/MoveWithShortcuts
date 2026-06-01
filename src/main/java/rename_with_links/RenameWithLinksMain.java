@@ -26,6 +26,7 @@ import static dutil.string.TextUtilities.CHARSET_UTF_8;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
+import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static java.util.Arrays.asList;
@@ -34,6 +35,7 @@ import static org.fusesource.jansi.Ansi.Color.BLACK;
 import static org.fusesource.jansi.Ansi.Color.CYAN;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.Color.YELLOW;
+import static rename_with_links.RenameWithLinks.resolveVerbosity;
 
 
 // @formatter:off
@@ -56,15 +58,30 @@ public class RenameWithLinksMain {
    */
   public static final String APP_DESCR = APP_NAME + " - Renames / moves a file or folder and updates all " + WIN_SHORTCUT_EXTENSION + " shortcuts that point to it.";
   
+  /**
+   * The maximum allowed value for the {@link #verbosity} level.
+   */
+  static final int MAX_VERBOSITY = TWO_i;
+  
   
   /**
    * Entry point of the RenameWithLinks program.
    *
-   * @param args The command line args (currently unused).
+   * @param originalArgs The command line args.
    */
-  public static void main(String[] args) throws Exception {
-
-    if (args.length == ZERO_i || args.length == 3) {
+  public static void main(String[] originalArgs) throws Exception {
+    
+    // If 3 args were given, the 4th (the verbosity) must be the default (the max), so add it as if it had been given :
+    
+    String[] args = originalArgs;
+    
+    if (args.length == 3) {
+      
+      args = new String[] {args[ZERO_i], args[ONE_i], args[TWO_i], S(MAX_VERBOSITY)};
+    }
+    // Start the execution :
+    
+    if (args.length == ZERO_i || args.length == 4) {
 
       try (
         
@@ -89,7 +106,10 @@ public class RenameWithLinksMain {
       {
   
         try {
-        
+          
+          ac.currentVerbosity = resolveVerbosity(args.length >= 4 ? args[3] : null
+                                               , MAX_VERBOSITY, ONE_i);
+          
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
           showStartupMessages(ac, args);
@@ -100,31 +120,31 @@ public class RenameWithLinksMain {
           
           final IShortcutTargetUpdater shortcutTargetUpdater = WinShortcutUpdater_PS_COM_WScript_Shell01.newInstance(
                                                                               false, ac.devLog);
-          
           // Perform the renaming operation using the chosen updater :
           
           if (args.length == ZERO_i) {
-  
+            
             app.run(shortcutTargetUpdater);
           }
           else {
             
-            app.run(shortcutTargetUpdater, args[ZERO_i], args[ONE_i], args[TWO_i]);
+            app.run(shortcutTargetUpdater, args[ZERO_i], args[ONE_i]
+                                           , args[TWO_i],       args[3]);
           }
         }
         catch (UserRequestedTermination t) {
         
-          ac.warnUser(NL + (t.getMessage() != null ? t.getMessage() : "Terminated on user request."));
+          ac.warnUser(ZERO_i, NL + (t.getMessage() != null ? t.getMessage() : "Terminated on user request."));
         }
         catch (Exception e) {
         
-          ac.errUser(NL2 + "Terminated due to an error : " + e.getClass().getSimpleName() + " :" + NL2T + e.getLocalizedMessage().trim() + NL2);
+          ac.errUser(ZERO_i, NL2 + "Terminated due to an error : " + e.getClass().getSimpleName() + " :" + NL2T + e.getLocalizedMessage().trim() + NL2);
           
           ac.outUserLog(getFullDescriptionWithRootCause(e));
         }
         finally {
         
-          ac.showLogInfo();
+          ac.showLogInfo(ONE_i);
         }
       }
     }
@@ -142,23 +162,19 @@ public class RenameWithLinksMain {
    */
   private static void showStartupMessages(@NotNull AppContext ac, String[] args) {
   
-    ac.outUser();
-    ac.outUser("Starting " + dq(APP_DESCR) + " on " + new Date() + NL);
+    ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date() + NL);
     
     if (args.length > ZERO_i) {
       
-      ac.outUser();
-      ac.outUser(listToString(asList(args), "Program arguments", EMPTY, EMPTY, NL));
+      ac.outUser(ONE_i, NL + listToString(asList(args), "Program arguments", EMPTY, EMPTY, NL));
     }
-    ac.outUser();
-    ac.outUser("Current folder : " + dq(getCurrentFolder()) + ".");
+    ac.outUser(ONE_i, NL + "Current folder : " + dq(getCurrentFolder()) + ".");
     
-    ac.outUser();
-    ac.outUser("Screen log: " + getCanonicalPath(ac.screenLog.logFile));
+    ac.outUser(ONE_i, NL + "Screen log: " + getCanonicalPath(ac.screenLog.logFile));
     
-    ac.outUser("  User log: " + getCanonicalPath(ac.userLog.logFile));
+    ac.outUser(ONE_i,      "  User log: " + getCanonicalPath(ac.userLog.logFile));
     
-    ac.outUser("   Dev log: " + getCanonicalPath(ac.devLog.logFile));
+    ac.outUser(ONE_i,      "   Dev log: " + getCanonicalPath(ac.devLog.logFile));
   }
 
   private static void showUsage() {
