@@ -1,7 +1,5 @@
 /**
  * Created by OpenCode on 2026-05-08 .
- *
- * @formatter:off
  */
 package rename_with_links;
 
@@ -19,6 +17,9 @@ import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.removeEnd;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+
+// @formatter:off
 
 
 /** TODO Class duplicated in several places. UNIFY INTO A GENERIC LIBRARY.<br><br>
