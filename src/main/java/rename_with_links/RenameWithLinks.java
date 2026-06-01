@@ -275,7 +275,6 @@ public final class RenameWithLinks {
                                                   "Enter the path of the file or folder to rename / move, or type "
                                                              + calcCancelCharsPrompt(CANCEL_CHARS)
                                             , EMPTY, CANCEL_CHARS);
-
     if (existingPath == null) {
 
       throw new UserRequestedTermination();
