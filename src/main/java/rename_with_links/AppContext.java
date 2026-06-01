@@ -308,25 +308,4 @@ public class AppContext implements AutoCloseable {
     }
   }
   
-  
-  /**
-   * @param cancelChars If the entered value is 1-char long and contained in this string, returns {@code null}.<br>Pass
-   *                    an {@link StringUtils#EMPTY empty string} to prevent the user from canceling.
-   *
-   * @throws UserRequestedTermination If the user responds to the pausing question with one of the {@code cancelChars}.
-   */
-  public void doPause(@NotNull String cancelChars) throws UserRequestedTermination {
-    
-    final String in = this.userIO.in("Press Enter to continue, or type " + calcCancelCharsPrompt(cancelChars)
-                              , EMPTY, cancelChars);
-    if (in == null) {
-    
-      // : The user requested to abort :
-    
-      warnUser(NL + "Terminating as requested by the user.");
-      
-      throw new UserRequestedTermination();
-    }
-  }
-  
 }
