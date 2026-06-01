@@ -50,6 +50,7 @@ import static dutil.string.TextUtilities.FMT0D;
 import static dutil.string.TextUtilities.FMT0DG;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
+import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.TAB2;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
@@ -488,7 +489,7 @@ public final class RenameWithLinks {
           
           this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
           
-          this.appContext.errUser(ZERO_i, NLT + "Skipping. Reason : " + e.getLocalizedMessage());
+          this.appContext.errUser(ZERO_i, NL2T + "Skipping. Reason : " + e.getLocalizedMessage());
         }
       }
       this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(numUpdated) + " shortcuts out of " + FMT0DG.format(shortcuts.size()) + " .");
