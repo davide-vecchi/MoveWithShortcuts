@@ -12,6 +12,7 @@ import dutil.exception.exceptions.MissingExternalValueException;
 import dutil.exception.exceptions.NonUniqueExternalValueException;
 import dutil.io.IOUtilities;
 import dutil.system.OSUtilities;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -50,8 +51,8 @@ import static dutil.string.TextUtilities.FMT0D;
 import static dutil.string.TextUtilities.FMT0DG;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
-import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.NLT;
+import static dutil.string.TextUtilities.NLT2;
 import static dutil.string.TextUtilities.TAB2;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
@@ -388,7 +389,7 @@ public final class RenameWithLinks {
    */
   private void renameFileOrFolder(File originalFileOrFolder, File destinationFileOrFolder) throws IOException {
     
-    this.appContext.outUser(ONE_i, NL + "Renaming / moving " + dq(getCanonicalPath(originalFileOrFolder)) + " to " + dq(getCanonicalPath(destinationFileOrFolder)) + "...");
+    this.appContext.outUser(ONE_i, NL + "Renaming / moving" + NLT + dq(getCanonicalPath(originalFileOrFolder)) + NL + "to" + NLT + dq(getCanonicalPath(destinationFileOrFolder)) + NL + "...");
 
     if (! destinationFileOrFolder.getParentFile().exists()) {
 
@@ -419,7 +420,7 @@ public final class RenameWithLinks {
   private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater,  File oldTarget
                                 , @NotNull File                   newTarget,              File searchFolder) {
     
-    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder " + dqStr(searchFolder) + " ...");
+    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder " + dq(getCanonicalPath(searchFolder)) + " ...");
     
     final char abortFromPause = CANCEL_CHARS.charAt(CANCEL_CHARS.length() - ONE_i);
     
@@ -431,9 +432,11 @@ public final class RenameWithLinks {
                                                                                 , EXTENSION_SEPARATOR) }
                                       , true);
     
-    this.appContext.outUser(ONE_i, NL + "Found " + FMT0DG.format(shortcuts.size()) + " shortcut file(s) in " + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
+    final int numShortcuts = shortcuts.size();
     
-    boolean userAborted = this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(shortcuts.size())
+    this.appContext.outUser(ONE_i, NL + "Found " + FMT0DG.format(numShortcuts) + " shortcut file(s) under " + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
+    
+    boolean userAborted = this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(numShortcuts)
                                                             + " shortcut file(s) (the processing can be paused with the Enter key)"
                                                             + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                              , EMPTY, CANCEL_CHARS) == null;
@@ -443,36 +446,26 @@ public final class RenameWithLinks {
       
       String previousPercent = null;
       
-      for (int iShortcut = ZERO_i; iShortcut < shortcuts.size() && ! userAborted; iShortcut++) {
+      for (int iShortcut = ZERO_i; iShortcut < numShortcuts && ! userAborted; iShortcut++) {
         
         final File shortcut = shortcuts.get(iShortcut);
         
-        final String currentPercent = FMT0D.format(percent(iShortcut + ONE_d, shortcuts.size()));
-        
-        if (this.appContext.currentVerbosity >= TWO_i) {
-        
-          this.appContext.outUser_Chars(TWO_i, NL2 + "Processing #" + FMT0DG.format(iShortcut + ONE_l) + " of " + FMT0DG.format(shortcuts.size()) + " (" + currentPercent + "%) : " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
-        }
-        else if (this.appContext.currentVerbosity >= ONE_i && ! currentPercent.equals(previousPercent)) {
-          
-          this.appContext.outUser_Chars(ONE_i, currentPercent + "% (" + FMT0DG.format(iShortcut) + ")" + TAB2);
-          
-          previousPercent = currentPercent;
-        }
         try {
           
           final String notUpdated = shortcutTargetUpdater.updateTargetIfMatch(shortcut, oldTarget, newTarget
                                                                    , null
                                                          , s -> this.appContext.warnUser(
-                                                                                              ZERO_i, s)
+                                                                                            ZERO_i, s)
                                                          ,   s -> this.appContext.errUser(
-                                                                                              ZERO_i, s));
+                                                                                            ZERO_i, s));
           if (notUpdated == null) {
           
             ++numUpdated;
             
-            this.appContext.outUser(ZERO_i, "Target updated from " + dqStr(oldTarget)
-                                                            + " to "                 + dqStr(newTarget) + ".");
+            this.appContext.outUser(ZERO_i
+                                     , NL2 + "Shortcut " + getCanonicalPathAsDescr(shortcut)
+                                             + NLT + " : target updated from" + NLT2 + dqStr(oldTarget)
+                                             + NLT + "to"                     + NLT2 + dqStr(newTarget) + ".");
           }
           else {
           
@@ -482,19 +475,62 @@ public final class RenameWithLinks {
           
           if (userAborted) {
             
-            this.appContext.warnUser(ZERO_i, NL + "Interruption requested by the user after " + FMT0DG.format((iShortcut + ONE_i)) + " shortcuts were processed.");
+            this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after " + FMT0DG.format((iShortcut + ONE_i)) + " shortcuts were processed.");
           }
         }
         catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
           
           this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
           
-          this.appContext.errUser(ZERO_i, NL2T + "Skipping. Reason : " + e.getLocalizedMessage());
+          this.appContext.errUser(ZERO_i, NL2 + "Skipping " + dq(getCanonicalPath(shortcut))
+                                                                + ". Reason : " + e.getLocalizedMessage() + NL);
         }
+        // Update progress display :
+        
+        previousPercent = showProgress(
+                        iShortcut, shortcut, previousPercent, numShortcuts);
       }
-      this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(numUpdated) + " shortcuts out of " + FMT0DG.format(shortcuts.size()) + " .");
+      this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(numUpdated) + " shortcuts out of " + FMT0DG.format(numShortcuts) + " .");
     }
     return userAborted;
+  }
+  
+  /**
+   * Calculates the percentage corresponding to {@code iLastProcessed}, and displays it if it's different from the
+   * previously displayed one.<br>If the {@link AppContext#currentVerbosity currently set verbosity} allows, also
+   * displays the last processed shortcut.
+   *
+   * @param iLastProcessed Index (so 0-based) of the last shortcut that has been processed.<br>
+   *
+   * @param lastProcessed  The last processed shortcut. May be {@code null} if the currently set verbosity does not
+   *                       require to show it.
+   *
+   * @param previousPercent The last percentage that has been shown.<br>
+   *
+   * @param totToProcess The total number of shortcuts to process.
+   *
+   * @return The percentage this method just displayed, calculated based on {@code iLastProcessed}, or the last
+   *         displayed one if it's the same.
+   */
+  private String showProgress(int iLastProcessed, File lastProcessed, @NotBlank String previousPercent, int totToProcess) {
+    
+    String result = previousPercent != null ? assertNonBlankNorTrimmable(previousPercent) : null;
+    
+    final String currentPercent = FMT0D.format(Math.floor(percent(iLastProcessed + ONE_d, totToProcess)));
+    
+    if (this.appContext.currentVerbosity >= TWO_i) {
+      
+      this.appContext.outUser_Chars(TWO_i, NL2 + "Processing #" + FMT0DG.format(iLastProcessed + ONE_l)
+                                                                 + " of "         + FMT0DG.format(totToProcess)
+                                                                 + " (" + currentPercent + "%) : " + getCanonicalPathAsDescr(lastProcessed) + " ..." + NLT);
+    }
+    else if (this.appContext.currentVerbosity >= ONE_i && ! currentPercent.equals(result)) {
+      
+      result = currentPercent;
+      
+      this.appContext.outUser_Chars(ONE_i, result + "% (" + FMT0DG.format(iLastProcessed) + " / " + totToProcess + ")" + TAB2);
+    }
+    return result;
   }
 
 }
