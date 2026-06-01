@@ -82,10 +82,10 @@ public class RenameWithLinksMain {
                                                                                            , CHARSET_UTF_8, false);
   
         final AppContext ac = AppContext.newAppContext(
-                           ColorConsoleUserIO.newInstance1(System.in,         out,                 err
-                                                               , CYAN,   BLACK,   RED
-                                                               , BLACK, YELLOW, BLACK)
-                                                                           , screenLog,          userLog,            devLog))
+                         ColorConsoleUserIO.newInstance1(System.in,         out,                 err
+                                                             , CYAN,   BLACK,   RED
+                                                             , BLACK, YELLOW, BLACK)
+                                                                        , screenLog,          userLog,            devLog))
       {
   
         try {
