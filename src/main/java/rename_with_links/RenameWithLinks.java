@@ -118,10 +118,7 @@ public final class RenameWithLinks {
     
     this.appContext.currentVerbosity = askVerbosity();
     
-    renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
-    
-    updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
-     , searchDir);
+    execute(originalFileOrFolder, destinationFileOrFolder, searchDir, shortcutTargetUpdater);
   }
 
   /**
@@ -162,14 +159,56 @@ public final class RenameWithLinks {
 
     final File searchDir = resolveSearchDirectory(argSearchPath);
     
-    // Do the requested renaming / moving :
+    execute(originalFileOrFolder, destinationFileOrFolder, searchDir, shortcutTargetUpdater);
+  }
+  
+  /**
+   * {@link #askStartConfirmation Asks for confirmation} to the user to start the execution, and if granted executes the
+   * program logic: {@link #renameFileOrFolder renames} the given {@code originalFileOrFolder} to the given {@code
+   * destinationFileOrFolder} and {@link #updateShortcuts updates} accordingly all the shortcuts found under the given {@code
+   * searchDir}, using the given {@code shortcutTargetUpdater updater}.
+   *
+   * @param originalFileOrFolder
+   * @param destinationFileOrFolder
+   * @param searchDir
+   * @param shortcutTargetUpdater
+   */
+  private void execute(@NotNull File originalFileOrFolder, @NotNull File destinationFileOrFolder, File searchDir
+                     , @NotNull IShortcutTargetUpdater shortcutTargetUpdater)throws IOException {
     
-    renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
+    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchDir)) {
+      
+      // Do the requested renaming / moving :
+      
+      renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
+      
+      // Update all the shortcuts that point to the location as it was before the renaming / moving :
+      
+      updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
+      , searchDir);
+    }
+  }
+  
+  /**
+   * Asks for confirmation to {@link #renameFileOrFolder rename} the given {@code originalFileOrFolder} to the given {@code
+   * destinationFileOrFolder} and to {@link #updateShortcuts update} accordingly all the shortcuts found under the given {@code
+   * searchDir}.
+   *
+   * @return Whether the user confirmed that the processing can start.
+   */
+  private boolean askStartConfirmation(@NotNull File originalFileOrFolder, @NotNull File destinationFileOrFolder
+                                     , @NotNull File searchDir) {
     
-    // Update all the shortcuts that point to the location as it was before the renaming / moving :
+    assertNoneNull(originalFileOrFolder, destinationFileOrFolder, searchDir);
     
-    updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
-     , searchDir);
+    boolean confirmed = this.appContext.userIO.in("Press Enter to confirm renaming / moving "
+                                                          + (originalFileOrFolder.isFile() ? "file" : "folder")
+                                                          + dq(getCanonicalPath(originalFileOrFolder))    + " to "
+                                                          + dq(getCanonicalPath(destinationFileOrFolder)) + ","
+                                                          + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                           , EMPTY, CANCEL_CHARS) != null;
+    return confirmed;
+    
   }
   
   /**
