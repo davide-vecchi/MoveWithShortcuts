@@ -40,15 +40,18 @@ import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
 import static dutil.number.NumberUtilities.I;
 import static dutil.number.NumberUtilities.ONE_d;
 import static dutil.number.NumberUtilities.ONE_i;
+import static dutil.number.NumberUtilities.ONE_l;
 import static dutil.number.NumberUtilities.TWO_i;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.number.NumberUtilities.assertNonNegative;
 import static dutil.number.NumberUtilities.percent;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.FMT0D;
+import static dutil.string.TextUtilities.FMT0DG;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NLT;
+import static dutil.string.TextUtilities.TAB2;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
@@ -417,6 +420,8 @@ public final class RenameWithLinks {
     
     this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder " + dqStr(searchFolder) + " ...");
     
+    final char abortFromPause = CANCEL_CHARS.charAt(CANCEL_CHARS.length() - ONE_i);
+    
     final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
     
     final List<File> shortcuts = FileUtilities.listFiles(
@@ -425,53 +430,69 @@ public final class RenameWithLinks {
                                                                                 , EXTENSION_SEPARATOR) }
                                       , true);
     
-    this.appContext.outUser(ONE_i, NL + "Found " + shortcuts.size() + " shortcut file(s) in " + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ". Processing them ...");
+    this.appContext.outUser(ONE_i, NL + "Found " + FMT0DG.format(shortcuts.size()) + " shortcut file(s) in " + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
     
-    int numUpdated = ZERO_i;
-    
-    boolean userAborted = false;
-    
-    for (int iShortcut = ZERO_i; iShortcut < shortcuts.size() && ! userAborted; iShortcut++) {
+    boolean userAborted = this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(shortcuts.size())
+                                                            + " shortcut file(s) (the processing can be paused with the Enter key)"
+                                                            + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                             , EMPTY, CANCEL_CHARS) == null;
+    if (! userAborted) {
       
-      final File shortcut = shortcuts.get(iShortcut);
+      int numUpdated = ZERO_i;
       
-      this.appContext.outUser_Chars(TWO_i, NL2 + "Processing #" + (iShortcut + ONE_i) + " of " + shortcuts.size() + " (" + FMT0D.format(percent(iShortcut + ONE_d, shortcuts.size())) + "%) : " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
+      String previousPercent = null;
       
-      try {
+      for (int iShortcut = ZERO_i; iShortcut < shortcuts.size() && ! userAborted; iShortcut++) {
         
-        final String notUpdated = shortcutTargetUpdater.updateTargetIfMatch(shortcut, oldTarget, newTarget
-                                                                 , null
-                                                       , s -> this.appContext.warnUser(
-                                                                                            ZERO_i, s)
-                                                       ,   s -> this.appContext.errUser(
-                                                                                            ZERO_i, s));
-        if (notUpdated == null) {
+        final File shortcut = shortcuts.get(iShortcut);
         
-          ++numUpdated;
-          
-          this.appContext.outUser(ZERO_i, "Target updated from " + dqStr(oldTarget)
-                                                          + " to "                 + dqStr(newTarget) + ".");
+        final String currentPercent = FMT0D.format(percent(iShortcut + ONE_d, shortcuts.size()));
+        
+        if (this.appContext.currentVerbosity >= TWO_i) {
+        
+          this.appContext.outUser_Chars(TWO_i, NL2 + "Processing #" + FMT0DG.format(iShortcut + ONE_l) + " of " + FMT0DG.format(shortcuts.size()) + " (" + currentPercent + "%) : " + getCanonicalPathAsDescr(shortcut) + " ..." + NLT);
         }
-        else {
-        
-          this.appContext.outUser(TWO_i, notUpdated);
-        }
-        userAborted = IOUtilities.handleUserInput();
-        
-        if (userAborted) {
+        else if (this.appContext.currentVerbosity >= ONE_i && ! currentPercent.equals(previousPercent)) {
           
-          this.appContext.warnUser(ZERO_i, "Interruption requested by the user.");
+          this.appContext.outUser_Chars(ONE_i, currentPercent + "% (" + FMT0DG.format(iShortcut) + ")" + TAB2);
+          
+          previousPercent = currentPercent;
+        }
+        try {
+          
+          final String notUpdated = shortcutTargetUpdater.updateTargetIfMatch(shortcut, oldTarget, newTarget
+                                                                   , null
+                                                         , s -> this.appContext.warnUser(
+                                                                                              ZERO_i, s)
+                                                         ,   s -> this.appContext.errUser(
+                                                                                              ZERO_i, s));
+          if (notUpdated == null) {
+          
+            ++numUpdated;
+            
+            this.appContext.outUser(ZERO_i, "Target updated from " + dqStr(oldTarget)
+                                                            + " to "                 + dqStr(newTarget) + ".");
+          }
+          else {
+          
+            this.appContext.outUser(TWO_i, notUpdated);
+          }
+          userAborted = IOUtilities.handleUserInput( abortFromPause);
+          
+          if (userAborted) {
+            
+            this.appContext.warnUser(ZERO_i, NL + "Interruption requested by the user after " + FMT0DG.format((iShortcut + ONE_i)) + " shortcuts were processed.");
+          }
+        }
+        catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
+          
+          this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
+          
+          this.appContext.errUser(ZERO_i, NLT + "Skipping. Reason : " + e.getLocalizedMessage());
         }
       }
-      catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
-        
-        this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
-        
-        this.appContext.errUser(ZERO_i, NLT + "Skipping. Reason : " + e.getLocalizedMessage());
-      }
+      this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(numUpdated) + " shortcuts out of " + FMT0DG.format(shortcuts.size()) + " .");
     }
-    this.appContext.outUser(ONE_i, NL2 + "Finished updating " + numUpdated + " shortcuts out of " + shortcuts.size() + " .");
-    
     return userAborted;
   }
 
