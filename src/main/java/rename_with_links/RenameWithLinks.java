@@ -420,11 +420,12 @@ public final class RenameWithLinks {
   private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater,  File oldTarget
                                 , @NotNull File                   newTarget,              File searchFolder) {
     
-    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder " + dq(getCanonicalPath(searchFolder)) + " ...");
+    final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
+    
+    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder "
+                                                        + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + " ...");
     
     final char abortFromPause = CANCEL_CHARS.charAt(CANCEL_CHARS.length() - ONE_i);
-    
-    final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
     
     final List<File> shortcuts = FileUtilities.listFiles(
                                              effectiveSearchFolder
