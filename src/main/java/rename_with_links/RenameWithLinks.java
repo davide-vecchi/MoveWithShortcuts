@@ -95,6 +95,9 @@ public final class RenameWithLinks {
   }
   
   /**
+   * Invoked if the program has been started without args.<br>
+   * Runs the rename-and-update operation first asking to the user the values corresponding to the program args.
+   *
    * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
    *                              update} the target of a shortcut.
    *
