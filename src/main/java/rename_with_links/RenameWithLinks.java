@@ -387,7 +387,7 @@ public final class RenameWithLinks {
    */
   private void renameFileOrFolder(File originalFileOrFolder, File destinationFileOrFolder) throws IOException {
     
-    this.appContext.outUser(TWO_i, NL + "Renaming / moving " + dq(getCanonicalPath(originalFileOrFolder)) + " to " + dq(getCanonicalPath(destinationFileOrFolder)) + "...");
+    this.appContext.outUser(ONE_i, NL + "Renaming / moving " + dq(getCanonicalPath(originalFileOrFolder)) + " to " + dq(getCanonicalPath(destinationFileOrFolder)) + "...");
 
     if (! destinationFileOrFolder.getParentFile().exists()) {
 
@@ -395,7 +395,7 @@ public final class RenameWithLinks {
     }
     Files.move(originalFileOrFolder.toPath(), destinationFileOrFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
     
-    this.appContext.outUser(TWO_i, "Done.");
+    this.appContext.outUser(ONE_i, "Done.");
   }
 
   /**
