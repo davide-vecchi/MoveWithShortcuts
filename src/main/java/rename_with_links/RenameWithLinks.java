@@ -524,7 +524,9 @@ public final class RenameWithLinks {
           
           if (userAborted) {
             
-            this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after " + FMT0DG.format((iShortcut + ONE_i)) + " shortcuts were processed.");
+            this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after "
+                                                                   + FMT0DG.format((iShortcut + ONE_i)) + " shortcuts were processed and "
+                                                                   + FMT0DG.format((numUpdated))        + " of them were updated.");
           }
         }
         catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
