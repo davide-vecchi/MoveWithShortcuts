@@ -10,6 +10,7 @@ import dlog.log.Log;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
 import dutil.io.ConditionallyCloseablePrintStream;
+import dutil.system.OSUtilities;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
@@ -112,14 +113,14 @@ public class RenameWithLinksMain {
           
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
-          showStartupMessages(ac, args);
-          
-          final RenameWithLinks app = RenameWithLinks.newInstance(ac);
-          
           // Create the desired type of updater instance :
           
           final IShortcutTargetUpdater shortcutTargetUpdater = WinShortcutUpdater_PS_COM_WScript_Shell01.newInstance(
                                                                               false, ac.devLog);
+          showStartupMessages(ac, shortcutTargetUpdater, args);
+          
+          final RenameWithLinks app = RenameWithLinks.newInstance(ac);
+          
           // Perform the renaming operation using the chosen updater :
           
           if (args.length == ZERO_i) {
@@ -157,10 +158,14 @@ public class RenameWithLinksMain {
   /**
    * Shows the startup messages.
    *
-   * @param ac   The application context.
-   * @param args
+   * @param ac                    The application context.<br>
+   *
+   * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater} instance that this execution will use.<br>
+   *
+   * @param args                  The command line arguments with which this execution has been started.
    */
-  private static void showStartupMessages(@NotNull AppContext ac, String[] args) {
+  private static void showStartupMessages(@NotNull AppContext ac, @NotNull IShortcutTargetUpdater shortcutTargetUpdater
+                                        , @NotNull String[] args) {
   
     ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date() + NL);
     
@@ -175,6 +180,11 @@ public class RenameWithLinksMain {
     ac.outUser(ONE_i,      "  User log: " + getCanonicalPath(ac.userLog.logFile));
     
     ac.outUser(ONE_i,      "   Dev log: " + getCanonicalPath(ac.devLog.logFile));
+    
+    ac.outUser(ONE_i, NL + OSUtilities.getDescription());
+    
+    ac.outUser(ONE_i, NL + "Using " +   IShortcutTargetUpdater.class.getSimpleName()
+                                           + dq(shortcutTargetUpdater.getClass().getSimpleName()) + NL2);
   }
 
   private static void showUsage() {

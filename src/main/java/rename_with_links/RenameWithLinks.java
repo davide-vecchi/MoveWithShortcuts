@@ -11,7 +11,6 @@ import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
 import dutil.exception.exceptions.NonUniqueExternalValueException;
 import dutil.io.IOUtilities;
-import dutil.system.OSUtilities;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -108,10 +107,6 @@ public final class RenameWithLinks {
    */
   public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws UserRequestedTermination, IOException {
     
-    this.appContext.outUser(ONE_i, NL + OSUtilities.getDescription());
-    
-    this.appContext.outUser(ONE_i, NL + "Using " +   IShortcutTargetUpdater.class.getSimpleName()
-                                                        + dq(shortcutTargetUpdater.getClass().getSimpleName()) + NL2);
     assertWindowsOS();
     
     final File originalFileOrFolder = askOriginalPath();
