@@ -376,31 +376,31 @@ public class RenameWithLinksTest {
 
     // A corrupted .lnk should be skipped with a warning
 
-    final File srcFile = Files.createTempFile(this.tempDir, "corruptSrc_", EXTENSION_SEPARATOR + "txt").toFile();
+    final File originalFile = Files.createTempFile(this.tempDir, "corruptSrc_", EXTENSION_SEPARATOR + "txt").toFile();
 
-    Files.writeString(srcFile.toPath(), "corrupt");
+    Files.writeString(originalFile.toPath(), "corrupt");
 
-    final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch6_").toFile();
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "lnkSearch6_").toFile();
 
-    final File corruptedLnk = new File(searchDir, "bad" + WIN_SHORTCUT_EXTENSION);
+    final File corruptedLnk = new File(searchFolder, "bad" + WIN_SHORTCUT_EXTENSION);
 
     Files.writeString(corruptedLnk.toPath(), "this is not a valid shortcut");
 
-    final File destinationFileOrFolder = new File(this.tempDir.toFile(), "corrupt_renamed" + EXTENSION_SEPARATOR + "txt");
+    final File destinationFile = new File(this.tempDir.toFile(), "corrupt_renamed" + EXTENSION_SEPARATOR + "txt");
     
     final String verbosity = S(MAX_VERBOSITY);
     
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-             .thenReturn(getCanonicalPath(srcFile))
-             .thenReturn(getCanonicalPath(destinationFileOrFolder))
-             .thenReturn(getCanonicalPath(searchDir))
+             .thenReturn(getCanonicalPath(originalFile))
+             .thenReturn(getCanonicalPath(destinationFile))
+             .thenReturn(getCanonicalPath(searchFolder))
              .thenReturn(verbosity);
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
     app.run(this.shortcutTargetUpdater);
 
-    Assert.assertTrue(destinationFileOrFolder.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
+    Assert.assertTrue(destinationFile.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
   }
 
 }
