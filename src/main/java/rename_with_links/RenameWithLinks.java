@@ -212,7 +212,6 @@ public final class RenameWithLinks {
                                                           + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS) != null;
     return confirmed;
-    
   }
   
   /**
@@ -220,7 +219,7 @@ public final class RenameWithLinks {
    * @param argPath
    * @return
    */
-  private static @NotNull File resolveOriginalPath(final String argPath) {
+  private static @NotNull File resolveOriginalPath(final String argPath) throws IOException {
 
     final File file = new File(argPath);
 
@@ -228,7 +227,7 @@ public final class RenameWithLinks {
 
       throw new MissingExternalValueException(dq(argPath) + " does not exist.");
     }
-    return file;
+    return file.getCanonicalFile();
   }
   
   /**
@@ -237,7 +236,7 @@ public final class RenameWithLinks {
    * @param original
    * @return
    */
-  private static @NotNull File resolveDestinationFileOrFolder(final String argDestinationPath, final File original) {
+  private static @NotNull File resolveDestinationFileOrFolder(final String argDestinationPath, final File original) throws IOException {
 
     final String effectiveNewName;
 
@@ -261,7 +260,7 @@ public final class RenameWithLinks {
 
       throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
     }
-    return destination;
+    return destination.getCanonicalFile();
   }
   
   /**
@@ -270,7 +269,7 @@ public final class RenameWithLinks {
    * @param argSearchPath
    * @return
    */
-  private static @NotNull File resolveSearchDirectory(final String argSearchPath) {
+  private static @NotNull File resolveSearchDirectory(final String argSearchPath) throws IOException {
 
     final File searchDir = assertExistingFile(new File(assertValidPath(argSearchPath
                                                                                   , TRUE))
@@ -278,7 +277,7 @@ public final class RenameWithLinks {
 
     assertExistingFile(searchDir, TRUE);
     
-    return searchDir;
+    return searchDir.getCanonicalFile();
   }
   
   /**
