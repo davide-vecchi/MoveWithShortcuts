@@ -167,13 +167,16 @@ public final class RenameWithLinks {
    * destinationFileOrFolder} and {@link #updateShortcuts updates} accordingly all the shortcuts found under the given {@code
    * searchDir}, using the given {@code shortcutTargetUpdater updater}.
    *
-   * @param originalFileOrFolder
-   * @param destinationFileOrFolder
-   * @param searchDir
-   * @param shortcutTargetUpdater
+   * @param originalFileOrFolder    The file or folder to rename / move.<br>
+   *
+   * @param destinationFileOrFolder The new file path / name to which to rename / move the {@code originalFileOrFolder}.<br>
+   *
+   * @param searchDir               The folder under which to search for shortcut files whose target needs updating.<br>
+   *
+   * @param shortcutTargetUpdater   The updater to use to perform the update of the shortcuts' target that need it.
    */
   private void execute(@NotNull File originalFileOrFolder, @NotNull File destinationFileOrFolder, File searchDir
-                     , @NotNull IShortcutTargetUpdater shortcutTargetUpdater)throws IOException {
+                     , @NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws IOException {
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchDir)) {
       
