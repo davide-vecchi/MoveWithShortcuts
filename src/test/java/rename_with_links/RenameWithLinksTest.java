@@ -402,5 +402,48 @@ public class RenameWithLinksTest {
 
     Assert.assertTrue(destinationFile.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
   }
+  
+  /**
+   * Tests {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater)} as follows :<ol>
+   * <li>Under {@code src\test\resources\} creates subfolders {@code testExecute\sub1\sub2\sub3}.</li>
+   * <li>In this {@code sub3} folder creates file {@code Pointed-to-by-testExecute()-01.txt}.</li>
+   * <li>Verifies the test prerequisite that a shortcut named {@code Pointed-to-by-testExecute-01.txt.lnk} exists in {@code
+   *     src\test\resources\} having that created file as target.</li>
+   * <li>Invokes {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater) the tested method} passing :<ol>
+   *     <li>Folder {@code testExecute\sub1\sub2\} as the file / folder to rename / move ({@code originalFileOrFolder}
+   *         param).</li>
+   *     <li>Folder {@code testExecute\subA\subB\} as the destination file / folder of the rename / move ({@code
+   *         destinationFileOrFolder} param), which is thus expected to get created.</li>
+   *     <li>Folder {@code src\test\resources\} as the folder under which to recursively search for shortcuts having as
+   *         target the absoulte path of file {@code testExecute\sub1\sub2\sub3\Pointed-to-by-testExecute()-01.txt} ({@code
+   *         searchFolder} param).</li></ol>
+   * <li>Verifies that now the target of shortcut file {@code src\test\resources\Pointed-to-by-testExecute-01.txt.lnk}
+   *     has become the absoulte path of {@code
+   *     src\test\resources\testExecute\subA\subB\sub2\sub3\resources\Pointed-to-by-testExecute-01.txt}.</li>
+   * <li>For cleanup, deletes the {@code testExecute} folder that was created under {@code src\test\resources\}.</li></ol>
+   */
+  @Test
+  public void testExecute() throws IOException {
+
+    lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
+             .thenReturn("y");
+    
+    
+    
+    final Path testFolder = Files.createDirectories(Path.of("src", "test", "resources", "testExecute"));
+    
+    final Path originalFolder = Files.createDirectories(Path.of(testFolder.toString(), "sub1", "sub2", "sub3"));
+    
+    
+    
+    final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+    
+    //app.execute(originalFolder, destinationFileOrFolder, searchDir, this.shortcutTargetUpdater);
+    
+    
+    
+    
+    //FileUtils.deleteDirectory(rootFolder.toFile());
+  }
 
 }

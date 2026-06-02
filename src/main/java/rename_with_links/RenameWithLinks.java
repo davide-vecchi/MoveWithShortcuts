@@ -175,10 +175,10 @@ public final class RenameWithLinks {
    *
    * @param shortcutTargetUpdater   The updater to use to perform the update of the shortcuts' target that need it.
    */
-  private void execute(@NotNull File                   originalFileOrFolder
-                     , @NotNull File                   destinationFileOrFolder
-                     , @NotNull File                   searchFolder
-                     , @NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws IOException {
+  void execute(@NotNull File                   originalFileOrFolder
+             , @NotNull File                   destinationFileOrFolder
+             , @NotNull File                   searchFolder
+             , @NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws IOException {
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
       
