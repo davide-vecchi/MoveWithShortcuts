@@ -108,8 +108,10 @@ public final class RenameWithLinks {
    */
   public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws UserRequestedTermination, IOException {
     
-    this.appContext.outUser(ONE_i, NL + OSUtilities.getDescription() + NL2);
+    this.appContext.outUser(ONE_i, NL + OSUtilities.getDescription());
     
+    this.appContext.outUser(ONE_i, NL + "Using " +   IShortcutTargetUpdater.class.getSimpleName()
+                                                        + dq(shortcutTargetUpdater.getClass().getSimpleName()) + NL2);
     assertWindowsOS();
     
     final File originalFileOrFolder = askOriginalPath();
