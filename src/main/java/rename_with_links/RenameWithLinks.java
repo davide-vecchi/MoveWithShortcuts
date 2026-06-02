@@ -201,15 +201,17 @@ public final class RenameWithLinks {
    * @return Whether the user confirmed that the processing can start.
    */
   private boolean askStartConfirmation(@NotNull File originalFileOrFolder, @NotNull File destinationFileOrFolder
-                                     , @NotNull File searchDir) {
+                                     , @NotNull File searchFolder) {
     
-    assertNoneNull(originalFileOrFolder, destinationFileOrFolder, searchDir);
+    assertNoneNull(originalFileOrFolder, destinationFileOrFolder, searchFolder);
     
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm renaming / moving "
                                                           + (originalFileOrFolder.isFile() ? "file" : "folder")
                                                           + dq(getCanonicalPath(originalFileOrFolder))    + " to "
-                                                          + dq(getCanonicalPath(destinationFileOrFolder)) + ","
-                                                          + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                                          + dq(getCanonicalPath(destinationFileOrFolder))
+                                                          + " and updating the targets of the shortcuts pointing to it that are found under "
+                                                          + dq(getCanonicalPath(searchFolder))
+                                                          + ", or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS) != null;
     return confirmed;
   }
