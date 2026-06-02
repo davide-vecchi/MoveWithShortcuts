@@ -221,9 +221,9 @@ public final class RenameWithLinks {
    * @param argPath
    * @return
    */
-  private static @NotNull File resolveOriginalPath(final String argPath) throws IOException {
+  private static @NotNull File resolveOriginalPath(@NotBlank String argPath) throws IOException {
 
-    final File file = new File(argPath);
+    final File file = new File(assertNonBlankNorTrimmable(argPath));
 
     if (! file.exists()) {
 
@@ -238,11 +238,11 @@ public final class RenameWithLinks {
    * @param original
    * @return
    */
-  private static @NotNull File resolveDestinationFileOrFolder(final String argDestinationPath, final File original) throws IOException {
-
+  private static @NotNull File resolveDestinationFileOrFolder(@NotBlank String argDestinationPath
+                                                            , @NotNull  File   original) throws IOException {
     final String effectiveNewName;
 
-    if (hasPath(argDestinationPath)) {
+    if (hasPath(assertNonBlankNorTrimmable(argDestinationPath))) {
 
       effectiveNewName = getCanonicalPath(argDestinationPath);
     }
@@ -271,7 +271,7 @@ public final class RenameWithLinks {
    * @param argSearchPath
    * @return
    */
-  private static @NotNull File resolveSearchDirectory(final String argSearchPath) throws IOException {
+  private static @NotNull File resolveSearchDirectory(@NotBlank String argSearchPath) throws IOException {
 
     final File searchDir = assertExistingFile(new File(assertValidPath(argSearchPath
                                                                                   , TRUE))
