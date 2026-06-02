@@ -220,7 +220,7 @@ public final class RenameWithLinks {
    * @param argPath
    * @return
    */
-  private static File resolveOriginalPath(final String argPath) {
+  private static @NotNull File resolveOriginalPath(final String argPath) {
 
     final File file = new File(argPath);
 
@@ -237,7 +237,7 @@ public final class RenameWithLinks {
    * @param original
    * @return
    */
-  private static File resolveDestinationFileOrFolder(final String argDestinationPath, final File original) {
+  private static @NotNull File resolveDestinationFileOrFolder(final String argDestinationPath, final File original) {
 
     final String effectiveNewName;
 
@@ -270,7 +270,7 @@ public final class RenameWithLinks {
    * @param argSearchPath
    * @return
    */
-  private static File resolveSearchDirectory(final String argSearchPath) {
+  private static @NotNull File resolveSearchDirectory(final String argSearchPath) {
 
     final File searchDir = assertExistingFile(new File(assertValidPath(argSearchPath
                                                                                   , TRUE))
@@ -318,7 +318,7 @@ public final class RenameWithLinks {
    *
    * @throws MissingExternalValueException If the path entered by the user does not exist.
    */
-  private File askOriginalPath() throws UserRequestedTermination {
+  private @NotNull File askOriginalPath() throws UserRequestedTermination {
 
     final String existingPath = this.appContext.userIO.in(
                                                   "Enter the path of the file or folder to rename / move, either absolute"
@@ -357,7 +357,7 @@ public final class RenameWithLinks {
    * @throws InvalidPathException If the specified destination is a folder but the given {@code original} is a file, or
    *                              viceversa.
    */
-  private File askDestinationFileOrFolder(File original) throws UserRequestedTermination {
+  private @NotNull File askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination {
 
     final String newName = this.appContext.userIO.in(
                                       "Enter the new name for the file or folder (may include a path), or type "
@@ -399,7 +399,7 @@ public final class RenameWithLinks {
   /**
    * Asks the user for the path to scan for {@code .lnk} shortcuts to update.
    */
-  private File askSearchDirectory() throws UserRequestedTermination {
+  private @NotNull File askSearchDirectory() throws UserRequestedTermination {
     
     final String searchPath = this.appContext.userIO.in(
                                                 "Enter the path to scan for " + WIN_SHORTCUT_EXTENSION
