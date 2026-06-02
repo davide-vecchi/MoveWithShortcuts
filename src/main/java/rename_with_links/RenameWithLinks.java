@@ -207,7 +207,7 @@ public final class RenameWithLinks {
     
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm renaming / moving "
                                                           + (originalFileOrFolder.isFile() ? "file" : "folder")
-                                                          + dq(getCanonicalPath(originalFileOrFolder))    + " to "
+                                                          + dq(getCanonicalPath(originalFileOrFolder)) + " to "
                                                           + dq(getCanonicalPath(destinationFileOrFolder))
                                                           + " and updating the targets of the shortcuts pointing to it that are found under "
                                                           + dq(getCanonicalPath(searchFolder))
