@@ -1,3 +1,6 @@
+Fixed way to determine if a shortcut target is pointing to a given path (must point anywhere *under* that path, not just *to* it).
+
+
 
 With the new code the exception doesn't occur but the target is read as complete garbage. Output :
 
