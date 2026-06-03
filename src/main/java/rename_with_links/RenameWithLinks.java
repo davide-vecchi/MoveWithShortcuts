@@ -79,6 +79,13 @@ public final class RenameWithLinks {
 
   static final String CANCEL_CHARS = "Cc/";
   
+  /**
+   * Whether after retrieving the shortcuts to possibly update, a confirmation must be requested to the user before
+   * starting to process and possibly update the shortcuts. Default {@code true}. Typically set to {@code false} by
+   * tests.
+   */
+  boolean askBeforeProcessingShortcuts = true;
+  
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private final @NotNull AppContext appContext;
@@ -490,7 +497,8 @@ public final class RenameWithLinks {
     
     this.appContext.outUser(ONE_i, NL + "Found " + FMT0DG.format(numShortcuts) + " shortcut file(s) under " + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
     
-    boolean userAborted = this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(numShortcuts)
+    boolean userAborted =  this.askBeforeProcessingShortcuts
+                        && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(numShortcuts)
                                                             + " shortcut file(s) under " + dq(getCanonicalPath(
                                                                                effectiveSearchFolder.toFile()))
                                                             + " (the processing can be paused with the Enter key)"
