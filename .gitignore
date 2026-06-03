@@ -3,3 +3,4 @@
 /target/
 *.bak
 *.LOG
+/src/test/resources/testExecute/sub1/sub2to-move/sub3with-file/Pointed-to-by-testExecute01.txt
