@@ -405,25 +405,37 @@ public class RenameWithLinksTest {
   
   /**
    * Tests {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater)} as follows :<ol>
-   * <li>Under {@code src\test\resources\} creates subfolders {@code testExecute\sub1\sub2\sub3}.</li>
-   * <li>In this {@code sub3} folder creates file {@code Pointed-to-by-testExecute()-01.txt}.</li>
-   * <li>Verifies the test prerequisite that a shortcut named {@code Pointed-to-by-testExecute-01.txt.lnk} exists in {@code
-   *     src\test\resources\} having that created file as target.</li>
+   * <li>Under {@code src\test\resources\} creates subfolders {@code testExecute\sub1\sub2\sub3with-file\sub4\} and {@code
+   *     testExecute\sub1\sub2a\} .</li>
+   * <li>In {@code sub3with-file} folder creates file {@code Pointed-to-by-testExecute01.txt}.</li>
+   * <li>Verifies the test prerequisite that a shortcut named {@code testExecute01.txt.lnk} exists in {@code
+   *     src\test\resources\textExecute\} having that created file as target.<br>So the tree under {@code
+   *     src\test\resources\} will be :<pre>
+   *     | textExecute\
+   *     | --- sub1\
+   *     | --- --- sub2\
+   *     | --- --- --- sub3with-file\
+   *     | --- --- --- --- Pointed-to-by-testExecute01.txt
+   *     | --- --- --- --- sub4\
+   *     | --- --- sub2a\
+   *     | --- testExecute01.txt.lnk</pre>
+   *     </li>
+   *
    * <li>Invokes {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater) the tested method} passing :<ol>
    *     <li>Folder {@code testExecute\sub1\sub2\} as the file / folder to rename / move ({@code originalFileOrFolder}
    *         param).</li>
    *     <li>Folder {@code testExecute\subA\subB\} as the destination file / folder of the rename / move ({@code
    *         destinationFileOrFolder} param), which is thus expected to get created.</li>
    *     <li>Folder {@code src\test\resources\} as the folder under which to recursively search for shortcuts having as
-   *         target the absoulte path of file {@code testExecute\sub1\sub2\sub3\Pointed-to-by-testExecute()-01.txt} ({@code
-   *         searchFolder} param).</li></ol>
-   * <li>Verifies that now the target of shortcut file {@code src\test\resources\Pointed-to-by-testExecute-01.txt.lnk}
+   *         target the absoulte path of file {@code testExecute\sub1\sub2\sub3with-file\Pointed-to-by-testExecute01.txt}
+   *         ({@code searchFolder} param).</li></ol>
+   * <li>Verifies that now the target of shortcut file {@code src\test\resources\textExecute\testExecute01.txt.lnk}
    *     has become the absoulte path of {@code
-   *     src\test\resources\testExecute\subA\subB\sub2\sub3\resources\Pointed-to-by-testExecute-01.txt}.</li>
+   *     src\test\resources\testExecute\subA\subB\sub2\sub3with-file\sub4\resources\Pointed-to-by-testExecute01.txt}.</li>
    * <li>For cleanup, deletes the {@code testExecute} folder that was created under {@code src\test\resources\}.</li></ol>
    */
   @Test
-  public void testExecute() throws IOException {
+  public void testExecute01() throws IOException {
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn("y");
