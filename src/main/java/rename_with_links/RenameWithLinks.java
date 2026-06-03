@@ -27,7 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-import static dfile.file.FileUtilities.assertExistingFile;
+import static dfile.file.FileUtilities.assertExistingPath;
 import static dfile.file.FileUtilities.assertValidPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
@@ -273,11 +273,11 @@ public final class RenameWithLinks {
    */
   private static @NotNull File resolveSearchDirectory(@NotBlank String argSearchPath) throws IOException {
 
-    final File searchDir = assertExistingFile(new File(assertValidPath(argSearchPath
+    final File searchDir = assertExistingPath(new File(assertValidPath(argSearchPath
                                                                                   , TRUE))
                                                , TRUE);
 
-    assertExistingFile(searchDir, TRUE);
+    assertExistingPath(searchDir, TRUE);
     
     return searchDir.getCanonicalFile();
   }
@@ -413,7 +413,7 @@ public final class RenameWithLinks {
     }
     final File searchDir = new File(assertValidPath(searchPath, TRUE));
     
-    assertExistingFile(searchDir, TRUE);
+    assertExistingPath(searchDir, TRUE);
     
     return searchDir;
   }
