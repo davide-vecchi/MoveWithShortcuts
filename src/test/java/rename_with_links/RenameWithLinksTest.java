@@ -430,11 +430,6 @@ public class RenameWithLinksTest {
    *         <li>In {@code sub3-with-file} folder creates file {@code PointedToAndToMove.txt}.</li>
    *         <li>In {@code sub2a-to-stay}  folder creates file {@code PointedToAndToStay.txt}.</li></ol>
    *
-   * <li> 3) Verifies the 2 test prerequisites that :<ol>
-   *         <li>A shortcut named {@code PointedToAndToMove.txt.lnk} exists in {@code src\test\resources\textExecute\}
-   *             having file {@code PointedToAndToMove.txt} as target.</li>
-   *         <li>A shortcut named {@code PointedToAndToStay.txt.lnk} exists in {@code src\test\resources\textExecute\}
-   *             having file {@code PointedToAndToStay.txt} as target.</li></ol>
    *         <ul><li>So the tree under {@code src\test\resources\} will be :<pre>
    *                 | textExecute\
    *                 | --- sub1\
@@ -448,6 +443,12 @@ public class RenameWithLinksTest {
    *                 | --- --- subB\
    *                 | --- PointedToAndToMove.txt.lnk
    *                 | --- PointedToAndToStay.txt.lnk</pre></li></ul></li>
+   *
+   * <li> 3) Verifies the 2 test prerequisites that :<ol>
+   *         <li>A shortcut named {@code PointedToAndToMove.txt.lnk} exists in {@code src\test\resources\textExecute\}
+   *             having file {@code PointedToAndToMove.txt} as target.</li>
+   *         <li>A shortcut named {@code PointedToAndToStay.txt.lnk} exists in {@code src\test\resources\textExecute\}
+   *             having file {@code PointedToAndToStay.txt} as target.</li></ol></li>
    *
    * <li> 4) Invokes {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater) the tested method} passing :<ol>
    *         <li>Folder {@code testExecute\sub1\sub2-to-move\} as the file / folder to rename / move ({@code
