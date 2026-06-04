@@ -330,11 +330,14 @@ public class RenameWithLinksTest {
     ShellLink.createLink(getCanonicalPath(srcFile)).saveTo(getCanonicalPath(lnkFile));
 
     final File destinationFileOrFolder = new File(this.tempDir.toFile(), "lnk_renamed" + EXTENSION_SEPARATOR + "txt");
-
+    
+    final String verbosity = S(MAX_VERBOSITY);
+    
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
              .thenReturn(getCanonicalPath(destinationFileOrFolder))
-             .thenReturn(getCanonicalPath(searchDir));
+             .thenReturn(getCanonicalPath(searchDir))
+             .thenReturn(verbosity);
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
