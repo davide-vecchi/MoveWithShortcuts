@@ -43,7 +43,7 @@ import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
-import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -509,7 +509,7 @@ public class RenameWithLinksTest {
     
     final Path testExecute = Path.of(testResourcesFolder.toString(), "testExecute");
     
-    assertExistingPath(testExecute.toFile(), FALSE
+    assertExistingPath(testExecute.toFile(), TRUE
                           , "Test prerequisite not satisfied : a folder named " + dq(testExecute.getFileName().toString())
                                     + " must exist in folder "                             + dq(testResourcesFolder.toString()));
     
