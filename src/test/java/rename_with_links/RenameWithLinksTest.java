@@ -489,7 +489,7 @@ public class RenameWithLinksTest {
    * <li>10) For cleanup, deletes the folders {@code sub1} and {@code subA} that were created under {@code testExecute\}.</li></ul>
    */
   @Test
-  public void testExecute01() throws IOException {
+  void testExecute01() throws IOException {
 
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn("y");
@@ -498,11 +498,11 @@ public class RenameWithLinksTest {
     
     // 1 : Under "src\test\resources\" create subfolders :
     //
-    //   1 : "testExecute\sub1\sub2-to-move\sub3-with-file\sub4\".
+    //     1 : "testExecute\sub1\sub2-to-move\sub3-with-file\sub4\".
     //
-    //   2 : "testExecute\sub1\sub2a-to-stay\".
+    //     2 : "testExecute\sub1\sub2a-to-stay\".
     //
-    //   3 : "testExecute\subA\subB\".
+    //     3 : "testExecute\subA\subB\".
     
     final Path testResourcesFolder = Path.of("src", "test", "resources");
     
@@ -632,9 +632,7 @@ public class RenameWithLinksTest {
                                + " no longer contains file " + dq(sub2aToStay.toString())
                                + ". That is wrong, it should have not been moved or deleted.");
     
-    
-    
-    // 7 : Verifies that folder {@code sub2-moved\sub3-with-file\} now exists under {@code textExecute\subA\subB\} and
+    // 7 : Verify that folder {@code sub2-moved\sub3-with-file\} now exists under {@code textExecute\subA\subB\} and
     //     contains file "PointedToAndToMove.txt" :
     
     sub3WithFile = Path.of(subB.toString(), sub2moved.toString(), sub3WithFile.getFileName().toString());
@@ -650,9 +648,6 @@ public class RenameWithLinksTest {
                       , "The file " + dq(pointedToAndToMove.toString())
                                + " does not exist. That is wrong, it should have been moved to that folder when the original "
                                + dq(sub2ToMove.toAbsolutePath().toString()) + " became " + dq(sub2moved.toString()) + ".");
-    / // @@@@@@@@@@@@@
-    
-    
     
     // 8 : Verify that now the target of shortcut file "textExecute\PointedToAndToMove.txt.lnk" has become the absoulte
     //     path of "testExecute\subA\subB\sub2-moved\sub3-with-file\PointedToAndToMove.txt" :
@@ -663,27 +658,21 @@ public class RenameWithLinksTest {
                                                     , "sub2-moved", "sub3-with-file", "PointedToAndToMove.txt").toAbsolutePath().toString()
                      , "The shortcut file " + dq(shortcutToFileToMove.getFileName().toString())
                               + " does not have the expected target.");
-    //
     
+    // 9 : Verify that the target of shortcut file "textExecute\PointedToAndToStay.txt.lnk" is still the absoulte path
+    //     of "testExecute\sub1\sub2a-to-stay\PointedToAndToStay.txt".
     
+    sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToStay.toFile());
     
-    
-    
-    
-    
-    
-    
-    
-    //@@@@@@@@@@@
-    
-    
-    
+    Assert.assertEquals(sTmp, Path.of(testExecute.toString(), "PointedToAndToStay.txt").toAbsolutePath().toString()
+                                                    , "The shortcut file " + dq(shortcutToFileToStay.getFileName().toString())
+                                                             + " does not have the expected target.");
     // 10 : Cleanup :
     
     final List<File> deleted = FileUtilities.deleteAllFolders(testExecute.toFile());
     
     Assert.assertEquals(I(deleted.size()), TWO_I
-                     , "Error during test cleanup : the two folders that must have been created and now cleaned up are :"
+                     , "Error during test cleanup : the two folders that must have been created and now deleted are :"
                                 + NLT + dq(sub1.toString()) + NL + "and"
                                 + NLT + dq(subA.toString()) + "."
                                 + NL  + "Instead, the following " + deleted.size() + " folders were deleted :"
