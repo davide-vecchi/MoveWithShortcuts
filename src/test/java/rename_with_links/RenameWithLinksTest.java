@@ -504,9 +504,7 @@ public class RenameWithLinksTest {
     //
     //     3 : "testExecute\subA\subB\".
     
-    final Path testResourcesFolder = Path.of("src", "test", "resources");
-    
-    final Path testExecute = Path.of(testResourcesFolder.toString(), "testExecute");
+    final Path testExecute = getTestExecutePath();
     
     sTmp = checkIsExistingFolder(testExecute.toFile());
     
@@ -683,6 +681,15 @@ public class RenameWithLinksTest {
     assertContains(deleted, sub1.toFile(), dq(sub1.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
     
     assertContains(deleted, subA.toFile(), dq(subA.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
+  }
+  
+  /**
+   * @return The path of folder {@code src\test\resources\testExecute\}, which is used by some tests and must exist (and
+   *         have no <u>subfolders</u> in it) when such tests start.
+   */
+  private static Path getTestExecutePath() {
+    
+    return Path.of("src", "test", "resources", "testExecute");
   }
 
 }
