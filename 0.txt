@@ -1,4 +1,8 @@
-isUnder(containingFolder, contained)
+H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\tmpTestExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
+H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\tmpTestExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
+
+(enabled = false, description = "WIP 16:07 2026-06-04")
+testExecute01()isUnder(containingFolder, contained)
 
 oldTargetPath	H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move
 readTarget	H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt

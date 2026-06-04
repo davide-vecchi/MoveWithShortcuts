@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
@@ -105,7 +106,13 @@ public class RenameWithLinksTest {
     
     this.mockAppContext.currentVerbosity = MAX_VERBOSITY;
   }
-
+  
+  @AfterMethod
+  void afterMethod() throws IOException {
+    
+    deleteTmpTestExecutePath();
+  }
+  
   // ====== Construction ======
 
   @Test
@@ -506,7 +513,7 @@ public class RenameWithLinksTest {
     //
     //     3 : "testExecute\subA\subB\".
     
-    final Path testExecute = getTestExecutePath();
+    final Path testExecute = createTmpTestExecutePath();
     
     sTmp = checkIsExistingFolder(testExecute.toFile());
     
@@ -515,8 +522,6 @@ public class RenameWithLinksTest {
                                              + " must exist in folder "
                                              + dq(testExecute.getParent().toAbsolutePath().toString())
                                              + " (" + sTmp + ").");
-    
-    FileUtilities.deleteAllFolders(testExecute.toFile());
     
     final Path sub1 = Files.createDirectories(Path.of(testExecute.toString()
                                                        , "sub1"));
@@ -687,11 +692,57 @@ public class RenameWithLinksTest {
   
   /**
    * @return The path of folder {@code src\test\resources\testExecute\}, which is used by some tests and must exist (and
-   *         have no <u>subfolders</u> in it) when such tests start.
+   *         have no <u>subfolders</u> in it) when such tests start. It is not used directly, a {@link #getTmpTestExecutePath()
+   *         copy of it} {@link #createTmpTestExecutePath() is made} and the tests work on the copy, which is then {@link #deleteTmpTestExecutePath()
+   *         deleted} after the test.
    */
   private static Path getTestExecutePath() {
     
     return Path.of("src", "test", "resources", "testExecute");
   }
-
+  
+  /**
+   * @return The path of folder {@code tmpTestExecute\}, which is used by some tests. It is in {@link #getTestExecutePath()
+   * the same folder} as the {@code src\test\resources\testExecute\} folder.
+   */
+  private static Path getTmpTestExecutePath() {
+    
+    return Path.of(getTestExecutePath().getParent().toString(), "tmpTestExecute");
+  }
+  
+  /**
+   * Creates the {@link #getTmpTestExecutePath() tmpTestExecute\} folder by making a copy of {@link #getTestExecutePath()
+   * the original} in the same folder. If the folder to create already exists, deletes it first.
+   *
+   * @return The path of the created folder.
+   */
+  private static Path createTmpTestExecutePath() throws IOException {
+    
+    final Path destPath = deleteTmpTestExecutePath();
+    
+    FileUtils.copyDirectory(getTestExecutePath().toFile(), destPath.toFile(), false);
+    
+    return destPath;
+  }
+  
+  /**
+   * Deletes the {@link #getTmpTestExecutePath() tmpTestExecute\} folder if it exists.
+   */
+  private static Path deleteTmpTestExecutePath() throws IOException {
+    
+    final Path folder = getTmpTestExecutePath();
+    
+    try {
+      FileUtils.deleteDirectory(folder.toFile());
+      //Files.deleteIfExists(folder);
+    }
+    catch (IOException e) {
+      
+      folder.toFile().deleteOnExit();
+      
+      throw e;
+    }
+    return folder;
+  }
+  
 }
