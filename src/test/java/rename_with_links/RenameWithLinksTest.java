@@ -490,7 +490,7 @@ public class RenameWithLinksTest {
    */
   @Test
   void testExecute01() throws IOException {
-
+    
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn("y");
     
@@ -512,7 +512,8 @@ public class RenameWithLinksTest {
     
     Assert.assertNull(sTmp, "Test prerequisite not satisfied : a folder named "
                                              + dq(testExecute.getFileName().toString())
-                                             + " must exist in folder " + dq(testExecute.getParent().toAbsolutePath().toString())
+                                             + " must exist in folder "
+                                             + dq(testExecute.getParent().toAbsolutePath().toString())
                                              + " (" + sTmp + ").");
     
     FileUtilities.deleteAllFolders(testExecute.toFile());
