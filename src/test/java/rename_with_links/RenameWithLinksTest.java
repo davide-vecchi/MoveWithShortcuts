@@ -533,7 +533,6 @@ public class RenameWithLinksTest {
     
     final Path subB = Files.createDirectories(Path.of(testExecute.toString()
                                                         , "subA", "subB"));
-    
     // 2 : Create 2 files as follows :
     //
     //   1 : In "sub3-with-file" folder create file "PointedToAndToMove.txt".
@@ -545,7 +544,6 @@ public class RenameWithLinksTest {
     
     final Path pointedToAndToStay = Files.createFile(Path.of(sub2aToStay.toString()
                                                                , "PointedToAndToStay.txt"));
-    
     // 3 : Verify the 2 test prerequisites that :
     //
     //   3.1 : A shortcut named "PointedToAndToMove.txt.lnk" exists in "textExecute\" having file "PointedToAndToMove.txt"
