@@ -29,8 +29,8 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 
-import static dfile.file.FileUtilities.assertExistingPath;
 import static dfile.file.FileUtilities.checkIsExistingFile;
+import static dfile.file.FileUtilities.checkIsExistingFolder;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dutil.list.ListUtilities.assertContains;
 import static dutil.list.text.TextListUtilities.listToString;
@@ -43,7 +43,6 @@ import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
-import static java.lang.Boolean.TRUE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -509,9 +508,12 @@ public class RenameWithLinksTest {
     
     final Path testExecute = Path.of(testResourcesFolder.toString(), "testExecute");
     
-    assertExistingPath(testExecute.toFile(), TRUE
-                          , "Test prerequisite not satisfied : a folder named " + dq(testExecute.getFileName().toString())
-                                    + " must exist in folder "                             + dq(testResourcesFolder.toString()));
+    sTmp = checkIsExistingFolder(testExecute.toFile());
+    
+    Assert.assertNull(sTmp, "Test prerequisite not satisfied : a folder named "
+                                             + dq(testExecute.getFileName().toString())
+                                             + " must exist in folder " + dq(testExecute.getParent().toAbsolutePath().toString())
+                                             + " (" + sTmp + ").");
     
     FileUtilities.deleteAllFolders(testExecute.toFile());
     
@@ -555,14 +557,13 @@ public class RenameWithLinksTest {
     sTmp = checkIsExistingFile(shortcutToFileToMove.toFile());
     
     Assert.assertNull(sTmp, "Test prerequisite not satisfied : a shortcut file named "
-                                           + dq(shortcutToFileToMove.getFileName().toString())
-                                           + " must exist in folder " + dq(shortcutToFileToMove.getParent().toString())
-                                           + " (" + sTmp + ").");
+                                           + dq(shortcutToFileToMove.getFileName().toString()) + " must exist in folder "
+                                           + dq(shortcutToFileToMove.getParent().toAbsolutePath().toString()) + " (" + sTmp + ").");
     
     sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToMove.toFile());
     
     Assert.assertEquals(sTmp, pointedToAndToMove.toAbsolutePath().toString()
-                    , "Test prerequisite not satisfied: the shortcut file " + dq(shortcutToFileToMove.getFileName().toString())
+                    , "Test prerequisite not satisfied: the shortcut file " + dq(shortcutToFileToMove.toAbsolutePath().toString())
                              + " does not have the expected target.");
     //
     //   3.2 : A shortcut named "PointedToAndToStay.txt.lnk" exists in "textExecute\" having file "PointedToAndToStay.txt"
@@ -574,13 +575,13 @@ public class RenameWithLinksTest {
     
     Assert.assertNull(sTmp, "Test prerequisite not satisfied : a shortcut file named "
                                            + dq(shortcutToFileToStay.getFileName().toString())
-                                           + " must exist in folder " + dq(shortcutToFileToStay.getParent().toString())
+                                           + " must exist in folder " + dq(shortcutToFileToStay.getParent().toAbsolutePath().toString())
                                            + " (" + sTmp + ").");
     
     sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToStay.toFile());
     
     Assert.assertEquals(sTmp, pointedToAndToStay.toAbsolutePath().toString()
-                     , "Test prerequisite not satisfied: the shortcut file " + dq(shortcutToFileToStay.getFileName().toString())
+                     , "Test prerequisite not satisfied: the shortcut file " + dq(shortcutToFileToStay.toAbsolutePath().toString())
                               + " does not have the expected target.");
     
     // 4 : Invoke the tested method, to make it :
@@ -657,7 +658,7 @@ public class RenameWithLinksTest {
     
     Assert.assertEquals(sTmp, Path.of(subB.toString()
                                                     , "sub2-moved", "sub3-with-file", "PointedToAndToMove.txt").toAbsolutePath().toString()
-                     , "The shortcut file " + dq(shortcutToFileToMove.getFileName().toString())
+                     , "The shortcut file " + dq(shortcutToFileToMove.toAbsolutePath().toString())
                               + " does not have the expected target.");
     
     // 9 : Verify that the target of shortcut file "textExecute\PointedToAndToStay.txt.lnk" is still the absoulte path
@@ -666,7 +667,7 @@ public class RenameWithLinksTest {
     sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToStay.toFile());
     
     Assert.assertEquals(sTmp, Path.of(testExecute.toString(), "PointedToAndToStay.txt").toAbsolutePath().toString()
-                                                    , "The shortcut file " + dq(shortcutToFileToStay.getFileName().toString())
+                                                    , "The shortcut file " + dq(shortcutToFileToStay.toAbsolutePath().toString())
                                                              + " does not have the expected target.");
     // 10 : Cleanup :
     
