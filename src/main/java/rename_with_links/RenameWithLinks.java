@@ -463,8 +463,8 @@ public final class RenameWithLinks {
    * original path, updates it to the new path.
    *
    * @param shortcutTargetUpdater The object to use to {@link IShortcutTargetUpdater#updateTargetIfMatch update} the
-   *                              target of the shortcuts found under {@code searchFolder} tree that have it equal to {@code
-   *                              oldTarget}.<br>
+   *                              target of the shortcuts found under {@code searchFolder} tree that have it {@link FileUtilities#isUnderPath
+   *                              matching} {@code oldTarget}.<br>
    *
    * @param oldTarget             The target that - if present in a shortcut - must be updated to {@code newTarget}.<br>
    *
