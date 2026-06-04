@@ -217,33 +217,33 @@ public class RenameWithLinksTest {
 
   @Test
   void renameFile() throws Throwable {
-
+    
     // Full happy path: rename a real file
-
+    
     final File srcFile = Files.createTempFile(this.tempDir, "src_", ".txt").toFile();
-
+    
     Files.writeString(srcFile.toPath(), "test content");
-
+    
     final File searchDir = Files.createTempDirectory(this.tempDir, "lnkSearch_").toFile();
-
+    
     final File destinationFileOrFolder = new File(this.tempDir.toFile(), "renamed_file.txt");
     
     final String verbosity = S(MAX_VERBOSITY);
-
+    
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
              .thenReturn(getCanonicalPath(destinationFileOrFolder))
              .thenReturn(getCanonicalPath(searchDir))
              .thenReturn(verbosity);
-
+    
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
-
+    
     app.run(this.shortcutTargetUpdater);
-
+    
     Assert.assertFalse(srcFile.exists(), "Source file should have been renamed");
-
+    
     Assert.assertTrue(destinationFileOrFolder.exists(), "New file should exist");
-
+    
     Assert.assertEquals(Files.readString(destinationFileOrFolder.toPath()), "test content");
   }
 
@@ -391,15 +391,15 @@ public class RenameWithLinksTest {
     // A corrupted .lnk should be skipped with a warning
 
     final File originalFile = Files.createTempFile(this.tempDir, "corruptSrc_", EXTENSION_SEPARATOR + "txt").toFile();
-
+    
     Files.writeString(originalFile.toPath(), "corrupt");
-
+    
     final File searchFolder = Files.createTempDirectory(this.tempDir, "lnkSearch6_").toFile();
-
+    
     final File corruptedLnk = new File(searchFolder, "bad" + WIN_SHORTCUT_EXTENSION);
-
+    
     Files.writeString(corruptedLnk.toPath(), "this is not a valid shortcut");
-
+    
     final File destinationFile = new File(this.tempDir.toFile(), "corrupt_renamed" + EXTENSION_SEPARATOR + "txt");
     
     final String verbosity = S(MAX_VERBOSITY);
@@ -409,11 +409,11 @@ public class RenameWithLinksTest {
              .thenReturn(getCanonicalPath(destinationFile))
              .thenReturn(getCanonicalPath(searchFolder))
              .thenReturn(verbosity);
-
+    
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
-
+    
     app.run(this.shortcutTargetUpdater);
-
+    
     Assert.assertTrue(destinationFile.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
   }
   
