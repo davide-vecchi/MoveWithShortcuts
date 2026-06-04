@@ -635,7 +635,8 @@ public class RenameWithLinksTest {
     // 7 : Verify that folder {@code sub2-moved\sub3-with-file\} now exists under {@code textExecute\subA\subB\} and
     //     contains file "PointedToAndToMove.txt" :
     
-    sub3WithFile = Path.of(subB.toString(), sub2moved.toString(), sub3WithFile.getFileName().toString());
+    sub3WithFile = Path.of(subB.toString(), sub2moved.getFileName().toString()
+                                                          , sub3WithFile.getFileName().toString());
     
     Assert.assertTrue(sub3WithFile.toFile().exists()
                       , "The folder " + dq(sub3WithFile.toString())
