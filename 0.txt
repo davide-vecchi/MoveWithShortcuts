@@ -1,3 +1,14 @@
+isUnder(containingFolder, contained)
+
+readTarget	H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
+oldTargetPath	H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move
+
+
+
+
+
+
+
 Fixed way to determine if a shortcut target is pointing to a given path (must point anywhere *under* that path, not just *to* it).
 
 
