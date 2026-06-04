@@ -3,6 +3,7 @@
  */
 package rename_with_links;
 
+import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
 import dfile.shortcut.WinShortcutUpdater_PS_COM_WScript_Shell01;
 import dlog.log.Log;
@@ -26,15 +27,25 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.List;
 
 import static dfile.file.FileUtilities.assertExistingPath;
+import static dfile.file.FileUtilities.checkIsExistingFile;
 import static dfile.file.FileUtilities.getCanonicalPath;
-import static dutil.object.ObjectUtilities.assertEqual;
+import static dutil.list.ListUtilities.assertContains;
+import static dutil.list.text.TextListUtilities.listToString;
+import static dutil.number.NumberUtilities.I;
+import static dutil.number.NumberUtilities.TWO_I;
+import static dutil.string.TextUtilities.NL;
+import static dutil.string.TextUtilities.NLT;
+import static dutil.string.TextUtilities.NLT2;
 import static dutil.string.TextUtilities.S;
+import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static java.lang.Boolean.FALSE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.testng.Assert.assertNotNull;
@@ -408,48 +419,74 @@ public class RenameWithLinksTest {
   }
   
   /**
-   * Tests {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater)} as follows :<ol>
-   * <li>Under {@code src\test\resources\} creates subfolders {@code testExecute\sub1\sub2-to-move\sub3-with-file\sub4\}
-   *     and {@code testExecute\sub1\sub2a\}.</li>
-   * <li>In {@code sub3-with-file} folder creates file {@code Pointed-to-by-testExecute01.txt}.</li>
-   * <li>Verifies the test prerequisite that a shortcut named {@code testExecute01.txt.lnk} exists in {@code
-   *     src\test\resources\textExecute\} having that created file as target.<br>So the tree under {@code
-   *     src\test\resources\} will be :<pre>
-   *     | textExecute\
-   *     | --- sub1\
-   *     | --- --- sub2-to-move\
-   *     | --- --- --- sub3-with-file\
-   *     | --- --- --- --- Pointed-to-by-testExecute01.txt
-   *     | --- --- --- --- sub4\
-   *     | --- --- sub2a\
-   *     | --- testExecute01.txt.lnk</pre>
-   *     </li>
-   * <li>Invokes {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater) the tested method} passing :<ol>
-   *     <li>Folder {@code testExecute\sub1\sub2-to-move\} as the file / folder to rename / move ({@code
-   *         originalFileOrFolder} param).</li>
-   *     <li>Folder {@code testExecute\subA\subB\sub2-moved\} as the destination file / folder of the rename / move ({@code
-   *         destinationFileOrFolder} param), which is thus expected to get created.</li>
-   *     <li>Folder {@code testExecute\} as the folder under which to recursively search for shortcuts having as target
-   *         the absoulte path of file {@code
-   *         testExecute\sub1\sub2-to-move\sub3-with-file\Pointed-to-by-testExecute01.txt} ({@code searchFolder} param).</li></ol>
-   *         Now the tree must have become :<pre>
-   *         | textExecute\
-   *         | --- sub1\
-   *         | --- --- sub2a\
-   *         | --- subA\
-   *         | --- --- subB\
-   *         | --- --- --- sub2-moved\
-   *         | --- --- --- --- sub3-with-file\
-   *         | --- --- --- --- --- Pointed-to-by-testExecute01.txt
-   *         | --- --- --- --- --- sub4\
-   *         | --- testExecute01.txt.lnk</pre>
-   *         </li>
-   *     <li>Verifies that now the folder {@code sub2-to-move\} no longer exists under folder {@code testExecute\sub1\}
+   * Tests {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater)} as follows :<ul>
+   *
+   * <li> 1) Under {@code src\test\resources\} creates subfolders :<ol>
+   *         <li>{@code testExecute\sub1\sub2-to-move\sub3-with-file\sub4\}.</li>
+   *         <li>{@code testExecute\sub1\sub2a-to-stay\}.</li>
+   *         <li>{@code testExecute\subA\subB\}.</li></ol></li>
+   *
+   * <li> 2) Creates 2 files as follows :<ol>
+   *         <li>In {@code sub3-with-file} folder creates file {@code PointedToAndToMove.txt}.</li>
+   *         <li>In {@code sub2a-to-stay}  folder creates file {@code PointedToAndToStay.txt}.</li></ol>
+   *
+   * <li> 3) Verifies the 2 test prerequisites that :<ol>
+   *         <li>A shortcut named {@code PointedToAndToMove.txt.lnk} exists in {@code src\test\resources\textExecute\}
+   *             having file {@code PointedToAndToMove.txt} as target.</li>
+   *         <li>A shortcut named {@code PointedToAndToStay.txt.lnk} exists in {@code src\test\resources\textExecute\}
+   *             having file {@code PointedToAndToStay.txt} as target.</li></ol>
+   *         <ul><li>So the tree under {@code src\test\resources\} will be :<pre>
+   *                 | textExecute\
+   *                 | --- sub1\
+   *                 | --- --- sub2-to-move\
+   *                 | --- --- --- sub3-with-file\
+   *                 | --- --- --- --- PointedToAndToMove.txt
+   *                 | --- --- --- --- sub4\
+   *                 | --- --- sub2a-to-stay\
+   *                 | --- --- --- PointedToAndToStay.txt
+   *                 | --- subA\
+   *                 | --- --- subB\
+   *                 | --- PointedToAndToMove.txt.lnk
+   *                 | --- PointedToAndToStay.txt.lnk</pre></li></ul></li>
+   *
+   * <li> 4) Invokes {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater) the tested method} passing :<ol>
+   *         <li>Folder {@code testExecute\sub1\sub2-to-move\} as the file / folder to rename / move ({@code
+   *             originalFileOrFolder} param).</li>
+   *         <li>Folder {@code testExecute\subA\subB\sub2-moved\} as the destination file / folder of the rename / move ({@code
+   *             destinationFileOrFolder} param), which is thus expected to get created.</li>
+   *         <li>Folder {@code testExecute\} as the folder under which to recursively search for shortcuts having as target
+   *             the absoulte path of file {@code
+   *             testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt} ({@code searchFolder} param).</li></ol>
+   *         <ul><li>Now the tree must have become :<pre>
+   *                 | textExecute\
+   *                 | --- sub1\
+   *                 | --- --- sub2a-to-stay\
+   *                 | --- --- --- PointedToAndToStay.txt
+   *                 | --- subA\
+   *                 | --- --- subB\
+   *                 | --- --- --- sub2-moved\
+   *                 | --- --- --- --- sub3-with-file\
+   *                 | --- --- --- --- --- PointedToAndToMove.txt
+   *                 | --- --- --- --- --- sub4\
+   *                 | --- PointedToAndToMove.txt.lnk
+   *                 | --- PointedToAndToStay.txt.lnk</pre></li></ul></li>
+   *
+   * <li> 5) Verifies that now the folder {@code sub2-to-move\} no longer exists under folder {@code testExecute\sub1\}
    *         and now exists as {@code testExecute\subA\subB\sub2-moved\} .</li>
-   *     <li>Verifies that folder {@code sub2a\} still exists under {@code textExecute\sub1\} and it's still empty.</li>
-   *     <li>Verifies that now the target of shortcut file {@code textExecute\testExecute01.txt.lnk} has become the
-   *         absoulte path of {@code testExecute\subA\subB\sub2-moved\sub3-with-file\Pointed-to-by-testExecute01.txt}.</li>
-   * <li>For cleanup, deletes the {@code sub1} folder that was created under {@code testExecute\}.</li></ol>
+   *
+   * <li> 6) Verifies that folder {@code sub2a-to-stay\} still exists under {@code textExecute\sub1\} and it still
+   *         contains file "PointedToAndToStay.txt".</li>
+   *
+   * <li> 7) Verifies that folder {@code sub2-moved\sub3-with-file\} now exists under {@code textExecute\subA\subB\} and
+   *         contains file "PointedToAndToMove.txt".</li>
+   *
+   * <li> 8) Verifies that now the target of shortcut file {@code textExecute\PointedToAndToMove.txt.lnk} has become the
+   *         absoulte path of {@code testExecute\subA\subB\sub2-moved\sub3-with-file\PointedToAndToMove.txt}.</li>
+   *
+   * <li> 9) Verifies that the target of shortcut file {@code textExecute\PointedToAndToStay.txt.lnk} is still the
+   *         absoulte path of {@code testExecute\sub1\sub2a-to-stay\PointedToAndToStay.txt}.</li>
+   *
+   * <li>10) For cleanup, deletes the folders {@code sub1} and {@code subA} that were created under {@code testExecute\}.</li></ul>
    */
   @Test
   public void testExecute01() throws IOException {
@@ -457,14 +494,25 @@ public class RenameWithLinksTest {
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn("y");
     
+    String sTmp;
     
-    // 1 : Under "src\test\resources\" create subfolders "testExecute\sub1\sub2-to-move\sub3-with-file\sub4\" and
-    //     "testExecute\sub1\sub2a\" :
+    // 1 : Under "src\test\resources\" create subfolders :
+    //
+    //   1 : "testExecute\sub1\sub2-to-move\sub3-with-file\sub4\".
+    //
+    //   2 : "testExecute\sub1\sub2a-to-stay\".
+    //
+    //   3 : "testExecute\subA\subB\".
     
     final Path testResourcesFolder = Path.of("src", "test", "resources");
     
-    final Path testExecute = Files.createDirectories(Path.of(testResourcesFolder.toString()
-                                                              , "testExecute"));
+    final Path testExecute = Path.of(testResourcesFolder.toString(), "testExecute");
+    
+    assertExistingPath(testExecute.toFile(), FALSE
+                          , "Test prerequisite not satisfied : a folder named " + dq(testExecute.getFileName().toString())
+                                    + " must exist in folder "                             + dq(testResourcesFolder.toString()));
+    
+    FileUtilities.deleteAllFolders(testExecute.toFile());
     
     final Path sub1 = Files.createDirectories(Path.of(testExecute.toString()
                                                        , "sub1"));
@@ -472,57 +520,178 @@ public class RenameWithLinksTest {
     final Path sub2ToMove = Files.createDirectories(Path.of(sub1.toString()
                                                              , "sub2-to-move"));
     
-    final Path sub3WithFile = Files.createDirectories(Path.of(sub2ToMove.toString()
-                                                               , "sub3-with-file"));
+    Path sub3WithFile = Files.createDirectories(Path.of(sub2ToMove.toString()
+                                                         , "sub3-with-file"));
     
-    // 2 : In 'sub3-with-file' folder create the "pointed to" file "Pointed-to-by-testExecute01.txt" :
+    Files.createDirectories(Path.of(sub3WithFile.toString(), "sub4"));
     
-    final Path pointedTo = Files.createFile(Path.of(sub3WithFile.toString()
-                                                      , "Pointed-to-by-testExecute01.txt"));
+    final Path sub2aToStay = Files.createDirectories(Path.of(sub1.toString()
+                                                              , "sub2a-to-stay"));
     
-    // 3 : Verify the test prerequisite that a shortcut named "testExecute01.txt.lnk" exists in "textExecute\" having
-    //     that "pointed to" file as target :
+    final Path subB = Files.createDirectories(Path.of(testExecute.toString()
+                                                        , "subA", "subB"));
     
-    final Path shortcutFile = Path.of(testExecute.toString(), "testExecute01.txt.lnk");
+    // 2 : Create 2 files as follows :
+    //
+    //   1 : In "sub3-with-file" folder create file "PointedToAndToMove.txt".
+    //
+    //   2 : In "sub2a-to-stay"  folder create file "PointedToAndToStay.txt".
     
-    assertExistingPath(shortcutFile.toString(), FALSE
-                , "Test prerequisite not satisfied : a shortcut file named " + dq(shortcutFile.getFileName().toString())
-                          + " must exist in folder "                                   + dq(shortcutFile.getParent().toString()));
+    Path pointedToAndToMove = Files.createFile(Path.of(sub3WithFile.toString()
+                                                         , "PointedToAndToMove.txt"));
     
-    String sTmp = this.shortcutTargetUpdater.readTarget(shortcutFile.toFile());
+    final Path pointedToAndToStay = Files.createFile(Path.of(sub2aToStay.toString()
+                                                               , "PointedToAndToStay.txt"));
     
-    assertEqual(sTmp, pointedTo.toAbsolutePath().toString()
-              , "Test prerequisite not satisfied: the shortcut file " + dq(shortcutFile.getFileName().toString())
-                   + " must have target "                                  + dq(pointedTo.toAbsolutePath().toString())
-                   + " instead it has target "                             + dq(sTmp) + ".");
+    // 3 : Verify the 2 test prerequisites that :
+    //
+    //   3.1 : A shortcut named "PointedToAndToMove.txt.lnk" exists in "textExecute\" having file "PointedToAndToMove.txt"
+    //         as target :
+    //
     
-    // 4: Invoke the tested method, to make it :
+    final Path shortcutToFileToMove = Path.of(testExecute.toString(), "PointedToAndToMove.txt.lnk");
+    
+    sTmp = checkIsExistingFile(shortcutToFileToMove.toFile());
+    
+    Assert.assertNull(sTmp, "Test prerequisite not satisfied : a shortcut file named "
+                                           + dq(shortcutToFileToMove.getFileName().toString())
+                                           + " must exist in folder " + dq(shortcutToFileToMove.getParent().toString())
+                                           + " (" + sTmp + ").");
+    
+    sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToMove.toFile());
+    
+    Assert.assertEquals(sTmp, pointedToAndToMove.toAbsolutePath().toString()
+                    , "Test prerequisite not satisfied: the shortcut file " + dq(shortcutToFileToMove.getFileName().toString())
+                             + " does not have the expected target.");
+    //
+    //   3.2 : A shortcut named "PointedToAndToStay.txt.lnk" exists in "textExecute\" having file "PointedToAndToStay.txt"
+    //         as target :
+    
+    final Path shortcutToFileToStay = Path.of(testExecute.toString(), "PointedToAndToStay.txt.lnk");
+    
+    sTmp = checkIsExistingFile(shortcutToFileToStay.toFile());
+    
+    Assert.assertNull(sTmp, "Test prerequisite not satisfied : a shortcut file named "
+                                           + dq(shortcutToFileToStay.getFileName().toString())
+                                           + " must exist in folder " + dq(shortcutToFileToStay.getParent().toString())
+                                           + " (" + sTmp + ").");
+    
+    sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToStay.toFile());
+    
+    Assert.assertEquals(sTmp, pointedToAndToStay.toAbsolutePath().toString()
+                     , "Test prerequisite not satisfied: the shortcut file " + dq(shortcutToFileToStay.getFileName().toString())
+                              + " does not have the expected target.");
+    
+    // 4 : Invoke the tested method, to make it :
     //
     //    - make folder "testExecute\sub1\sub2-to-move\" become "testExecute\subA\subB\sub2-moved\";
     //
     //    - recursively search folder "testExecute\" for shortcuts having as target the absoulte path of file
-    //      "testExecute\sub1\sub2-to-move\sub3-with-file\Pointed-to-by-testExecute01.txt";
+    //      "testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt";
     //
-    //    - find shortcut "testExecute\testExecute01.txt.lnk";
+    //    - find shortcut "testExecute\PointedToAndToMove.txt.lnk";
     //
     //    - update its target,
-    //      from "testExecute\sub1\sub2to-move\sub3with-file\Pointed-to-by-testExecute01.txt"
-    //      to   "textExecute\subA\subB\sub2-moved\sub3with-file\Pointed-to-by-testExecute01.txt"
+    //      from "testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt"
+    //      to   "textExecute\subA\subB\sub2-moved\sub3-with-file\PointedToAndToMove.txt"
     //  :
     
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
     
-    final Path sub2moved = Path.of(testExecute.toString(), "subA", "subB", "sub2-moved");
+    app.askBeforeProcessingShortcuts = false;
+    
+    final Path subA =      Path.of(testExecute.toString(), "subA");
+    
+    final Path sub2moved = Path.of(subA.toString(), "subB", "sub2-moved");
     
     app.execute(sub2ToMove. toFile(),sub2moved.toFile()
                      , testExecute.toFile(),                       this.shortcutTargetUpdater);
     
+    // 5 : Verify that now the folder "sub2-to-move\" no longer exists under folder "testExecute\sub1\" and now exists
+    //     as "testExecute\subA\subB\sub2-moved\" :
+    
+    Assert.assertFalse(sub2ToMove.toFile().exists()
+                       , "The folder to move (" + dq(sub2ToMove.toString())
+                                + ") still exists. That is wrong, it should have been moved to become "
+                                + dq(sub2moved.toString()) + ".");
+    
+    Assert.assertTrue(sub2moved.toFile().exists()
+                      , "The supposedly moved folder (" + dq(sub2moved.toString())
+                               + ") does not exist. That is wrong, folder " + dq(sub2ToMove.toString())
+                               + " should have been moved to become that.");
+    
+    // 6 : Verify that folder "sub2a-to-stay" still exists under "textExecute\sub1\" and it still contains file
+    //     "PointedToAndToStay.txt" :
+    
+    Assert.assertTrue(sub2aToStay.toFile().exists()
+                      , "The folder " + dq(sub2aToStay.toString())
+                               + " no longer exists. That is wrong, it should have not been moved or deleted.");
+    
+    Assert.assertTrue(pointedToAndToStay.toFile().exists()
+                      , "The folder " + dq(sub2aToStay.toString())
+                               + " no longer contains file " + dq(sub2aToStay.toString())
+                               + ". That is wrong, it should have not been moved or deleted.");
+    
+    
+    
+    // 7 : Verifies that folder {@code sub2-moved\sub3-with-file\} now exists under {@code textExecute\subA\subB\} and
+    //     contains file "PointedToAndToMove.txt" :
+    
+    sub3WithFile = Path.of(subB.toString(), sub2moved.toString(), sub3WithFile.getFileName().toString());
+    
+    Assert.assertTrue(sub3WithFile.toFile().exists()
+                      , "The folder " + dq(sub3WithFile.toString())
+                               + " does not exist. That is wrong, the original "
+                               + dq(sub2ToMove.toAbsolutePath().toString()) + " should have become it.");
+    
+    pointedToAndToMove = Path.of(sub3WithFile.toString(), pointedToAndToMove.getFileName().toString());
+    
+    Assert.assertTrue(pointedToAndToMove.toFile().exists()
+                      , "The file " + dq(pointedToAndToMove.toString())
+                               + " does not exist. That is wrong, it should have been moved to that folder when the original "
+                               + dq(sub2ToMove.toAbsolutePath().toString()) + " became " + dq(sub2moved.toString()) + ".");
+    / // @@@@@@@@@@@@@
+    
+    
+    
+    // 8 : Verify that now the target of shortcut file "textExecute\PointedToAndToMove.txt.lnk" has become the absoulte
+    //     path of "testExecute\subA\subB\sub2-moved\sub3-with-file\PointedToAndToMove.txt" :
+    
+    sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToMove.toFile());
+    
+    Assert.assertEquals(sTmp, Path.of(subB.toString()
+                                                    , "sub2-moved", "sub3-with-file", "PointedToAndToMove.txt").toAbsolutePath().toString()
+                     , "The shortcut file " + dq(shortcutToFileToMove.getFileName().toString())
+                              + " does not have the expected target.");
+    //
     
     
     
     
     
-    //FileUtils.deleteDirectory(rootFolder.toFile());
+    
+    
+    
+    
+    
+    //@@@@@@@@@@@
+    
+    
+    
+    // 10 : Cleanup :
+    
+    final List<File> deleted = FileUtilities.deleteAllFolders(testExecute.toFile());
+    
+    Assert.assertEquals(I(deleted.size()), TWO_I
+                     , "Error during test cleanup : the two folders that must have been created and now cleaned up are :"
+                                + NLT + dq(sub1.toString()) + NL + "and"
+                                + NLT + dq(subA.toString()) + "."
+                                + NL  + "Instead, the following " + deleted.size() + " folders were deleted :"
+                                + NLT + listToString(deleted, EMPTY, TAB, EMPTY, NLT2));
+    
+    assertContains(deleted, sub1.toFile(), dq(sub1.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
+    
+    assertContains(deleted, subA.toFile(), dq(subA.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
   }
 
 }
