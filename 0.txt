@@ -1,3 +1,12 @@
+isUnder(contained, containingFolder)
+
+contained		H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
+containingFolder	H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move
+
+
+
+
+
 H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\tmpTestExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
 H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\tmpTestExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
 
