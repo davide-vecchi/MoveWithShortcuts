@@ -675,7 +675,7 @@ public class RenameWithLinksTest {
     
     sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToStay.toFile());
     
-    Assert.assertEquals(sTmp, Path.of(testExecute.toString(), "PointedToAndToStay.txt").toAbsolutePath().toString()
+    Assert.assertEquals(sTmp, Path.of(sub2aToStay.toString(), "PointedToAndToStay.txt").toAbsolutePath().toString()
                     , "Step 9 : The shortcut file " + dq(shortcutToFileToStay.toAbsolutePath().toString()) + NL
                              + "does not have the expected target.");
     // 10 : Cleanup :
