@@ -745,7 +745,6 @@ public class RenameWithLinksTest {
     try {
       
       FileUtils.deleteDirectory(folder.toFile());
-      //Files.deleteIfExists(folder);
     }
     catch (IOException e) {
       
