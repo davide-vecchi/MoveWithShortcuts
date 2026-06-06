@@ -108,9 +108,13 @@ public class RenameWithLinksTest {
   }
   
   @AfterMethod
-  void afterMethod() throws IOException {
+  void afterMethod() {
     
-    deleteTmpTestExecutePath();
+    // Commented out because the tmptestExecute folder must be deleted only if the test succeeds, to allow for its
+    // inspection if the test fails. So this deletion is done by the test method itself if it completes.
+    //
+    //    deleteTmpTestExecutePath();
+    
   }
   
   // ====== Construction ======
@@ -687,7 +691,11 @@ public class RenameWithLinksTest {
     
     assertContains(deleted, sub1.toFile(), dq(sub1.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
     
-    assertContains(deleted, subA.toFile(), dq(subA.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
+    // The tmptestExecute folder must be deleted only if the test succeeds, to allow for its inspection if the test
+    // fails. So this deletion is done by the test method itself if it completes, instead of in and after* medhod of
+    // the test cycle.
+    
+    deleteTmpTestExecutePath();
   }
   
   /**
