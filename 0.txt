@@ -1,7 +1,7 @@
-isUnder(contained, containingFolder)
+isUnder(contained, ancestorFolder)
 
-contained		H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
-containingFolder	H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move
+contained	H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
+ancestorFolder	H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move
 
 
 
