@@ -552,8 +552,10 @@ public class RenameWithLinksTest {
     Path pointedToAndToMove = Files.createFile(Path.of(sub3WithFile.toString()
                                                          , "PointedToAndToMove.txt"));
     
-    final Path pointedToAndToStay = Files.createFile(Path.of(sub2aToStay.toString()
-                                                               , "PointedToAndToStay.txt"));
+    final Path pointedToAndToStayFile = Path.of(sub2aToStay.toString(), "PointedToAndToStay.txt");
+    
+    final Path pointedToAndToStay = Files.createFile(pointedToAndToStayFile);
+    
     // 3 : Verify the 2 test prerequisites that :
     //
     //   3.1 : A shortcut named "PointedToAndToMove.txt.lnk" exists in "textExecute\" having file "PointedToAndToMove.txt"
@@ -675,7 +677,7 @@ public class RenameWithLinksTest {
     
     sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToStay.toFile());
     
-    Assert.assertEquals(sTmp, Path.of(sub2aToStay.toString(), "PointedToAndToStay.txt").toAbsolutePath().toString()
+    Assert.assertEquals(sTmp, pointedToAndToStayFile.toAbsolutePath().toString()
                     , "Step 9 : The shortcut file " + dq(shortcutToFileToStay.toAbsolutePath().toString()) + NL
                              + "does not have the expected target.");
     // 10 : Cleanup :
