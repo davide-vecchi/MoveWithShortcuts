@@ -743,6 +743,7 @@ public class RenameWithLinksTest {
     final Path folder = getTmpTestExecutePath();
     
     try {
+      
       FileUtils.deleteDirectory(folder.toFile());
       //Files.deleteIfExists(folder);
     }
