@@ -110,10 +110,10 @@ public class RenameWithLinksTest {
   @AfterMethod
   void afterMethod() {
     
-    // Commented out because the tmptestExecute folder must be deleted only if the test succeeds, to allow for its
+    // Commented out because the tmpTestExecute01 folder must be deleted only if the test succeeds, to allow for its
     // inspection if the test fails. So this deletion is done by the test method itself if it completes.
     //
-    //    deleteTmpTestExecutePath();
+    //    deleteTmpTestExecute01Path();
     
   }
   
@@ -434,9 +434,9 @@ public class RenameWithLinksTest {
    * Tests {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater)} as follows :<ul>
    *
    * <li> 1) Under {@code src\test\resources\} creates subfolders :<ol>
-   *         <li>{@code testExecute\sub1\sub2-to-move\sub3-with-file\sub4\}.</li>
-   *         <li>{@code testExecute\sub1\sub2a-to-stay\}.</li>
-   *         <li>{@code testExecute\subA\subBToReceiveMoved\}.</li></ol></li>
+   *         <li>{@code testExecute01\sub1\sub2-to-move\sub3-with-file\sub4\}.</li>
+   *         <li>{@code testExecute01\sub1\sub2a-to-stay\}.</li>
+   *         <li>{@code testExecute01\subA\subBToReceiveMoved\}.</li></ol></li>
    *
    * <li> 2) Creates 2 files as follows :<ol>
    *         <li>In {@code sub3-with-file} folder creates file {@code PointedToAndToMove.txt}.</li>
@@ -463,13 +463,13 @@ public class RenameWithLinksTest {
    *             having file {@code PointedToAndToStay.txt} as target.</li></ol></li>
    *
    * <li> 4) Invokes {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater) the tested method} passing :<ol>
-   *         <li>Folder {@code testExecute\sub1\sub2-to-move\} as the file / folder to rename / move ({@code
+   *         <li>Folder {@code testExecute01\sub1\sub2-to-move\} as the file / folder to rename / move ({@code
    *             originalFileOrFolder} param).</li>
-   *         <li>Folder {@code testExecute\subA\subBToReceiveMoved\sub2-moved\} as the destination file / folder of the rename / move ({@code
+   *         <li>Folder {@code testExecute01\subA\subBToReceiveMoved\sub2-moved\} as the destination file / folder of the rename / move ({@code
    *             destinationFileOrFolder} param), which is thus expected to get created.</li>
-   *         <li>Folder {@code testExecute\} as the folder under which to recursively search for shortcuts having as target
+   *         <li>Folder {@code testExecute01\} as the folder under which to recursively search for shortcuts having as target
    *             the absoulte path of file {@code
-   *             testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt} ({@code searchFolder} param).</li></ol>
+   *             testExecute01\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt} ({@code searchFolder} param).</li></ol>
    *         <ul><li>Now the tree must have become :<pre>
    *                 | textExecute\
    *                 | --- sub1\
@@ -484,8 +484,8 @@ public class RenameWithLinksTest {
    *                 | --- PointedToAndToMove.txt.lnk
    *                 | --- PointedToAndToStay.txt.lnk</pre></li></ul></li>
    *
-   * <li> 5) Verifies that now the folder {@code sub2-to-move\} no longer exists under folder {@code testExecute\sub1\}
-   *         and now exists as {@code testExecute\subA\subBToReceiveMoved\sub2-moved\} .</li>
+   * <li> 5) Verifies that now the folder {@code sub2-to-move\} no longer exists under folder {@code testExecute01\sub1\}
+   *         and now exists as {@code testExecute01\subA\subBToReceiveMoved\sub2-moved\} .</li>
    *
    * <li> 6) Verifies that folder {@code sub2a-to-stay\} still exists under {@code textExecute\sub1\} and it still
    *         contains file "PointedToAndToStay.txt".</li>
@@ -494,12 +494,12 @@ public class RenameWithLinksTest {
    *         contains file "PointedToAndToMove.txt".</li>
    *
    * <li> 8) Verifies that now the target of shortcut file {@code textExecute\PointedToAndToMove.txt.lnk} has become the
-   *         absoulte path of {@code testExecute\subA\subBToReceiveMoved\sub2-moved\sub3-with-file\PointedToAndToMove.txt}.</li>
+   *         absoulte path of {@code testExecute01\subA\subBToReceiveMoved\sub2-moved\sub3-with-file\PointedToAndToMove.txt}.</li>
    *
    * <li> 9) Verifies that the target of shortcut file {@code textExecute\PointedToAndToStay.txt.lnk} is still the
-   *         absoulte path of {@code testExecute\sub1\sub2a-to-stay\PointedToAndToStay.txt}.</li>
+   *         absoulte path of {@code testExecute01\sub1\sub2a-to-stay\PointedToAndToStay.txt}.</li>
    *
-   * <li>10) For cleanup, deletes the folders {@code sub1} and {@code subA} that were created under {@code testExecute\}.</li></ul>
+   * <li>10) For cleanup, deletes the folders {@code sub1} and {@code subA} that were created under {@code testExecute01\}.</li></ul>
    */
   @Test
   void testExecute01() throws IOException {
@@ -511,23 +511,23 @@ public class RenameWithLinksTest {
     
     // 1 : Under "src\test\resources\" create subfolders :
     //
-    //     1 : "testExecute\sub1\sub2-to-move\sub3-with-file\sub4\".
+    //     1 : "testExecute01\sub1\sub2-to-move\sub3-with-file\sub4\".
     //
-    //     2 : "testExecute\sub1\sub2a-to-stay\".
+    //     2 : "testExecute01\sub1\sub2a-to-stay\".
     //
-    //     3 : "testExecute\subA\subBToReceiveMoved\".
+    //     3 : "testExecute01\subA\subBToReceiveMoved\".
     
-    final Path testExecute = createTmpTestExecutePath();
+    final Path testExecute01 = createTmpTestExecute01Path();
     
-    sTmp = checkIsExistingFolder(testExecute.toFile());
+    sTmp = checkIsExistingFolder(testExecute01.toFile());
     
     Assert.assertNull(sTmp, "Step 1 : Test prerequisite not satisfied : a folder named "
-                                             + dq(testExecute.getFileName().toString()) + NL
+                                             + dq(testExecute01.getFileName().toString()) + NL
                                              + "must exist in folder "
-                                             + dq(testExecute.getParent().toAbsolutePath().toString()) + NL
+                                             + dq(testExecute01.getParent().toAbsolutePath().toString()) + NL
                                              + "(" + sTmp + ").");
     
-    final Path sub1 = Files.createDirectories(Path.of(testExecute.toString()
+    final Path sub1 = Files.createDirectories(Path.of(testExecute01.toString()
                                                        , "sub1"));
     
     final Path sub2ToMove = Files.createDirectories(Path.of(sub1.toString()
@@ -541,7 +541,7 @@ public class RenameWithLinksTest {
     final Path sub2aToStay = Files.createDirectories(Path.of(sub1.toString()
                                                               , "sub2a-to-stay"));
     
-    final Path subBToReceiveMoved = Files.createDirectories(Path.of(testExecute.toString()
+    final Path subBToReceiveMoved = Files.createDirectories(Path.of(testExecute01.toString()
                                                         , "subA", "subB-to-receive-moved"));
     // 2 : Create 2 files as follows :
     //
@@ -562,7 +562,7 @@ public class RenameWithLinksTest {
     //         as target :
     //
     
-    final Path shortcutToFileToMove = Path.of(testExecute.toString(), "PointedToAndToMove.txt.lnk");
+    final Path shortcutToFileToMove = Path.of(testExecute01.toString(), "PointedToAndToMove.txt.lnk");
     
     sTmp = checkIsExistingFile(shortcutToFileToMove.toFile());
     
@@ -573,13 +573,14 @@ public class RenameWithLinksTest {
     sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToMove.toFile());
     
     Assert.assertEquals(sTmp, pointedToAndToMove.toAbsolutePath().toString()
-                    , "Step 3.1b : Test prerequisite not satisfied: the shortcut file " + dq(shortcutToFileToMove.toAbsolutePath().toString())
-                             + " does not have the expected target.");
+                    , "Step 3.1b : Test prerequisite not satisfied: the shortcut file "
+                               + dq(shortcutToFileToMove.toAbsolutePath().toString()) + NL
+                               + "does not have the expected target.");
     //
     //   3.2 : A shortcut named "PointedToAndToStay.txt.lnk" exists in "textExecute\" having file "PointedToAndToStay.txt"
     //         as target :
     
-    final Path shortcutToFileToStay = Path.of(testExecute.toString(), "PointedToAndToStay.txt.lnk");
+    final Path shortcutToFileToStay = Path.of(testExecute01.toString(), "PointedToAndToStay.txt.lnk");
     
     sTmp = checkIsExistingFile(shortcutToFileToStay.toFile());
     
@@ -597,15 +598,15 @@ public class RenameWithLinksTest {
     
     // 4 : Invoke the tested method, to make it :
     //
-    //    - make folder "testExecute\sub1\sub2-to-move\" become "testExecute\subA\subBToReceiveMoved\sub2-moved\";
+    //    - make folder "testExecute01\sub1\sub2-to-move\" become "testExecute01\subA\subBToReceiveMoved\sub2-moved\";
     //
-    //    - recursively search folder "testExecute\" for shortcuts having as target the absoulte path of file
-    //      "testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt";
+    //    - recursively search folder "testExecute01\" for shortcuts having as target the absoulte path of file
+    //      "testExecute01\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt";
     //
-    //    - find shortcut "testExecute\PointedToAndToMove.txt.lnk";
+    //    - find shortcut "testExecute01\PointedToAndToMove.txt.lnk";
     //
     //    - update its target,
-    //      from "testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt"
+    //      from "testExecute01\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt"
     //      to   "textExecute\subA\subBToReceiveMoved\sub2-moved\sub3-with-file\PointedToAndToMove.txt"
     //  :
     
@@ -613,15 +614,15 @@ public class RenameWithLinksTest {
     
     app.askBeforeProcessingShortcuts = false;
     
-    final Path subA =      Path.of(testExecute.toString(), "subA");
+    final Path subA =      Path.of(testExecute01.toString(), "subA");
     
     final Path sub2moved = Path.of(subA.toString(), "subB-to-receive-moved", "sub2-moved");
     
     app.execute(sub2ToMove. toFile(),sub2moved.toFile()
-                     , testExecute.toFile(),                       this.shortcutTargetUpdater);
+                     , testExecute01.toFile(),                       this.shortcutTargetUpdater);
     
-    // 5 : Verify that now the folder "sub2-to-move\" no longer exists under folder "testExecute\sub1\" and now exists
-    //     as "testExecute\subA\subBToReceiveMoved\sub2-moved\" :
+    // 5 : Verify that now the folder "sub2-to-move\" no longer exists under folder "testExecute01\sub1\" and now exists
+    //     as "testExecute01\subA\subBToReceiveMoved\sub2-moved\" :
     
     Assert.assertFalse(sub2ToMove.toFile().exists()
                        , "Step 5a : The folder to move (" + dq(sub2ToMove.toString())
@@ -663,7 +664,7 @@ public class RenameWithLinksTest {
                                + dq(sub2ToMove.toAbsolutePath().toString()) + " became " + dq(sub2moved.toString()) + ".");
     
     // 8 : Verify that now the target of shortcut file "textExecute\PointedToAndToMove.txt.lnk" has become the absoulte
-    //     path of "testExecute\subA\subBToReceiveMoved\sub2-moved\sub3-with-file\PointedToAndToMove.txt" :
+    //     path of "testExecute01\subA\subBToReceiveMoved\sub2-moved\sub3-with-file\PointedToAndToMove.txt" :
     
     sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToMove.toFile());
     
@@ -673,7 +674,7 @@ public class RenameWithLinksTest {
                               + "does not have the expected target.");
     
     // 9 : Verify that the target of shortcut file "textExecute\PointedToAndToStay.txt.lnk" is still the absoulte path
-    //     of "testExecute\sub1\sub2a-to-stay\PointedToAndToStay.txt".
+    //     of "testExecute01\sub1\sub2a-to-stay\PointedToAndToStay.txt".
     
     sTmp = this.shortcutTargetUpdater.readTarget(shortcutToFileToStay.toFile());
     
@@ -682,67 +683,67 @@ public class RenameWithLinksTest {
                              + "does not have the expected target.");
     // 10 : Cleanup :
     
-    final List<File> deleted = FileUtilities.deleteAllFolders(testExecute.toFile());
-    
+    final List<File> deleted = FileUtilities.deleteAllFolders(testExecute01.toFile());
+
     Assert.assertEquals(I(deleted.size()), TWO_I
                      , "Step 10 : Error during test cleanup : the two folders that must have been created and now deleted are :"
                                 + NLT + dq(sub1.toString()) + NL + "and"
                                 + NLT + dq(subA.toString()) + "."
                                 + NL  + "Instead, the following " + deleted.size() + " folders were deleted :"
                                 + NLT + listToString(deleted, EMPTY, TAB, EMPTY, NLT2));
-    
+
     assertContains(deleted, sub1.toFile(), "Step 10a : " + dq(sub1.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
-    
+
     assertContains(deleted, subA.toFile(), "Step 10b : " + dq(subA.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
     
-    // The tmptestExecute folder must be deleted only if the test succeeds, to allow for its inspection if the test
+    // The tmpTestExecute01 folder must be deleted only if the test succeeds, to allow for its inspection if the test
     // fails. So this deletion is done by the test method itself if it completes, instead of in and after* medhod of
     // the test cycle.
     
-    deleteTmpTestExecutePath();
+    deleteTmpTestExecute01Path();
   }
   
   /**
-   * @return The path of folder {@code src\test\resources\testExecute\}, which is used by some tests and must exist (and
-   *         have no <u>subfolders</u> in it) when such tests start. It is not used directly, a {@link #getTmpTestExecutePath()
-   *         copy of it} {@link #createTmpTestExecutePath() is made} and the tests work on the copy, which is then {@link #deleteTmpTestExecutePath()
+   * @return The path of folder {@code src\test\resources\testExecute01\}, which is used by some tests and must exist (and
+   *         have no <u>subfolders</u> in it) when such tests start. It is not used directly, a {@link #getTmpTestExecute01Path ()
+   *         copy of it} {@link #createTmpTestExecute01Path() is made} and the tests work on the copy, which is then {@link #deleteTmpTestExecute01Path ()
    *         deleted} after the test.
    */
-  private static Path getTestExecutePath() {
+  private static Path getTestExecute01Path() {
     
-    return Path.of("src", "test", "resources", "testExecute");
+    return Path.of("src", "test", "resources", "testExecute01");
   }
   
   /**
-   * @return The path of folder {@code tmpTestExecute\}, which is used by some tests. It is in {@link #getTestExecutePath()
-   * the same folder} as the {@code src\test\resources\testExecute\} folder.
+   * @return The path of folder {@code tmpTestExecute01\}, which is used by some tests. It is in {@link #getTestExecute01Path ()
+   * the same folder} as the {@code src\test\resources\testExecute01\} folder.
    */
-  private static Path getTmpTestExecutePath() {
+  private static Path getTmpTestExecute01Path() {
     
-    return Path.of(getTestExecutePath().getParent().toString(), "tmpTestExecute");
+    return Path.of(getTestExecute01Path().getParent().toString(), "tmpTestExecute01");
   }
   
   /**
-   * Creates the {@link #getTmpTestExecutePath() tmpTestExecute\} folder by making a copy of {@link #getTestExecutePath()
+   * Creates the {@link #getTmpTestExecute01Path () tmpTestExecute01\} folder by making a copy of {@link #getTestExecute01Path ()
    * the original} in the same folder. If the folder to create already exists, deletes it first.
    *
    * @return The path of the created folder.
    */
-  private static Path createTmpTestExecutePath() throws IOException {
+  private static Path createTmpTestExecute01Path() throws IOException {
     
-    final Path destPath = deleteTmpTestExecutePath();
+    final Path destPath = deleteTmpTestExecute01Path();
     
-    FileUtils.copyDirectory(getTestExecutePath().toFile(), destPath.toFile(), false);
+    FileUtils.copyDirectory(getTestExecute01Path().toFile(), destPath.toFile(), false);
     
     return destPath;
   }
   
   /**
-   * Deletes the {@link #getTmpTestExecutePath() tmpTestExecute\} folder if it exists.
+   * Deletes the {@link #getTmpTestExecute01Path() tmpTestExecute01\} folder if it exists.
    */
-  private static Path deleteTmpTestExecutePath() throws IOException {
+  private static Path deleteTmpTestExecute01Path() throws IOException {
     
-    final Path folder = getTmpTestExecutePath();
+    final Path folder = getTmpTestExecute01Path();
     
     try {
       
