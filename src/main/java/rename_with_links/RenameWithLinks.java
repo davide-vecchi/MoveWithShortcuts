@@ -74,7 +74,7 @@ import static rename_with_links.RenameWithLinksMain.MAX_VERBOSITY;
 
 @Getter
 @ToString
-public final class RenameWithLinks {
+public class RenameWithLinks {
   
 
   static final String CANCEL_CHARS = "Cc/";
