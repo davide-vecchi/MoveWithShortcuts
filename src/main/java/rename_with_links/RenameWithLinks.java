@@ -76,7 +76,10 @@ import static rename_with_links.RenameWithLinksMain.MAX_VERBOSITY;
 @ToString
 public class RenameWithLinks {
   
-
+  
+  /**
+   * List of chars that the user can enter when answering a question in order to signify "Abort".
+   */
   static final String CANCEL_CHARS = "Cc/";
   
   /**
