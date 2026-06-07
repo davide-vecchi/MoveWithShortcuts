@@ -698,7 +698,7 @@ public class RenameWithLinksTest {
     
     // The tmpTestExecute01 folder must be deleted only if the test succeeds, to allow for its inspection if the test
     // fails. So this deletion is done by the test method itself if it completes, instead of in and after* medhod of
-    // the test cycle.
+    // the test cycle :
     
     deleteTmpTestExecute01Path();
   }
