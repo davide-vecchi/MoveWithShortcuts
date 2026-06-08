@@ -1,3 +1,6 @@
+I see you thought "No @NotNull on charsToRemove — null doesn't throw. Removing that test:".
+Good catch and I just forgot that @NotNull and assertNoDuplicateChars. Now I added both. Please add the tests for them, if possible in the same order as the tests of removeStartAllAny.
+
 isUnder(contained, ancestorFolder)
 
 contained	H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\testExecute\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
