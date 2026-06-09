@@ -56,7 +56,7 @@ cmd.exe /c IF EXIST "C:\Users\Davide\.m2\repository\JavaLibraries3rdParty\Thread
 # Build the modules of the DJavaLibraries and JavaLibraries3rdParty groups
 # that are needed to build the RenameWithLinks module :
 
-H:\Users\Davide\Davide\Sviluppo\REPOS\JavaLibraries\DTestNG
+H:\Users\Davide\Davide\Sviluppo\REPOS\DLibs\DTestNG
 mvn clean install
 
 H:\Users\Davide\Davide\Sviluppo\REPOS\JavaLibraries\ThreadSafeNumberFormat
