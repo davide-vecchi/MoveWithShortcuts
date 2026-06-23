@@ -531,10 +531,10 @@ public class RenameWithLinks {
           
             ++numUpdated;
             
-            this.appContext.outUser(ZERO_i
-                                     , NL2 + "Shortcut " + getCanonicalPathAsDescr(shortcut)
-                                             + NLT + " : target updated from" + NLT2 + dq(oldTarget.getPath())
-                                             + NLT + "to"                     + NLT2 + dq(newTarget.getPath()) + ".");
+            this.appContext.warnUser(ZERO_i
+                                      , NL2 + "Shortcut "           + getCanonicalPathAsDescr(shortcut) + " :"
+                                              + NLT + "target updated from" + NLT2 + dq(oldTarget.getPath())
+                                              + NLT + "to"                  + NLT2 + dq(newTarget.getPath()) + "." + NL);
           }
           else {
           
@@ -554,7 +554,7 @@ public class RenameWithLinks {
           this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
           
           this.appContext.errUser(ZERO_i, NL2 + "Skipping " + dq(getCanonicalPath(shortcut))
-                                                                + ". Reason : " + e.getLocalizedMessage() + NL);
+                                                          + NL2 + ". Reason : " + e.getLocalizedMessage() + NL);
         }
         // Update progress display :
         
