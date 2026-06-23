@@ -58,7 +58,6 @@ import static dutil.string.TextUtilities.TAB2;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
-import static dutil.string.TextUtilities.dqStr;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
 import static java.lang.Boolean.TRUE;
@@ -534,8 +533,8 @@ public class RenameWithLinks {
             
             this.appContext.outUser(ZERO_i
                                      , NL2 + "Shortcut " + getCanonicalPathAsDescr(shortcut)
-                                             + NLT + " : target updated from" + NLT2 + dqStr(oldTarget)
-                                             + NLT + "to"                     + NLT2 + dqStr(newTarget) + ".");
+                                             + NLT + " : target updated from" + NLT2 + dq(oldTarget.getPath())
+                                             + NLT + "to"                     + NLT2 + dq(newTarget.getPath()) + ".");
           }
           else {
           
