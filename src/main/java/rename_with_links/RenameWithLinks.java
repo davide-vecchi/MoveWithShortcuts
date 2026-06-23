@@ -71,7 +71,10 @@ import static rename_with_links.RenameWithLinksMain.MAX_VERBOSITY;
 
 // @formatter:off
 
-
+/**
+ * Renames and / or moves files and folders and updates all the shortcuts that were pointing to them, so that the
+ * shortcuts point to the moved location instead of becoming broken.
+ */
 @Getter
 @ToString
 public class RenameWithLinks {
