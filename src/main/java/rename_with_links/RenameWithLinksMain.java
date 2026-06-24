@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
 
+import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dlog.log.Log.writeLogsHeaders;
@@ -58,11 +59,6 @@ public class RenameWithLinksMain {
    * The description of this program. Description, not a Short name (see #APP_NAME).
    */
   public static final String APP_DESCR = APP_NAME + " - Renames / moves a file or folder and updates all " + WIN_SHORTCUT_EXTENSION + " shortcuts that point to it.";
-  
-  /**
-   * The maximum allowed value for the {@link #verbosity} level.
-   */
-  static final int MAX_VERBOSITY = TWO_i;
   
   
   /**

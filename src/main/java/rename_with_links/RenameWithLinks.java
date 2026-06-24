@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.assertExistingPath;
 import static dfile.file.FileUtilities.assertValidPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
@@ -65,7 +66,6 @@ import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.leftPad;
 import static org.apache.commons.lang3.StringUtils.removeStart;
-import static rename_with_links.RenameWithLinksMain.MAX_VERBOSITY;
 
 
 // @formatter:off

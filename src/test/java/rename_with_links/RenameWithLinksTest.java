@@ -32,6 +32,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 
+import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.checkIsExistingFile;
 import static dfile.file.FileUtilities.checkIsExistingFolder;
 import static dfile.file.FileUtilities.getCanonicalPath;
@@ -51,7 +52,6 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.testng.Assert.assertNotNull;
-import static rename_with_links.RenameWithLinksMain.MAX_VERBOSITY;
 
 
 // @formatter:off
@@ -308,7 +308,7 @@ public class RenameWithLinksTest {
     final File destinationFileOrFolder = new File(this.tempDir.toFile(), "newParent/sub/renamed.txt");
     
     final String verbosity = S(MAX_VERBOSITY);
-
+    
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn(getCanonicalPath(srcFile))
              .thenReturn(getCanonicalPath(destinationFileOrFolder))
