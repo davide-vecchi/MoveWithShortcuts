@@ -183,8 +183,8 @@ public class RenameWithLinksMain {
     
     ac.outUser(ONE_i, NL + OSUtilities.getDescription());
     
-    ac.outUser(ONE_i, NL + "Using " +   IShortcutTargetUpdater.class.getSimpleName()
-                                           + dq(shortcutTargetUpdater.getClass().getSimpleName()) + NL2);
+    ac.outUser(ONE_i, NL + "Using "    + IShortcutTargetUpdater.class.getSimpleName() + " "
+                                           + dq(shortcutTargetUpdater.getClass().getSimpleName()) + "." + NL2);
   }
 
   private static void showUsage() {
