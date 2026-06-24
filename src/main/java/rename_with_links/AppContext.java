@@ -54,9 +54,9 @@ public class AppContext extends AAppContext {
   public void showLogInfo(int verbosity) {
 
     outUser(verbosity, NL + "Screen log: " + getCanonicalPathAsDescr(this.screenLog.logFile) + ".");
-
+    
     outUser(verbosity,      "  User log: " + getCanonicalPathAsDescr(this.userLog  .logFile) + ".");
-
+    
     outUser(verbosity,      "   Dev log: " + getCanonicalPathAsDescr(this.devLog   .logFile) + ".");
   }
 
