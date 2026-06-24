@@ -87,13 +87,13 @@ public class RenameWithLinksMain {
   
         final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
         
-        final ConditionallyCloseablePrintStream out = new ConditionallyCloseablePrintStream(System.out,   true
-                                                                                          , CHARSET_UTF_8, false);
+        final ConditionallyCloseablePrintStream out = new ConditionallyCloseablePrintStream(
+                                                                                          System.out,   true
+                                                                                        , CHARSET_UTF_8, false);
         
         final ConditionallyCloseablePrintStream err = new ConditionallyCloseablePrintStream(
-                                                                               System.err,   true
-                                                                                           , CHARSET_UTF_8, false);
-  
+                                                                             System.err,   true
+                                                                                        , CHARSET_UTF_8, false);
         final AppContext ac = AppContext.newAppContext(
                          ColorConsoleUserIO.newInstance1(System.in,         out,                 err
                                                              , CYAN,   BLACK,   RED
