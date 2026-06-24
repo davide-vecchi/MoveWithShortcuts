@@ -53,6 +53,8 @@ import static dutil.string.TextUtilities.FMT0D;
 import static dutil.string.TextUtilities.FMT0DG;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
+import static dutil.string.TextUtilities.NL2T;
+import static dutil.string.TextUtilities.NL2T2;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.NLT2;
 import static dutil.string.TextUtilities.TAB2;
@@ -218,11 +220,11 @@ public class RenameWithLinks {
     assertNoneNull(originalFileOrFolder, destinationFileOrFolder, searchFolder);
     
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm renaming / moving "
-                                                          + (originalFileOrFolder.isFile() ? "file" : "folder")
-                                                          + dq(getCanonicalPath(originalFileOrFolder)) + " to "
-                                                          + dq(getCanonicalPath(destinationFileOrFolder))
-                                                          + " and updating the targets of the shortcuts pointing to it that are found under "
-                                                          + dq(getCanonicalPath(searchFolder))
+                                                          + (originalFileOrFolder.isFile() ? "file" : "folder")    + NL2T
+                                                          + dq(getCanonicalPath(originalFileOrFolder))      + NL2T + "to" + NL2T
+                                                          + dq(getCanonicalPath(destinationFileOrFolder))   + NL2T
+                                                          + "and updating the targets of the shortcuts pointing to it that are found under" + NL2T
+                                                          + dq(getCanonicalPath(searchFolder)) + NL2T
                                                           + ", or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS) != null;
     return confirmed;
@@ -452,7 +454,7 @@ public class RenameWithLinks {
    */
   private void renameFileOrFolder(File originalFileOrFolder, File destinationFileOrFolder) throws IOException {
     
-    this.appContext.outUser(ONE_i, NL + "Renaming / moving" + NLT + dq(getCanonicalPath(originalFileOrFolder)) + NL + "to" + NLT + dq(getCanonicalPath(destinationFileOrFolder)) + NL + "...");
+    this.appContext.outUser(ONE_i, NL + "Renaming / moving" + NL2T + dq(getCanonicalPath(originalFileOrFolder)) + NL2T + "to" + NL2T + dq(getCanonicalPath(destinationFileOrFolder)) + NL2T + "...");
 
     if (! destinationFileOrFolder.getParentFile().exists()) {
 
@@ -487,8 +489,8 @@ public class RenameWithLinks {
     
     final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
     
-    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder "
-                                                        + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + " ...");
+    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder"
+                                                         + NL2T + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + " ...");
     
     final char abortFromPause = CANCEL_CHARS.charAt(CANCEL_CHARS.length() - ONE_i);
     
@@ -500,13 +502,14 @@ public class RenameWithLinks {
     
     final int numShortcuts = shortcuts.size();
     
-    this.appContext.outUser(ONE_i, NL + "Found " + FMT0DG.format(numShortcuts) + " shortcut file(s) under " + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
+    this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(numShortcuts) + " shortcut file(s) under"
+                                                         + NL2T2 + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
     
     boolean userAborted =  this.askBeforeProcessingShortcuts
                         && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(numShortcuts)
-                                                            + " shortcut file(s) under " + dq(getCanonicalPath(
-                                                                               effectiveSearchFolder.toFile()))
-                                                            + " (the processing can be paused with the Enter key)"
+                                                            + " shortcut file(s) under" + NL2T + dq(getCanonicalPath(
+                                                                               effectiveSearchFolder.toFile())) + NL2T
+                                                            + "(the processing can be paused with the Enter key)"
                                                             + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                              , EMPTY, CANCEL_CHARS) == null;
     if (! userAborted) {
@@ -532,9 +535,9 @@ public class RenameWithLinks {
             ++numUpdated;
             
             this.appContext.warnUser(ZERO_i
-                                      , NL2 + "Shortcut "           + getCanonicalPathAsDescr(shortcut) + " :"
-                                              + NLT + "target updated from" + NLT2 + dq(oldTarget.getPath())
-                                              + NLT + "to"                  + NLT2 + dq(newTarget.getPath()) + "." + NL);
+                                      , NL2  + "Shortcut"              + NL2T + getCanonicalPathAsDescr(shortcut)
+                                              + NL2T + ": target updated from" + NLT2 + dq(oldTarget.getPath())
+                                              + NL2T + "to"                    + NLT2 + dq(newTarget.getPath()) + "." + NL);
           }
           else {
           
@@ -553,8 +556,8 @@ public class RenameWithLinks {
           
           this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
           
-          this.appContext.errUser(ZERO_i, NL2 + "Skipping " + dq(getCanonicalPath(shortcut))
-                                                          + NL2 + ". Reason : " + e.getLocalizedMessage() + NL);
+          this.appContext.errUser(ZERO_i, NL2 + "Skipping" + NL2T + dq(getCanonicalPath(shortcut))
+                                                          + NL2T + ". Reason :" + NLT + e.getLocalizedMessage() + NL);
         }
         // Update progress display :
         
@@ -594,7 +597,7 @@ public class RenameWithLinks {
       this.appContext.outUser_Chars(TWO_i, NL2 + "Processing #" + FMT0DG.format(iLastProcessed + ONE_l)
                                                                  + " of "         + FMT0DG.format(totToProcess)
                                                                  + " ("           + leftPad(currentPercent, 3)
-                                                                 + "%) : "        + getCanonicalPathAsDescr(lastProcessed)
+                                                                 + "%) :" + NL2T  + getCanonicalPathAsDescr(lastProcessed)
                                                                  + " ..."         + NLT);
     }
     else if (this.appContext.currentVerbosity >= ONE_i && ! currentPercent.equals(result)) {
