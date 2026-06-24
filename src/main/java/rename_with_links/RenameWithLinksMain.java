@@ -16,7 +16,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 import static application.AAppContext.MAX_VERBOSITY;
-import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dlog.log.Log.writeLogsHeaders;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
@@ -171,11 +170,7 @@ public class RenameWithLinksMain {
     }
     ac.outUser(ONE_i, NL + "Current folder : " + dq(getCurrentFolder()) + ".");
     
-    ac.outUser(ONE_i, NL + "Screen log: " + getCanonicalPath(ac.screenLog.logFile));
-    
-    ac.outUser(ONE_i,      "  User log: " + getCanonicalPath(ac.userLog.logFile));
-    
-    ac.outUser(ONE_i,      "   Dev log: " + getCanonicalPath(ac.devLog.logFile));
+    ac.showLogInfo(ONE_i);
     
     ac.outUser(ONE_i, NL + OSUtilities.getDescription());
     
