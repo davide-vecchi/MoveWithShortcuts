@@ -1,3 +1,3 @@
-java -jar C:\RenameWithLinks\RenameWithLinks.jar
+@ECHO OFF
 
-PAUSE
+wt pwsh -NoExit -File "C:\RenameWithLinks\RenameWithLinks.ps1"
