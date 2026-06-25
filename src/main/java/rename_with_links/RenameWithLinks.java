@@ -6,6 +6,7 @@ package rename_with_links;
 
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
+import dfile.shortcut.IShortcutTargetUpdater.TargetUpdateOutcome;
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
@@ -539,24 +540,29 @@ public class RenameWithLinks {
         
         try {
           
-          final String notUpdated = shortcutTargetUpdater.updateTargetIfMatch(shortcut, oldTarget, newTarget
+          final TargetUpdateOutcome updateOutcome = shortcutTargetUpdater.updateTargetIfMatch(
+                                                                             shortcut, oldTarget, newTarget
                                                                    , null
                                                          , s -> this.appContext.warnUser(
                                                                                             ZERO_i, s)
                                                          ,   s -> this.appContext.errUser(
                                                                                             ZERO_i, s));
-          if (notUpdated == null) {
-          
-            ++numUpdated;
+          if (updateOutcome.notUpdated() == null) {
+            
+            // : The shortcut has had its target updated.
+            
+            ++this.numUpdated;
             
             this.appContext.warnUser(ZERO_i
                                       , NL2  + "Shortcut"              + NL2T + getCanonicalPathAsDescr(shortcut)
-                                              + NL2T + ": target updated from" + NLT2 + dq(oldTarget.getPath())
-                                              + NL2T + "to"                    + NLT2 + dq(newTarget.getPath()) + "." + NL);
+                                              + NL2T + ": target updated from" + NLT2 + dq(updateOutcome.fromTo().o1)
+                                              + NL2T + "to"                    + NLT2 + dq(updateOutcome.fromTo().o2) + "." + NL);
           }
           else {
+            
+            // : The shortcut has not had its target updated.
           
-            this.appContext.outUser(TWO_i, notUpdated);
+            this.appContext.outUser(TWO_i, updateOutcome.notUpdated());
           }
           userAborted = IOUtilities.handleUserInput( abortFromPause);
           

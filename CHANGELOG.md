@@ -5,6 +5,11 @@
 
 ### Changed
 
+- **Breaking:**
+  Make IShortcutTargetUpdater.updateTargetIfMatch return TargetUpdateOutcome
+  which carries more info to show to the user about what update took place
+  if any.
+
 - Bump version to 2.1.0-SNAPSHOT
 
 - Update all dependencies on DLibs to 2.1.0-SNAPSHOT
