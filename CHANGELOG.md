@@ -17,6 +17,8 @@
 
 ### Added
 
+- Add display of total processed shortcuts and add the info to progress display.
+
 - **Breaking:**
   Add a new abstract class AAppContext from new module DApplication to be used
   by consumers to extend their own AppContext concrete class, which must now

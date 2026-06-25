@@ -98,12 +98,17 @@ public class RenameWithLinks {
   /**
    * The total number of shortcuts that will be checked to see if they need to have their target updated.
    */
-  int numShortcuts = MINUS1_i;
+  int numTotalShortcuts = MINUS1_i;
+  
+  /**
+   * The total number of shortcuts that have been checked to see if they need to have their target updated.
+   */
+  int numProcessedShortcuts = MINUS1_i;
   
   /**
    * The total number of shortcuts whose target was updated.
    */
-  int numUpdated = MINUS1_i;
+  int numUpdatedShortcuts = MINUS1_i;
   
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
@@ -499,9 +504,9 @@ public class RenameWithLinks {
     
     assertNoneNull(shortcutTargetUpdater, oldTarget, newTarget);
     
-    this.numShortcuts = MINUS1_i;
+    this.numTotalShortcuts = MINUS1_i;
     
-    this.numUpdated =   MINUS1_i;
+    this.numUpdatedShortcuts =   MINUS1_i;
     
     final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
     
@@ -516,13 +521,13 @@ public class RenameWithLinks {
                                                                                 , EXTENSION_SEPARATOR) }
                                       , true);
     
-    this.numShortcuts = shortcuts.size();
+    this.numTotalShortcuts = shortcuts.size();
     
-    this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numShortcuts) + " shortcut file(s) under"
+    this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
                                                          + NL2T2 + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
     
     boolean userAborted =  this.askBeforeProcessingShortcuts
-                        && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(this.numShortcuts)
+                        && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(this.numTotalShortcuts)
                                                             + " shortcut file(s) under" + NL2T + dq(getCanonicalPath(
                                                                                effectiveSearchFolder.toFile())) + NL2T
                                                             + "(the processing can be paused with the Enter key)"
@@ -530,11 +535,13 @@ public class RenameWithLinks {
                                              , EMPTY, CANCEL_CHARS) == null;
     if (! userAborted) {
       
-      this.numUpdated = ZERO_i;
+      this.numProcessedShortcuts = ZERO_i;
+      
+      this.numUpdatedShortcuts =   ZERO_i;
       
       String previousPercent = null;
       
-      for (int iShortcut = ZERO_i; iShortcut < this.numShortcuts && ! userAborted; iShortcut++) {
+      for (int iShortcut = ZERO_i; iShortcut < this.numTotalShortcuts && ! userAborted; iShortcut++) {
         
         final File shortcut = shortcuts.get(iShortcut);
         
@@ -547,11 +554,13 @@ public class RenameWithLinks {
                                                                                             ZERO_i, s)
                                                          ,   s -> this.appContext.errUser(
                                                                                             ZERO_i, s));
+          ++this.numProcessedShortcuts;
+          
           if (updateOutcome.notUpdated() == null) {
             
             // : The shortcut has had its target updated.
             
-            ++this.numUpdated;
+            ++this.numUpdatedShortcuts;
             
             this.appContext.warnUser(ZERO_i
                                       , NL2  + "Shortcut"              + NL2T + getCanonicalPathAsDescr(shortcut)
@@ -569,8 +578,9 @@ public class RenameWithLinks {
           if (userAborted) {
             
             this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after "
-                                                                   + FMT0DG.format((iShortcut + ONE_i)) + " shortcuts were processed and "
-                                                                   + FMT0DG.format((this.numUpdated))        + " of them were updated.");
+                                                                   + FMT0DG.format(this.numProcessedShortcuts) + " shortcuts of the total "
+                                                                   + FMT0DG.format(this.numTotalShortcuts)     + " were processed and "
+                                                                   + FMT0DG.format(this.numUpdatedShortcuts)   + " of them were updated.");
           }
         }
         catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
@@ -583,9 +593,11 @@ public class RenameWithLinks {
         // Update progress display :
         
         previousPercent = showProgress(
-                        iShortcut, shortcut, previousPercent, this.numShortcuts);
+                        iShortcut,      shortcut
+                                     , previousPercent, this.numTotalShortcuts
+                                                         ,this.numUpdatedShortcuts);
       }
-      this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(this.numUpdated) + " shortcuts out of " + FMT0DG.format(this.numShortcuts) + " .");
+      this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(this.numUpdatedShortcuts) + " shortcuts out of " + FMT0DG.format(this.numTotalShortcuts) + " .");
     }
     return userAborted;
   }
@@ -604,10 +616,13 @@ public class RenameWithLinks {
    *
    * @param totToProcess The total number of shortcuts to process.
    *
+   * @param totToProcess The total number of shortcuts updated so far.
+   *
    * @return The percentage this method just displayed, calculated based on {@code iLastProcessed}, or the last
    *         displayed one if it's the same.
    */
-  private String showProgress(int iLastProcessed, File lastProcessed, @NotBlank String previousPercent, int totToProcess) {
+  private String showProgress(int iLastProcessed, File lastProcessed, @NotBlank String previousPercent, int totToProcess
+                            , int totUpdated) {
     
     String result = previousPercent != null ? assertNonBlankNorTrimmable(previousPercent) : null;
     
@@ -619,7 +634,7 @@ public class RenameWithLinks {
                                                                  + " of "         + FMT0DG.format(totToProcess)
                                                                  + " ("           + leftPad(currentPercent, 3)
                                                                  + "%) :" + NL2T  + getCanonicalPathAsDescr(lastProcessed)
-                                                                 + " ..."         + NLT);
+                                                                 + " (updated : " + FMT0DG.format(totUpdated) + ") ..." + NLT);
     }
     else if (this.appContext.currentVerbosity >= ONE_i && ! currentPercent.equals(result)) {
       
@@ -628,7 +643,7 @@ public class RenameWithLinks {
       this.appContext.outUser_Chars(ONE_i, leftPad(result, 3)
                                                               + "% (" + FMT0DG.format(iLastProcessed + ONE_l)
                                                               + " / " + FMT0DG.format(totToProcess)
-                                                              + ")"   + TAB2);
+                                                              + " / " + FMT0DG.format(totUpdated) + ")" + TAB2);
     }
     return result;
   }
