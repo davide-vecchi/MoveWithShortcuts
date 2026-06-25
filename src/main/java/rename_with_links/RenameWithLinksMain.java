@@ -100,7 +100,9 @@ public class RenameWithLinksMain {
                                                              , BLACK, YELLOW, BLACK)
                                                                         , screenLog,          userLog,            devLog))
       {
-  
+        
+        final RenameWithLinks app = RenameWithLinks.newInstance(ac);
+        
         try {
           
           ac.currentVerbosity = resolveVerbosity(args.length >= 4 ? args[3] : null
@@ -113,8 +115,6 @@ public class RenameWithLinksMain {
           final IShortcutTargetUpdater shortcutTargetUpdater = WinShortcutUpdater_PS_COM_WScript_Shell01.newInstance(
                                                                               false, ac.devLog);
           showStartupMessages(ac, shortcutTargetUpdater, args);
-          
-          final RenameWithLinks app = RenameWithLinks.newInstance(ac);
           
           // Perform the renaming operation using the chosen updater :
           
@@ -139,7 +139,11 @@ public class RenameWithLinksMain {
           ac.outUserLog(getFullDescriptionWithRootCause(e));
         }
         finally {
-        
+          
+          ac.outUser(NL + "Total shortcuts processed : " + app.numShortcuts + " .");
+          
+          ac.outUser(NL + "Total shortcuts updated :   " + app.numUpdated + " .");
+          
           ac.showLogInfo(ONE_i);
         }
       }

@@ -40,6 +40,7 @@ import static dutil.list.ListUtilities.assertNoneNull;
 import static dutil.list.number.NumberListUtilities.assertNoneNegative;
 import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
 import static dutil.number.NumberUtilities.I;
+import static dutil.number.NumberUtilities.MINUS1_i;
 import static dutil.number.NumberUtilities.ONE_d;
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ONE_l;
@@ -92,6 +93,16 @@ public class RenameWithLinks {
    * tests.
    */
   boolean askBeforeProcessingShortcuts = true;
+  
+  /**
+   * The total number of shortcuts that will be checked to see if they need to have their target updated.
+   */
+  int numShortcuts = MINUS1_i;
+  
+  /**
+   * The total number of shortcuts whose target was updated.
+   */
+  int numUpdated = MINUS1_i;
   
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
@@ -487,6 +498,10 @@ public class RenameWithLinks {
     
     assertNoneNull(shortcutTargetUpdater, oldTarget, newTarget);
     
+    this.numShortcuts = MINUS1_i;
+    
+    this.numUpdated =   MINUS1_i;
+    
     final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
     
     this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder"
@@ -500,13 +515,13 @@ public class RenameWithLinks {
                                                                                 , EXTENSION_SEPARATOR) }
                                       , true);
     
-    final int numShortcuts = shortcuts.size();
+    this.numShortcuts = shortcuts.size();
     
-    this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(numShortcuts) + " shortcut file(s) under"
+    this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numShortcuts) + " shortcut file(s) under"
                                                          + NL2T2 + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
     
     boolean userAborted =  this.askBeforeProcessingShortcuts
-                        && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(numShortcuts)
+                        && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(this.numShortcuts)
                                                             + " shortcut file(s) under" + NL2T + dq(getCanonicalPath(
                                                                                effectiveSearchFolder.toFile())) + NL2T
                                                             + "(the processing can be paused with the Enter key)"
@@ -514,11 +529,11 @@ public class RenameWithLinks {
                                              , EMPTY, CANCEL_CHARS) == null;
     if (! userAborted) {
       
-      int numUpdated = ZERO_i;
+      this.numUpdated = ZERO_i;
       
       String previousPercent = null;
       
-      for (int iShortcut = ZERO_i; iShortcut < numShortcuts && ! userAborted; iShortcut++) {
+      for (int iShortcut = ZERO_i; iShortcut < this.numShortcuts && ! userAborted; iShortcut++) {
         
         final File shortcut = shortcuts.get(iShortcut);
         
@@ -549,7 +564,7 @@ public class RenameWithLinks {
             
             this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after "
                                                                    + FMT0DG.format((iShortcut + ONE_i)) + " shortcuts were processed and "
-                                                                   + FMT0DG.format((numUpdated))        + " of them were updated.");
+                                                                   + FMT0DG.format((this.numUpdated))        + " of them were updated.");
           }
         }
         catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
@@ -562,9 +577,9 @@ public class RenameWithLinks {
         // Update progress display :
         
         previousPercent = showProgress(
-                        iShortcut, shortcut, previousPercent, numShortcuts);
+                        iShortcut, shortcut, previousPercent, this.numShortcuts);
       }
-      this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(numUpdated) + " shortcuts out of " + FMT0DG.format(numShortcuts) + " .");
+      this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(this.numUpdated) + " shortcuts out of " + FMT0DG.format(this.numShortcuts) + " .");
     }
     return userAborted;
   }
