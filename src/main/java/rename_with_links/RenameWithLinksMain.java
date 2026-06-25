@@ -168,7 +168,7 @@ public class RenameWithLinksMain {
   private static void showStartupMessages(@NotNull AppContext ac, @NotNull IShortcutTargetUpdater shortcutTargetUpdater
                                         , @NotNull String[] args) {
   
-    ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date() + NL);
+    ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date());
     
     if (args.length > ZERO_i) {
       
