@@ -29,5 +29,12 @@
 
 ### Removed
 
+- Remove build scripts that first attempt to build the "necessary" DLibs.
+  Doing that doesn't cover transitive dependencies anyway, and the protocol
+  is now to always have all the DLibs built before building DLibs consumers.
 
 ### Fixed
+
+- Use Windows Terminal instead of batch / PowerShell scripts to start 
+  the executable JAR . The purpose is avoiding Windows Console API encoding
+  bugs in handling Unicode chars. See e.g. JDK-8266674, JDK-8356165 .
