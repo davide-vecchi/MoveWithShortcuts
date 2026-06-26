@@ -37,4 +37,7 @@
 
 - Use Windows Terminal instead of batch / PowerShell scripts to start 
   the executable JAR . The purpose is avoiding Windows Console API encoding
-  bugs in handling Unicode chars. See e.g. JDK-8266674, JDK-8356165 .
+  bugs and quirks in handling Unicode chars. See e.g.
+  * JDK-8266674, JDK-8356165 .
+  * https://stackoverflow.com/a/59989494
+  * https://stackoverflow.com/a/11930722
