@@ -67,6 +67,8 @@ public class RenameWithLinksMain {
    */
   public static void main(String[] originalArgs) throws Exception {
     
+    System.setProperty("file.encoding", CHARSET_UTF_8.name());
+    
     // If 3 args were given, the 4th (the verbosity) must be the default (the max), so add it as if it had been given :
     
     String[] args = originalArgs;

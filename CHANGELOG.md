@@ -17,6 +17,8 @@
 
 ### Added
 
+- Set system property "file.encoding" to UTF-8.
+
 - Add display of total processed shortcuts and add the info to progress display.
 
 - **Breaking:**
