@@ -563,9 +563,9 @@ public class RenameWithLinks {
             ++this.numUpdatedShortcuts;
             
             this.appContext.warnUser(ZERO_i
-                                      , NL   + "Shortcut"              + NL2T2 + getCanonicalPathAsDescr(shortcut)
+                                      , NL   + "Shortcut"              + NLT + getCanonicalPathAsDescr(shortcut)
                                               + NL2T + ": target updated from" + NL2T2 + dq(updateOutcome.fromTo().o1)
-                                              + NLT  + "to"                    + NLT2 + dq(updateOutcome.fromTo().o2) + "." + NL);
+                                              + NLT  + "to"                    + NLT2 + dq(updateOutcome.fromTo().o2) + ".");
           }
           else {
             
