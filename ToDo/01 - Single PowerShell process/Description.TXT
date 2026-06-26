@@ -1,0 +1,108 @@
+17:47 2026-06-26
+
+Benefits :
+
+1) Much faster, doesn't create one PowerShell process for each
+   shortcut file to process, it creates one process which handles
+   reading the targets of all the shortcuts and one that handles
+   writing the targets that needs to be updated.
+
+2) Windows doesn't continuously play the "Opening program" and
+   "Closing program" sounds for each shortcut that PS needs to
+   read (and also write).
+
+Details (see also DeepSeek Chat at
+https://chat.deepseek.com/a/chat/s/21bb5b47-8f49-44df-bdc2-3ccb67274aac) :
+
+Currently, the Java side retrieves the list of shortcuts to process,
+then for each one invokes PS to read the shortcut target into a String,
+then applies logic to that string to determine whether that target
+needs to be modified, and if yes, invokes PS again to make it update
+that shortcut's target.
+
+I could change that so that I (the Java side) pass to PS, through a
+text file, the list of full paths of all the shortcut files whose target
+must be read, then PS reads the targets of all of them and gives them to
+me through a second text file, then I apply my logic to all those targets,
+determine which ones need updated, I create a third text file with the
+list of the shortcuts to update and for each the new value of the target,
+and PS updates them all. In this way there would be only 2 PS invocations.
+
+
+DeepSeek feedback :
+
+That is an excellent design.  It reduces hundreds or thousands of process
+invocations down to exactly two, keeps all your logic in Java where it belongs,
+and uses simple text files as the communication channel (which is robust and
+easy to debug).
+
+Your design is clean and well-structured. Here is a summary of the flow:
+
+Step	Action																										Side
+----	--------------------------------------------------------	----------
+1			Gather list of all .lnk file paths												Java
+
+2			Write paths to shortcuts-to-read.txt											Java
+
+3			Launch PowerShell (first invocation)											Java
+
+4			Read paths from file, resolve targets,
+			write targets to targets-output.txt												PowerShell
+
+5			Parse targets-output.txt																	Java
+
+6			Apply logic to determine which shortcuts need updating		Java
+
+7			Write update instructions to shortcuts-to-update.txt			Java
+
+8			Launch PowerShell (second invocation)											Java
+
+9			Read update instructions, apply changes										PowerShell
+
+
+Advantages of This Approach :
+
+Advantage										Why It Matters
+-----------------------			-----------------------------------------------------------------------
+Minimal PS invocations			Only 2 processes instead of N (where N = number of shortcuts)
+
+Logic stays in Java					No rewriting of complex logic in PowerShell
+
+Debugging is easy						The text files are human-readable and can be inspected after each step
+
+Error handling is clear			If PowerShell fails, you can check the output file or exit code
+
+No COM interop per-file			PowerShell creates the WScript.Shell object once, not per shortcut
+
+Simple communication				No JSON parsing, no stdin/stdout complexity — just files
+
+
+Potential Pitfalls to Consider :
+
+Issue													Mitigation
+----------------------------	-----------------------------------------------------------------------
+Large number of shortcuts			If there are 100,000+ shortcuts, the text files could become large.
+															Still manageable for most systems. You can process in batches if needed.
+
+PowerShell script complexity	The script is simple: read lines from a file, loop, resolve target,
+															write to another file. No complex logic.
+
+Temporary file cleanup				Make sure to delete the temporary files after the operation,
+															or use File.deleteOnExit().
+
+Error handling in PS					If a shortcut is broken or inaccessible, PS should write an empty line
+															or a placeholder (e.g., [ERROR]) so Java knows it failed.
+
+Character encoding						Use UTF-8 for the text files, and make sure PowerShell reads/writes
+															with UTF-8 (-Encoding UTF8).
+
+
+Implementation :
+
+Step	Java Action									PowerShell Action		Input File								Output File
+----- --------------------------	------------------	-----------------------		-----------------------------
+1			Write list of .lnk paths		Read targets				shortcuts-to-read.txt			targets-output.txt
+
+2			Parse targets, apply logic	(none)							—													—
+
+3			Write update instructions		Update shortcuts		shortcuts-to-update.txt		update-results.txt (optional)
