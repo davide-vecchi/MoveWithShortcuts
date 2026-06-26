@@ -15,7 +15,8 @@ ECHO.
 
 PAUSE
 
-java -jar C:\BuildOrchestrator\BuildOrchestrator.jar ^
+java -Dfile.encoding=UTF-8 ^
+     -jar "C:\BuildOrchestrator\BuildOrchestrator.jar" ^
           "H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\Build List RenameWithLinks NO TESTS.TXT"
 
 PAUSE
