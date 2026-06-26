@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------
+* 09:57 2026-06-26
+
+* Check the cases in linked "Uses.rar\Uses\BAD\" to see if they need
+  code changes, or have already been fixed.
+
+  * For example
+
+    "07\Err 'The given filesystem path contains the invalid character 'x'"
+
+    as of 09:59 2026-06-26 needs to be looked at .
+
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
