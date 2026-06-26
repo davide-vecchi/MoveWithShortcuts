@@ -1,4 +1,56 @@
 ---------------------------------------------------------------------
+---------------------------------------------------------------------
+@ 14:38 2026-06-26
+
+@ Fails ("Skipping") on shortcut files that contain single quote chars
+  "‘" or "’" !
+
+  * Which BTW is not the regular single quote "'", but I don't know
+    if that's the problem, because it seems to be turned into the
+    regular single quote anyway at some point, see the very last line
+    of the output below, the line that starts with "ParseError: Line ...".
+
+  = E.g. shortcut file "H:\aa\bb\Don’t add this.pdf.lnk".
+
+  = Shows the following (beware the very long lines) :
+
+    ....................
+
+    Skipping
+
+    	"H:\aa\bb\Don’t add this.pdf.lnk"
+
+    	. Reason :
+        The command
+
+        "C:\Program Files\PowerShell\7\pwsh.exe -NoProfile -Command [Console]::OutputEncoding = [Text.Encoding]::utf8; (New-Object -ComObject WScript.Shell).CreateShortcut('H:\aa\bb\Don’t add this.pdf.lnk').TargetPath"
+
+        for shortcut file
+
+        "H:\aa\bb\Don’t add this.pdf.lnk"
+
+        returned the error exit code 1 .
+
+        "ParserError: Line |   1 |  . a\bb\Don't add th .     |                                                                 ~     | Missing ')' in method call.".
+
+    ....................
+
+  * Check the logs in linked "Uses.rar\Uses\BAD\08\Parsing err on single quote".
+
+  @ Hypothesis for the solution :
+
+    Maybe, both in readTarget() and writeTarget(), the
+
+    replace("'", "''")
+
+    should double not only the "'" but also the "‘" and the "’".
+
+    * Or maybe not double them but replace them with doubled normal single quote.
+
+  * It would be very wyse to first create a small test that reproduces
+    the problem.
+
+---------------------------------------------------------------------
 * 09:57 2026-06-26
 
 * Check the cases in linked "Uses.rar\Uses\BAD\" to see if they need
@@ -10,6 +62,4 @@
 
     as of 09:59 2026-06-26 needs to be looked at .
 
----------------------------------------------------------------------
----------------------------------------------------------------------
 ---------------------------------------------------------------------
