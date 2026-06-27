@@ -1,16 +1,42 @@
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
----------------------------------------------------------------------
-@ 14:38 2026-06-26
+* 07:56 2026-06-27
 
-@ Fails ("Skipping") on shortcut files that contain single quote chars
+* The TODO in RenameWithLinks.run() is urgent.
+
+---------------------------------------------------------------------
+* 17:47 2026-06-26
+
+* VERY BIG IMPROVEMENT, MUST CONSIDER :
+
+  * See "ToDo/01 - Single PowerShell process/Description.TXT".
+
+---------------------------------------------------------------------
+* 09:57 2026-06-26
+
+* Check the cases in linked "Uses.rar\Uses\BAD\" to see if they need
+  code changes, or have already been fixed.
+
+  * For example
+
+    "07\Err 'The given filesystem path contains the invalid character 'x'"
+
+    as of 09:59 2026-06-26 needs to be looked at .
+
+---------------------------------------------------------------------
+- 14:38 2026-06-26
+
+- Fails ("Skipping") on shortcut files that contain single quote chars
   "‘" or "’" !
 
-  * Which BTW is not the regular single quote "'", but I don't know
+  - Which BTW is not the regular single quote "'", but I don't know
     if that's the problem, because it seems to be turned into the
     regular single quote anyway at some point, see the very last line
     of the output below, the line that starts with "ParseError: Line ...".
+
+    = It turns out that they are called "curly quotes". See them now in
+      TextUtilities.CURLY_QUOTE_* constants.
 
   = E.g. shortcut file "H:\aa\bb\Don’t add this.pdf.lnk".
 
@@ -37,9 +63,9 @@
 
     ....................
 
-  * Check the logs in linked "Uses.rar\Uses\BAD\08\Parsing err on single quote".
+  - Check the logs in linked "Uses.rar\Uses\BAD\08\Parsing err on single quote".
 
-  @ Hypothesis for the solution :
+  - Hypothesis for the solution :
 
     Maybe, both in readTarget() and writeTarget(), the
 
@@ -47,28 +73,15 @@
 
     should double not only the "'" but also the "‘" and the "’".
 
-    * Or maybe not double them but replace them with doubled normal single quote.
+    / Or maybe not double them but replace them with doubled normal single quote.
 
-  * It would be very wyse to first create a small test that reproduces
+  / It would be very wyse to first create a small test that reproduces
     the problem.
 
----------------------------------------------------------------------
-* 17:47 2026-06-26
+    = And yet I didn't do that, because I tried this hypothesis for the solution
+      and it seems to have worked.
 
-* VERY BIG IMPROVEMENT, MUST CONSIDER :
-
-  * See "ToDo/01 - Single PowerShell process/Description.TXT".
-
----------------------------------------------------------------------
-* 09:57 2026-06-26
-
-* Check the cases in linked "Uses.rar\Uses\BAD\" to see if they need
-  code changes, or have already been fixed.
-
-  * For example
-
-    "07\Err 'The given filesystem path contains the invalid character 'x'"
-
-    as of 09:59 2026-06-26 needs to be looked at .
+      * "It seems" because I did not directly check the updating of targets
+        containing the curly quotes.
 
 ---------------------------------------------------------------------
