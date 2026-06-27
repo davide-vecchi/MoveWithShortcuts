@@ -146,6 +146,12 @@ public class RenameWithLinks {
     
     final File searchDir = askSearchDirectory();
     
+    // TODO The execute() method should not exist and the 2 methods it calls (renameFileOrFolder() and updateShortcuts() )
+    //      should be called separately, from here, the first one should be called before calling askSearchDirectory(),
+    //      because the search folder must be asked after the target file or folder has been renamed / moved,
+    //      because it must exist in the after-rename-move filesystem, not in the before-rename-move one.
+    
+    
     this.appContext.currentVerbosity = askVerbosity();
     
     execute(originalFileOrFolder, destinationFileOrFolder, searchDir, shortcutTargetUpdater);
