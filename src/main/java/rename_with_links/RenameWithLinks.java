@@ -530,7 +530,7 @@ public class RenameWithLinks {
     this.numTotalShortcuts = shortcuts.size();
     
     this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
-                                                         + NL2T2 + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
+                                                         + NL2T + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
     
     boolean userAborted =  this.askBeforeProcessingShortcuts
                         && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(this.numTotalShortcuts)
