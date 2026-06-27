@@ -18,7 +18,7 @@
 * Check the cases in linked "Uses.rar\Uses\BAD\" to see if they need
   code changes, or have already been fixed.
 
-  * For example
+  * An interesting one is
 
     "07\Err 'The given filesystem path contains the invalid character 'x'"
 
