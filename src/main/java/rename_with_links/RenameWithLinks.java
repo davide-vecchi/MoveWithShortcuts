@@ -59,7 +59,6 @@ import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.NL2T2;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.NLT2;
-import static dutil.string.TextUtilities.TAB2;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
@@ -109,6 +108,11 @@ public class RenameWithLinks {
    * The total number of shortcuts whose target was updated.
    */
   int numUpdatedShortcuts = MINUS1_i;
+  
+  /**
+   * The total number of shortcuts that were skipped because they could not be processed.
+   */
+  int numSkippedShortcuts = MINUS1_i;
   
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
@@ -510,9 +514,11 @@ public class RenameWithLinks {
     
     assertNoneNull(shortcutTargetUpdater, oldTarget, newTarget);
     
-    this.numTotalShortcuts = MINUS1_i;
+    this.numTotalShortcuts =   MINUS1_i;
     
-    this.numUpdatedShortcuts =   MINUS1_i;
+    this.numUpdatedShortcuts = MINUS1_i;
+    
+    this.numSkippedShortcuts = MINUS1_i;
     
     final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
     
@@ -544,6 +550,8 @@ public class RenameWithLinks {
       this.numProcessedShortcuts = ZERO_i;
       
       this.numUpdatedShortcuts =   ZERO_i;
+      
+      this.numSkippedShortcuts = ZERO_i;
       
       String previousPercent = null;
       
@@ -585,11 +593,14 @@ public class RenameWithLinks {
             
             this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after "
                                                                    + FMT0DG.format(this.numProcessedShortcuts) + " shortcuts of the total "
-                                                                   + FMT0DG.format(this.numTotalShortcuts)     + " were processed and "
-                                                                   + FMT0DG.format(this.numUpdatedShortcuts)   + " of them were updated.");
+                                                                   + FMT0DG.format(this.numTotalShortcuts)     + " were processed, "
+                                                                   + FMT0DG.format(this.numUpdatedShortcuts)   + " of them were updated and "
+                                                                   + FMT0DG.format(this.numSkippedShortcuts)   + " of them were skipped.");
           }
         }
         catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
+          
+          ++this.numSkippedShortcuts;
           
           this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
           
@@ -601,7 +612,8 @@ public class RenameWithLinks {
         previousPercent = showProgress(
                         iShortcut,      shortcut
                                      , previousPercent, this.numTotalShortcuts
-                                                         ,this.numUpdatedShortcuts);
+                                                         ,this.numUpdatedShortcuts
+                                                         , this.numSkippedShortcuts);
       }
       this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(this.numUpdatedShortcuts) + " shortcuts out of " + FMT0DG.format(this.numTotalShortcuts) + " .");
     }
@@ -622,13 +634,15 @@ public class RenameWithLinks {
    *
    * @param totToProcess The total number of shortcuts to process.
    *
-   * @param totToProcess The total number of shortcuts updated so far.
+   * @param totUpdated The total number of shortcuts updated so far.
+   *
+   * @param totSkipped The total number of shortcuts skipped so far because they could not be processed.
    *
    * @return The percentage this method just displayed, calculated based on {@code iLastProcessed}, or the last
    *         displayed one if it's the same.
    */
   private String showProgress(int iLastProcessed, File lastProcessed, @NotBlank String previousPercent, int totToProcess
-                            , int totUpdated) {
+                            , int totUpdated,     int  totSkipped) {
     
     String result = previousPercent != null ? assertNonBlankNorTrimmable(previousPercent) : null;
     
@@ -640,16 +654,20 @@ public class RenameWithLinks {
                                                                  + " of "         + FMT0DG.format(totToProcess)
                                                                  + " ("           + leftPad(currentPercent, 3)
                                                                  + "%) :" + NL2T  + getCanonicalPathAsDescr(lastProcessed)
-                                                                 + " (updated : " + FMT0DG.format(totUpdated) + ") ..." + NLT);
+                                                                 + " (updated : " + FMT0DG.format(totUpdated)
+                                                                 + "; skipped : " + FMT0DG.format(totSkipped)
+                                                                 + ") ..." + NLT);
     }
     else if (this.appContext.currentVerbosity >= ONE_i && ! currentPercent.equals(result)) {
       
       result = currentPercent;
       
-      this.appContext.outUser_Chars(ONE_i, leftPad(result, 3)
-                                                              + "% (" + FMT0DG.format(iLastProcessed + ONE_l)
-                                                              + " / " + FMT0DG.format(totToProcess)
-                                                              + " / " + FMT0DG.format(totUpdated) + ")" + TAB2);
+      this.appContext.outUser(ONE_i, leftPad(result, 3)
+                                                        + "% (" + FMT0DG.format(iLastProcessed + ONE_l) + " tot"
+                                                        + " / " + FMT0DG.format(totToProcess)           + " processed"
+                                                        + " / " + FMT0DG.format(totUpdated)             + " updated"
+                                                        + " / " + FMT0DG.format(totSkipped)             + " skipped"
+                                                        + ")");
     }
     return result;
   }

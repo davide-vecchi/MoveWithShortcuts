@@ -148,6 +148,8 @@ public class RenameWithLinksMain {
           
           ac.outUser(NL + "Total shortcuts updated :    " + app.numUpdatedShortcuts   + " .");
           
+          ac.outUser(NL + "Total shortcuts skipped :    " + app.numSkippedShortcuts   + " .");
+          
           ac.showLogInfo(ONE_i);
         }
       }
