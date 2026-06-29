@@ -150,12 +150,6 @@ public class RenameWithLinks {
     
     final File searchDir = askSearchDirectory();
     
-    // TODO The execute() method should not exist and the 2 methods it calls (renameFileOrFolder() and updateShortcuts() )
-    //      should be called separately, from here, the first one should be called before calling askSearchDirectory(),
-    //      because the search folder must be asked after the target file or folder has been renamed / moved,
-    //      because it must exist in the after-rename-move filesystem, not in the before-rename-move one.
-    
-    
     this.appContext.currentVerbosity = askVerbosity();
     
     execute(originalFileOrFolder, destinationFileOrFolder, searchDir, shortcutTargetUpdater);
@@ -445,8 +439,9 @@ public class RenameWithLinks {
     
     final String searchPath = this.appContext.userIO.in(
                                                 "Enter the path to scan for " + WIN_SHORTCUT_EXTENSION
-                                                        + " shortcuts to update, or press Enter for the default,"
-                                                        + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                                        + " shortcuts to update (if the new name entered in the previous question included a path and that caused the folder tree to change, this path to scan must refer to the new folder tree)"
+                                                        + " or press Enter for the default,"
+                                                        + "Or, type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                          , getCurrentFolder(), CANCEL_CHARS);
     if (searchPath == null) {
 

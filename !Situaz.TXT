@@ -1,11 +1,6 @@
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
-* 07:56 2026-06-27
-
-* The TODO in RenameWithLinks.run() is urgent.
-
----------------------------------------------------------------------
 * 17:47 2026-06-26
 
 * VERY BIG IMPROVEMENT, MUST CONSIDER :
@@ -23,6 +18,15 @@
     "07\Err 'The given filesystem path contains the invalid character 'x'"
 
     as of 09:59 2026-06-26 needs to be looked at .
+
+---------------------------------------------------------------------
+- 07:56 2026-06-27
+
+- The TODO in RenameWithLinks.run() is urgent.
+
+  - And also wrong. That change is not needed, all is needed is to
+    make clear to the user that that path refers to the folder tree
+    as it will be after the rename / move has been performed.
 
 ---------------------------------------------------------------------
 - 14:38 2026-06-26
