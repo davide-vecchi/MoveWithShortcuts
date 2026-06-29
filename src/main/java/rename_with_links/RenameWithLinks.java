@@ -12,6 +12,7 @@ import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
 import dutil.exception.exceptions.NonUniqueExternalValueException;
 import dutil.io.IOUtilities;
+import dutil.system.OSUtilities;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -24,7 +25,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
@@ -148,11 +149,20 @@ public class RenameWithLinks {
     
     final File destinationFileOrFolder = askDestinationFileOrFolder(originalFileOrFolder);
     
-    final File searchDir = askSearchDirectory();
+    final File searchFolder = askSearchDirectory();
     
     this.appContext.currentVerbosity = askVerbosity();
     
-    execute(originalFileOrFolder, destinationFileOrFolder, searchDir, shortcutTargetUpdater);
+    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
+      
+      // Retrieve all the shortcuts that need to be checked and possibly updated :
+      
+      final List<File> shortcuts = retrieveShortcutFiles(searchFolder);
+      
+      // Perform the renaming / moving and the corresponding shortcuts updating :
+      
+      execute(originalFileOrFolder, destinationFileOrFolder, shortcuts, shortcutTargetUpdater);
+    }
   }
 
   /**
@@ -191,9 +201,18 @@ public class RenameWithLinks {
 
     final File destinationFileOrFolder = resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
 
-    final File searchDir = resolveSearchDirectory(argSearchPath);
+    final File searchFolder = resolveSearchDirectory(argSearchPath);
     
-    execute(originalFileOrFolder, destinationFileOrFolder, searchDir, shortcutTargetUpdater);
+    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
+      
+      // Retrieve all the shortcuts that need to be checked and possibly updated :
+      
+      final List<File> shortcuts = retrieveShortcutFiles(searchFolder);
+      
+      // Perform the renaming / moving and the corresponding shortcuts updating :
+      
+      execute(originalFileOrFolder, destinationFileOrFolder, shortcuts, shortcutTargetUpdater);
+    }
   }
   
   /**
@@ -212,19 +231,25 @@ public class RenameWithLinks {
    */
   void execute(@NotNull File                   originalFileOrFolder
              , @NotNull File                   destinationFileOrFolder
-             , @NotNull File                   searchFolder
+             , @NotNull List<File>             shortcuts
              , @NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws IOException {
     
-    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
-      
-      // Do the requested renaming / moving :
-      
-      renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
+    // Do the requested renaming / moving :
+    
+    renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
+    
+    final boolean userAborted =  this.askBeforeProcessingShortcuts
+                           && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(shortcuts.size())
+                                                              + " shortcut file(s)" + NL2T
+                                                              + "(the processing can be paused with the Enter key)"
+                                                              + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                               , EMPTY, CANCEL_CHARS) == null;
+    if (! userAborted) {
       
       // Update all the shortcuts that point to the location as it was before the renaming / moving :
       
       updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
-                    , searchFolder);
+                    , shortcuts);
     }
   }
   
@@ -504,115 +529,116 @@ public class RenameWithLinks {
    *
    * @return Whether the user has interrupted the process.
    */
-  private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater, @NotNull File oldTarget
-                                , @NotNull File                   newTarget,                      File searchFolder) {
+  private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater, @NotNull File       oldTarget
+                                , @NotNull File                   newTarget,             @NotNull List<File> shortcuts) {
     
     assertNoneNull(shortcutTargetUpdater, oldTarget, newTarget);
     
-    this.numTotalShortcuts =   MINUS1_i;
+    this.numTotalShortcuts =   shortcuts.size();
     
     this.numUpdatedShortcuts = MINUS1_i;
     
     this.numSkippedShortcuts = MINUS1_i;
     
-    final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
-    
-    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder"
-                                                         + NL2T + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + " ...");
-    
     final char abortFromPause = CANCEL_CHARS.charAt(CANCEL_CHARS.length() - ONE_i);
     
-    final List<File> shortcuts = FileUtilities.listFiles(
-                                             effectiveSearchFolder
-                                            , new String[] { removeStart(WIN_SHORTCUT_EXTENSION
-                                                                                , EXTENSION_SEPARATOR) }
-                                      , true);
+    this.numProcessedShortcuts = ZERO_i;
     
-    this.numTotalShortcuts = shortcuts.size();
+    this.numUpdatedShortcuts =   ZERO_i;
+    
+    this.numSkippedShortcuts = ZERO_i;
+    
+    String previousPercent = null;
+    
+    boolean userAborted = false;
+    
+    for (int iShortcut = ZERO_i; iShortcut < this.numTotalShortcuts && ! userAborted; iShortcut++) {
+      
+      final File shortcut = shortcuts.get(iShortcut);
+      
+      try {
+        
+        final TargetUpdateOutcome updateOutcome = shortcutTargetUpdater.updateTargetIfMatch(
+                                                                           shortcut, oldTarget, newTarget
+                                                                 , null
+                                                       , s -> this.appContext.warnUser(
+                                                                                          ZERO_i, s)
+                                                       ,   s -> this.appContext.errUser(
+                                                                                          ZERO_i, s));
+        ++this.numProcessedShortcuts;
+        
+        if (updateOutcome.notUpdated() == null) {
+          
+          // : The shortcut has had its target updated.
+          
+          ++this.numUpdatedShortcuts;
+          
+          this.appContext.warnUser(ZERO_i
+                                    , NL   + "Shortcut"              + NLT + getCanonicalPathAsDescr(shortcut)
+                                            + NL2T + ": target updated from" + NL2T2 + dq(updateOutcome.fromTo().o1)
+                                            + NLT  + "to"                    + NLT2 + dq(updateOutcome.fromTo().o2) + ".");
+        }
+        else {
+          
+          // : The shortcut has not had its target updated.
+        
+          this.appContext.outUser(TWO_i, updateOutcome.notUpdated());
+        }
+        userAborted = IOUtilities.handleUserInput( abortFromPause);
+        
+        if (userAborted) {
+          
+          this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after "
+                                                                 + FMT0DG.format(this.numProcessedShortcuts) + " shortcuts of the total "
+                                                                 + FMT0DG.format(this.numTotalShortcuts)     + " were processed, "
+                                                                 + FMT0DG.format(this.numUpdatedShortcuts)   + " of them were updated and "
+                                                                 + FMT0DG.format(this.numSkippedShortcuts)   + " of them were skipped.");
+        }
+      }
+      catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
+        
+        ++this.numSkippedShortcuts;
+        
+        this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
+        
+        this.appContext.errUser(ZERO_i, NL2 + "Skipping" + NL2T + dq(getCanonicalPath(shortcut))
+                                                        + NL2T + ". Reason :" + NLT + e.getLocalizedMessage() + NL);
+      }
+      // Update progress display :
+      
+      previousPercent = showProgress(
+                      iShortcut,      shortcut
+                                   , previousPercent, this.numTotalShortcuts
+                                                       ,this.numUpdatedShortcuts
+                                                       , this.numSkippedShortcuts);
+    }
+    this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(this.numUpdatedShortcuts) + " shortcuts out of " + FMT0DG.format(this.numTotalShortcuts) + " .");
+    
+    return userAborted;
+  }
+  
+  /**
+   * Retrieves all files under the given {@code searchFolder} tree that have the {@link OSUtilities#WIN_SHORTCUT_EXTENSION
+   * extension} of Windows shortcut files.
+   *
+   * @param searchFolder
+   * @return
+   */
+  @NotNull List<File> retrieveShortcutFiles(@NotNull File searchFolder) {
+    
+    final String searchFolderPath = getCanonicalPath(searchFolder);
+    
+    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder"
+                                                 + NL2T + dq(searchFolderPath) + " ...");
+    
+    final List<File> shortcuts = FileUtilities.listFiles(
+                        Paths.get(searchFolderPath)
+                       , new String[] { removeStart(WIN_SHORTCUT_EXTENSION, EXTENSION_SEPARATOR) }
+                 , true);
     
     this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
-                                                         + NL2T + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
-    
-    boolean userAborted =  this.askBeforeProcessingShortcuts
-                        && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(this.numTotalShortcuts)
-                                                            + " shortcut file(s) under" + NL2T + dq(getCanonicalPath(
-                                                                               effectiveSearchFolder.toFile())) + NL2T
-                                                            + "(the processing can be paused with the Enter key)"
-                                                            + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
-                                             , EMPTY, CANCEL_CHARS) == null;
-    if (! userAborted) {
-      
-      this.numProcessedShortcuts = ZERO_i;
-      
-      this.numUpdatedShortcuts =   ZERO_i;
-      
-      this.numSkippedShortcuts = ZERO_i;
-      
-      String previousPercent = null;
-      
-      for (int iShortcut = ZERO_i; iShortcut < this.numTotalShortcuts && ! userAborted; iShortcut++) {
-        
-        final File shortcut = shortcuts.get(iShortcut);
-        
-        try {
-          
-          final TargetUpdateOutcome updateOutcome = shortcutTargetUpdater.updateTargetIfMatch(
-                                                                             shortcut, oldTarget, newTarget
-                                                                   , null
-                                                         , s -> this.appContext.warnUser(
-                                                                                            ZERO_i, s)
-                                                         ,   s -> this.appContext.errUser(
-                                                                                            ZERO_i, s));
-          ++this.numProcessedShortcuts;
-          
-          if (updateOutcome.notUpdated() == null) {
-            
-            // : The shortcut has had its target updated.
-            
-            ++this.numUpdatedShortcuts;
-            
-            this.appContext.warnUser(ZERO_i
-                                      , NL   + "Shortcut"              + NLT + getCanonicalPathAsDescr(shortcut)
-                                              + NL2T + ": target updated from" + NL2T2 + dq(updateOutcome.fromTo().o1)
-                                              + NLT  + "to"                    + NLT2 + dq(updateOutcome.fromTo().o2) + ".");
-          }
-          else {
-            
-            // : The shortcut has not had its target updated.
-          
-            this.appContext.outUser(TWO_i, updateOutcome.notUpdated());
-          }
-          userAborted = IOUtilities.handleUserInput( abortFromPause);
-          
-          if (userAborted) {
-            
-            this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after "
-                                                                   + FMT0DG.format(this.numProcessedShortcuts) + " shortcuts of the total "
-                                                                   + FMT0DG.format(this.numTotalShortcuts)     + " were processed, "
-                                                                   + FMT0DG.format(this.numUpdatedShortcuts)   + " of them were updated and "
-                                                                   + FMT0DG.format(this.numSkippedShortcuts)   + " of them were skipped.");
-          }
-        }
-        catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
-          
-          ++this.numSkippedShortcuts;
-          
-          this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
-          
-          this.appContext.errUser(ZERO_i, NL2 + "Skipping" + NL2T + dq(getCanonicalPath(shortcut))
-                                                          + NL2T + ". Reason :" + NLT + e.getLocalizedMessage() + NL);
-        }
-        // Update progress display :
-        
-        previousPercent = showProgress(
-                        iShortcut,      shortcut
-                                     , previousPercent, this.numTotalShortcuts
-                                                         ,this.numUpdatedShortcuts
-                                                         , this.numSkippedShortcuts);
-      }
-      this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(this.numUpdatedShortcuts) + " shortcuts out of " + FMT0DG.format(this.numTotalShortcuts) + " .");
-    }
-    return userAborted;
+                                                   + NL2T + dq(searchFolderPath) + ".");
+    return shortcuts;
   }
   
   /**
