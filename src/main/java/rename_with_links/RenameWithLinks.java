@@ -225,7 +225,7 @@ public class RenameWithLinks {
       
       // Perform the renaming / moving and the corresponding shortcuts updating :
       
-      execute(originalFileOrFolder, destinationFileOrFolder, shortcuts, shortcutTargetUpdater);
+      execute(originalFileOrFolder, destinationFileOrFolder, shortcuts, shortcutsTargetUpdater);
     }
   }
   
