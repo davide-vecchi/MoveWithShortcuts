@@ -7,6 +7,7 @@ package rename_with_links;
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
 import dfile.shortcut.IShortcutTargetUpdater.TargetUpdateOutcome;
+import dfile.shortcut.IShortcutsTargetUpdater;
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
@@ -136,15 +137,17 @@ public class RenameWithLinks {
    * Invoked if the program has been started without args.<br>
    * Runs the rename-and-update operation first asking to the user the values corresponding to the program args.
    *
-   * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
-   *                              update} the target of a shortcut.
+   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)}
+   *                               update} the target of shortcuts.
    *
    * @throws UserRequestedTermination
    * @throws IOException
    */
-  public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws UserRequestedTermination, IOException {
+  public void run(@NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws UserRequestedTermination, IOException {
     
     assertWindowsOS();
+    
+    assertNonNull(shortcutsTargetUpdater, shortcutsTargetUpdater.getClass().getSimpleName() + " updater");
     
     final File originalFileOrFolder = askOriginalPath();
     
@@ -162,15 +165,15 @@ public class RenameWithLinks {
       
       // Perform the renaming / moving and the corresponding shortcuts updating :
       
-      execute(originalFileOrFolder, destinationFileOrFolder, shortcuts, shortcutTargetUpdater);
+      execute(originalFileOrFolder, destinationFileOrFolder, shortcuts, shortcutsTargetUpdater);
     }
   }
 
   /**
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
-   * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
-   *                              update} the target of a shortcut.<br>
+   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)}
+   *                               update} the target of shortcuts.
    *
    * @param argOriginalPath       The argument given for the path of the file or folder to rename / move.<br>
    *
@@ -186,13 +189,13 @@ public class RenameWithLinks {
    * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.
    * @throws NonUniqueExternalValueException If the specified destination is the same as the original.
    */
-  public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater, @NotNull String argOriginalPath
-                , @NotNull String                 argDestinationPath,    @NotNull String argSearchPath
-                ,          String                 argVerbosity) throws IOException {
+  public void run(@NotNull IShortcutsTargetUpdater shortcutsTargetUpdater, @NotNull String argOriginalPath
+                , @NotNull String                  argDestinationPath,     @NotNull String argSearchPath
+                ,          String                  argVerbosity) throws IOException {
     
     assertWindowsOS();
     
-    assertNonNull(shortcutTargetUpdater, shortcutTargetUpdater.getClass().getSimpleName() + " updater");
+    assertNonNull(shortcutsTargetUpdater, shortcutsTargetUpdater.getClass().getSimpleName() + " updater");
     
     assertNoneBlankNorTrimmable(argOriginalPath, argDestinationPath, argSearchPath);
     

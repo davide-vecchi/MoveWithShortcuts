@@ -5,6 +5,8 @@ package rename_with_links;
 
 
 import dfile.shortcut.IShortcutTargetUpdater;
+import dfile.shortcut.IShortcutsTargetUpdater;
+import dfile.shortcut.WinShortcutsUpdater_PS_COM_WScript_Shell01;
 import dlog.log.Log;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
