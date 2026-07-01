@@ -122,12 +122,22 @@ public class RenameWithLinks {
   private final @NotNull AppContext appContext;
   
   
+  /**
+   * Private constructor.
+   *
+   * @param appContext {@link #appContext}.
+   */
   private RenameWithLinks(@NotNull AppContext appContext) {
   
     this.appContext = assertNonNull(appContext);
   }
   
   
+  /**
+   * Factory method.
+   *
+   * @param appContext {@link #appContext}.
+   */
   public static RenameWithLinks newInstance(@NotNull AppContext appContext) {
   
     return new RenameWithLinks(appContext);
