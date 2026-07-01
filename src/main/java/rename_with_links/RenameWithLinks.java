@@ -241,44 +241,43 @@ public class RenameWithLinks {
   }
   
   /**
-   * {@link #askStartConfirmation Asks for confirmation} to the user to start the execution, and if granted executes the
-   * program logic: {@link #renameFileOrFolder renames} the given {@code originalFileOrFolder} to the given {@code
-   * destinationFileOrFolder} and {@link #updateShortcuts updates} accordingly all the shortcuts found under the given {@code
-   * searchDir}, using the given {@code shortcutTargetUpdater updater}.
+   * Asks for confirmation to the user to start the execution, and if granted executes the program logic: {@link #renameFileOrFolder
+   * renames} the given {@code originalFileOrFolder} to the given {@code destinationFileOrFolder} and {@link #updateShortcuts
+   * updates} accordingly all the given {@code shortcuts}, using the given {@code shortcutsTargetUpdater}.
    *
    * @param originalFileOrFolder    The file or folder to rename / move.<br>
    *
    * @param destinationFileOrFolder The new file path / name to which to rename / move the {@code originalFileOrFolder}.<br>
    *
-   * @param searchFolder            The folder under which to search for shortcut files whose target needs updating.<br>
+   * @param shortcuts               The shortcut files whose target must be checked and possibly updated.<br>
    *
    * @param shortcutsProcessor      The {@link IShortcutsTargetUpdater shortcuts processor} to use to perform the updates of
    *                                the shortcuts' targets that need it.
    */
-  void execute(@NotNull File                originalFileOrFolder
-             , @NotNull File                destinationFileOrFolder
-             , @NotNull List<File>          shortcuts
-             , @NotNull IShortcutsTargetUpdater shortcutTargetUpdater) throws IOException {
+  void execute(@NotNull File                    originalFileOrFolder
+             , @NotNull File                    destinationFileOrFolder
+             , @NotNull List<File>              shortcuts
+             , @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws IOException {
     
     // Do the requested renaming / moving :
     
     renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
     
     final boolean userAborted =  this.askBeforeProcessingShortcuts
-                           && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(shortcuts.size())
-                                                              + " shortcut file(s)" + NL2T
-                                                              + "(the processing can be paused with the Enter key)"
-                                                              + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
-                                               , EMPTY, CANCEL_CHARS) == null;
+                              && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(shortcuts.size())
+                                                                   + " shortcut file(s)" + NL2T + "(the processing can be paused with the Enter key)"
+                                                                   + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                                    , EMPTY, CANCEL_CHARS) == null;
     if (! userAborted) {
       
       // Update all the shortcuts that point to the location as it was before the renaming / moving :
       
-      / // @@@@ q
-      shortcutsProcessor.updateShortcuts(shortcuts, originalFileOrFolder, destinationFileOrFolder);
+      shortcutsTargetUpdater.updateShortcuts(shortcuts, originalFileOrFolder
+                                                      , destinationFileOrFolder);
       
-      updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
-                    , shortcuts);
+      /// @@@@ q
+//      updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
+//                    , shortcuts);
     }
   }
   
