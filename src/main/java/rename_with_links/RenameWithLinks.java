@@ -150,7 +150,6 @@ public class RenameWithLinks {
    * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)}
    *                               update} the target of shortcuts.
    *
-   *
    * @throws IOException                     If the rename / move operation fails.<br>
    *
    * @throws MissingExternalValueException   If the specified {@link #askOriginalPath original path} does not exist.<br>
