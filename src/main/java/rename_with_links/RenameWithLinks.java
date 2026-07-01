@@ -147,7 +147,6 @@ public class RenameWithLinks {
    * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
    *                              update} the target of a shortcut.
    *
-   *
    * @throws IOException                     If the rename / move operation fails.<br>
    *
    * @throws MissingExternalValueException   If the specified {@link #askOriginalPath original path} does not exist.<br>
