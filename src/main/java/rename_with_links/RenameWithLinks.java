@@ -150,12 +150,13 @@ public class RenameWithLinks {
    *
    * @throws IOException                     If the rename / move operation fails.<br>
    *
-   * @throws MissingExternalValueException   If the specified {@code originalPath} does not exist.<br>
+   * @throws MissingExternalValueException   If the specified {@link #askOriginalPath original path} does not exist.<br>
    *
-   * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.<br>
+   * @throws InvalidExternalValueException   If the specified {@link #askSearchDirectory()} search path} does not exist
+   *                                         or is not a folder.<br>
    *
-   * @throws NonUniqueExternalValueException If the specified {@code argDestinationPath} is the same as {@code
-   *                                         originalPath}.
+   * @throws NonUniqueExternalValueException If the specified {@link #askDestinationFileOrFolder destination file or
+   *                                         folder} is the same as the specified {@link #askOriginalPath original path}.
    */
   public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws UserRequestedTermination, IOException {
     
