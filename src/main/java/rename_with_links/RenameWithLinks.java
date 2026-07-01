@@ -150,8 +150,15 @@ public class RenameWithLinks {
    * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)}
    *                               update} the target of shortcuts.
    *
-   * @throws UserRequestedTermination
-   * @throws IOException
+   *
+   * @throws IOException                     If the rename / move operation fails.<br>
+   *
+   * @throws MissingExternalValueException   If the specified {@code originalPath} does not exist.<br>
+   *
+   * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.<br>
+   *
+   * @throws NonUniqueExternalValueException If the specified {@code argDestinationPath} is the same as {@code
+   *                                         originalPath}.
    */
   public void run(@NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws UserRequestedTermination, IOException {
     
@@ -194,10 +201,14 @@ public class RenameWithLinks {
    *
    * @param argVerbosity          The argument given for the verbosity level. May be {@code null}, defaults to 0 .
    *
-   * @throws IOException                     If the rename/move operation fails.
-   * @throws MissingExternalValueException   If the specified {@code originalPath} does not exist.
-   * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.
-   * @throws NonUniqueExternalValueException If the specified destination is the same as the original.
+   * @throws IOException                     If the rename / move operation fails.<br>
+   *
+   * @throws MissingExternalValueException   If the specified {@code originalPath} does not exist.<br>
+   *
+   * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.<br>
+   *
+   * @throws NonUniqueExternalValueException If the specified {@code argDestinationPath} is the same as {@code
+   *                                         originalPath}.
    */
   public void run(@NotNull IShortcutsTargetUpdater shortcutsTargetUpdater, @NotNull String argOriginalPath
                 , @NotNull String                  argDestinationPath,     @NotNull String argSearchPath
