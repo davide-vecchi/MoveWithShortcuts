@@ -28,6 +28,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.function.Function;
 
 import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.assertExistingPath;
@@ -227,12 +228,13 @@ public class RenameWithLinks {
    *
    * @param searchFolder            The folder under which to search for shortcut files whose target needs updating.<br>
    *
-   * @param shortcutTargetUpdater   The updater to use to perform the update of the shortcuts' target that need it.
+   * @param shortcutsProcessor      The {@link IShortcutsTargetUpdater shortcuts processor} to use to perform the updates of
+   *                                the shortcuts' targets that need it.
    */
-  void execute(@NotNull File                   originalFileOrFolder
-             , @NotNull File                   destinationFileOrFolder
-             , @NotNull List<File>             shortcuts
-             , @NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws IOException {
+  void execute(@NotNull File                originalFileOrFolder
+             , @NotNull File                destinationFileOrFolder
+             , @NotNull List<File>          shortcuts
+             , @NotNull IShortcutsTargetUpdater shortcutTargetUpdater) throws IOException {
     
     // Do the requested renaming / moving :
     
@@ -247,6 +249,9 @@ public class RenameWithLinks {
     if (! userAborted) {
       
       // Update all the shortcuts that point to the location as it was before the renaming / moving :
+      
+      / // @@@@ q
+      shortcutsProcessor.updateShortcuts(shortcuts, originalFileOrFolder, destinationFileOrFolder);
       
       updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
                     , shortcuts);
@@ -513,26 +518,29 @@ public class RenameWithLinks {
   }
 
   /**
-   * Recursively scans the search directory for {@code .lnk} files and, for each shortcut whose target matches the
-   * original path, updates it to the new path.
+   * For each of the given {@code shortcuts}, it its target matches the original path, updates it to the new path.
    *
    * @param shortcutTargetUpdater The object to use to {@link IShortcutTargetUpdater#updateTargetIfMatch update} the
    *                              target of the shortcuts found under {@code searchFolder} tree that have it {@link FileUtilities#isDescendant
-   *                              matching} {@code oldTarget}.<br>
+   *                              matching} {@code oldParentTarget}.<br>
    *
-   * @param oldTarget             The target that - if present in a shortcut - must be updated to {@code newTarget}.<br>
+   * @param oldParentTarget      See {@code oldParentTarget} param of {@link
+   *                             IShortcutTargetUpdater#updateTargetIfMatch(File, File, File, Function, Function, Function)}.<br>
    *
-   * @param newTarget             The target to set into the shortcuts that have it equal to {@code oldTarget}.<br>
+   * @param newParentTarget      See {@code newParentTarget} param of {@link
+   *                             IShortcutTargetUpdater#updateTargetIfMatch(File, File, File, Function, Function, Function)}.<br>
    *
    * @param searchFolder          The folder under which to recursively search for shortcuts to update. If {@code null},
    *                              the {@link FileUtilities#getCurrentFolder() current folder} is used.
    *
    * @return Whether the user has interrupted the process.
    */
-  private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater, @NotNull File       oldTarget
-                                , @NotNull File                   newTarget,             @NotNull List<File> shortcuts) {
+  private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater
+                                , @NotNull File                   oldParentTarget
+                                , @NotNull File                   newParentTarget
+                                , @NotNull List<File>             shortcuts) {
     
-    assertNoneNull(shortcutTargetUpdater, oldTarget, newTarget);
+    assertNoneNull(shortcutTargetUpdater, oldParentTarget, newParentTarget);
     
     this.numTotalShortcuts =   shortcuts.size();
     
@@ -559,7 +567,7 @@ public class RenameWithLinks {
       try {
         
         final TargetUpdateOutcome updateOutcome = shortcutTargetUpdater.updateTargetIfMatch(
-                                                                           shortcut, oldTarget, newTarget
+                                                                           shortcut, oldParentTarget, newParentTarget
                                                                  , null
                                                        , s -> this.appContext.warnUser(
                                                                                           ZERO_i, s)

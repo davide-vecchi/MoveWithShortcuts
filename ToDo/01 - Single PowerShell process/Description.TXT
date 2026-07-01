@@ -46,8 +46,8 @@ Step	Action																										Side
 
 3			Launch PowerShell (first invocation)											Java
 
-4			Read paths from file, resolve targets,
-			write targets to targets-output.txt												PowerShell
+4			Read paths from file, resolve targets,                    PowerShell
+			write targets to targets-output.txt
 
 5			Parse targets-output.txt																	Java
 
