@@ -4,7 +4,6 @@
 package rename_with_links;
 
 
-import dfile.shortcut.IShortcutTargetUpdater;
 import dfile.shortcut.IShortcutsTargetUpdater;
 import dfile.shortcut.WinShortcutsUpdater_PS_COM_WScript_Shell01;
 import dlog.log.Log;
@@ -165,13 +164,13 @@ public class RenameWithLinksMain {
   /**
    * Shows the startup messages.
    *
-   * @param ac                    The application context.<br>
+   * @param ac                     The application context.<br>
    *
-   * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater} instance that this execution will use.<br>
+   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater} instance that this execution will use.<br>
    *
-   * @param args                  The command line arguments with which this execution has been started.
+   * @param args                   The command line arguments with which this execution has been started.
    */
-  private static void showStartupMessages(@NotNull AppContext ac, @NotNull IShortcutTargetUpdater shortcutTargetUpdater
+  private static void showStartupMessages(@NotNull AppContext ac, @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater
                                         , @NotNull String[] args) {
   
     ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date());
@@ -186,8 +185,8 @@ public class RenameWithLinksMain {
     
     ac.outUser(ONE_i, NL + OSUtilities.getDescription());
     
-    ac.outUser(ONE_i, NL + "Using "    + IShortcutTargetUpdater.class.getSimpleName() + " implementation "
-                                           + dq(shortcutTargetUpdater.getClass().getSimpleName()) + ".");
+    ac.outUser(ONE_i, NL + "Using "    + IShortcutsTargetUpdater.class.getSimpleName() + " implementation "
+                                           + dq(shortcutsTargetUpdater.getClass().getSimpleName()) + ".");
     
     ac.outUser(ONE_i, NL + "Current verbosity (0-" + MAX_VERBOSITY + ") : " + ac.currentVerbosity + " .");
     

@@ -275,7 +275,7 @@ public class RenameWithLinks {
       shortcutsTargetUpdater.updateShortcuts(shortcuts, originalFileOrFolder
                                                       , destinationFileOrFolder);
       
-      /// @@@@ q
+      /// @@@@ q - via :
 //      updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
 //                    , shortcuts);
     }
