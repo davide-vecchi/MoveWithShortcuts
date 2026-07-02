@@ -5,7 +5,9 @@ package rename_with_links;
 
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
+import dfile.shortcut.IShortcutsTargetUpdater;
 import dfile.shortcut.WinShortcutUpdater_PS_COM_WScript_Shell01;
+import dfile.shortcut.WinShortcutsUpdater_PS_COM_WScript_Shell01;
 import dlog.log.Log;
 import duser_input_output.AUserInputOutput;
 import dutil.exception.UserRequestedTermination;
@@ -79,14 +81,13 @@ public class RenameWithLinksTest {
   
   private IShortcutTargetUpdater shortcutTargetUpdater;
   
-
+  private IShortcutsTargetUpdater shortcutsTargetUpdater;
+  
+  
   @BeforeClass
   void beforeClass() throws IOException {
 
     this.tempDir = Files.createTempDirectory("RenameWithLinksTest_");
-    
-    this.shortcutTargetUpdater = WinShortcutUpdater_PS_COM_WScript_Shell01.newInstance(false
-                                                                                                         , null);
   }
 
   @AfterClass
@@ -95,6 +96,8 @@ public class RenameWithLinksTest {
     FileUtils.deleteDirectory(this.tempDir.toFile());
     
     this.shortcutTargetUpdater = null;
+    
+    this.shortcutsTargetUpdater = null;
   }
 
   @BeforeMethod
@@ -107,6 +110,11 @@ public class RenameWithLinksTest {
     this.mockAppContext = AppContext.newAppContext(this.mockUserIO, this.mockScreenLog, this.mockUserLog, this.mockDevLog);
     
     this.mockAppContext.currentVerbosity = MAX_VERBOSITY;
+    
+    this.shortcutTargetUpdater =  WinShortcutUpdater_PS_COM_WScript_Shell01.newInstance(false
+                                                                                                          , null);
+    
+    this.shortcutsTargetUpdater = WinShortcutsUpdater_PS_COM_WScript_Shell01.newInstance(this.mockAppContext);
   }
   
   @AfterMethod
@@ -142,11 +150,12 @@ public class RenameWithLinksTest {
     // 5.2 : in() returns null (cancel)
     // → UserRequestedTermination
 
-    lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString())).thenReturn(null);
+    lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
+             .thenReturn(null);
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(UserRequestedTermination.class, () -> app.run(this.shortcutTargetUpdater));
+    Assert.expectThrows(UserRequestedTermination.class, () -> app.run(this.shortcutsTargetUpdater));
   }
 
   @Test
@@ -164,7 +173,8 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(UserRequestedTermination.class, () -> app.run(this.shortcutTargetUpdater));
+    Assert.expectThrows(UserRequestedTermination.class
+                           , () -> app.run(this.shortcutsTargetUpdater));
   }
 
   @Test
@@ -184,7 +194,8 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(UserRequestedTermination.class, () -> app.run(this.shortcutTargetUpdater));
+    Assert.expectThrows(UserRequestedTermination.class
+                           , () -> app.run(this.shortcutsTargetUpdater));
   }
 
   // ====== Invalid input scenarios ======
@@ -201,7 +212,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(MissingExternalValueException.class, () -> app.run(this.shortcutTargetUpdater));
+    Assert.expectThrows(MissingExternalValueException.class, () -> app.run(this.shortcutsTargetUpdater));
   }
 
   @Test
@@ -223,7 +234,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    Assert.expectThrows(InvalidPathException.class, () -> app.run(this.shortcutTargetUpdater));
+    Assert.expectThrows(InvalidPathException.class, () -> app.run(this.shortcutsTargetUpdater));
   }
 
   // ====== Integration: file system operations ======
@@ -251,7 +262,7 @@ public class RenameWithLinksTest {
     
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
     
-    app.run(this.shortcutTargetUpdater);
+    app.run(this.shortcutsTargetUpdater);
     
     Assert.assertFalse(srcFile.exists(), "Source file should have been renamed");
     
@@ -283,7 +294,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run(this.shortcutTargetUpdater);
+    app.run(this.shortcutsTargetUpdater);
 
     Assert.assertFalse(srcFolder.exists(), "Source folder should have been renamed");
 
@@ -317,7 +328,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run(this.shortcutTargetUpdater);
+    app.run(this.shortcutsTargetUpdater);
 
     Assert.assertFalse(srcFile.exists(), "Source file should have been renamed");
 
@@ -353,7 +364,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run(this.shortcutTargetUpdater);
+    app.run(this.shortcutsTargetUpdater);
 
     Assert.assertTrue(destinationFileOrFolder.exists(), "New file should exist");
 
@@ -391,7 +402,7 @@ public class RenameWithLinksTest {
 
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
 
-    app.run(this.shortcutTargetUpdater);
+    app.run(this.shortcutsTargetUpdater);
 
     // The .lnk should still point to the other file
 
@@ -427,7 +438,7 @@ public class RenameWithLinksTest {
     
     final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
     
-    app.run(this.shortcutTargetUpdater);
+    app.run(this.shortcutsTargetUpdater);
     
     Assert.assertTrue(destinationFile.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
   }
@@ -671,7 +682,7 @@ public class RenameWithLinksTest {
     app.execute(sub2ToMove.toFile()
             ,sub2moved. toFile()
                         , app.retrieveShortcutFiles(testExecute01.toFile())
-                                  , this.shortcutTargetUpdater);
+                                  , this.shortcutsTargetUpdater);
     
     // 5 : Verify that now the folder "sub2-to-move\" no longer exists under folder "testExecute01\sub1\" and now exists
     //     as "testExecute01\subA\subBToReceiveMoved\sub2-moved\" :
