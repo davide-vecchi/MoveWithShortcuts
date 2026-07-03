@@ -114,9 +114,8 @@ public class RenameWithLinksMain {
           
           // Create the desired type of shortcuts updater instance :
           
-          final IShortcutsTargetUpdater shortcutsTargetUpdater =
-                                                               WinShortcutsUpdater_PS_COM_WScript_Shell01.newInstance(ac);
-          
+          final IShortcutsTargetUpdater shortcutsTargetUpdater = WinShortcutsUpdater_PS_COM_WScript_Shell01.newInstance(
+                                                                                                           ac);
           showStartupMessages(ac, shortcutsTargetUpdater, args);
           
           // Perform the renaming operation using the chosen updater :
