@@ -3,6 +3,7 @@
  */
 package rename_with_links;
 
+import application.AAppContext;
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
 import dfile.shortcut.IShortcutsTargetUpdater;
@@ -75,7 +76,7 @@ public class RenameWithLinksTest {
   @Mock
   private Log mockDevLog;
 
-  private AppContext mockAppContext;
+  private AAppContext mockAppContext;
 
   private Path tempDir;
   

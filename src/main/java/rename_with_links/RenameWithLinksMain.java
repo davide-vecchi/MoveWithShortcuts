@@ -1,9 +1,10 @@
 /**
- * Created by OpenCode on 2026-05-08 .
+ * Created by Davide on 2026-05-08 .
  */
 package rename_with_links;
 
 
+import application.AAppContext;
 import dfile.shortcut.IShortcutsTargetUpdater;
 import dfile.shortcut.WinShortcutsUpdater_PS_COM_WScript_Shell01;
 import dlog.log.Log;
@@ -96,7 +97,7 @@ public class RenameWithLinksMain {
         final ConditionallyCloseablePrintStream err = new ConditionallyCloseablePrintStream(
                                                                              System.err,   true
                                                                                         , CHARSET_UTF_8, false);
-        final AppContext ac = AppContext.newAppContext(
+        final AAppContext ac = AppContext.newAppContext(
                          ColorConsoleUserIO.newInstance1(System.in,         out,                 err
                                                              , CYAN,   BLACK,   RED
                                                              , BLACK, YELLOW, BLACK)
@@ -169,7 +170,7 @@ public class RenameWithLinksMain {
    *
    * @param args                   The command line arguments with which this execution has been started.
    */
-  private static void showStartupMessages(@NotNull AppContext ac, @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater
+  private static void showStartupMessages(@NotNull AAppContext ac, @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater
                                         , @NotNull String[] args) {
   
     ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date());

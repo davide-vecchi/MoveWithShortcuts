@@ -4,6 +4,7 @@
 package rename_with_links;
 
 
+import application.AAppContext;
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
 import dfile.shortcut.IShortcutTargetUpdater.TargetUpdateOutcome;
@@ -119,7 +120,7 @@ public class RenameWithLinks {
   
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private final @NotNull AppContext appContext;
+  private final @NotNull AAppContext appContext;
   
   
   /**
@@ -127,7 +128,7 @@ public class RenameWithLinks {
    *
    * @param appContext {@link #appContext}.
    */
-  private RenameWithLinks(@NotNull AppContext appContext) {
+  private RenameWithLinks(@NotNull AAppContext appContext) {
   
     this.appContext = assertNonNull(appContext);
   }
@@ -138,7 +139,7 @@ public class RenameWithLinks {
    *
    * @param appContext {@link #appContext}.
    */
-  public static RenameWithLinks newInstance(@NotNull AppContext appContext) {
+  public static RenameWithLinks newInstance(@NotNull AAppContext appContext) {
   
     return new RenameWithLinks(appContext);
   }
@@ -508,7 +509,7 @@ public class RenameWithLinks {
   }
   
   /**
-   * Asks the user for the {@link AppContext#currentVerbosity verbosity level}.
+   * Asks the user for the {@link AAppContext#currentVerbosity verbosity level}.
    */
   private int askVerbosity() throws UserRequestedTermination {
     
@@ -674,7 +675,7 @@ public class RenameWithLinks {
   
   /**
    * Calculates the percentage corresponding to {@code iLastProcessed}, and displays it if it's different from the
-   * previously displayed one.<br>If the {@link AppContext#currentVerbosity currently set verbosity} allows, also
+   * previously displayed one.<br>If the {@link AAppContext#currentVerbosity currently set verbosity} allows, also
    * displays the last processed shortcut.
    *
    * @param iLastProcessed Index (so 0-based) of the last shortcut that has been processed.<br>
