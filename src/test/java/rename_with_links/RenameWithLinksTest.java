@@ -445,7 +445,7 @@ public class RenameWithLinksTest {
   }
   
   /**
-   * Tests {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater)} as follows :<ul>
+   * Tests {@link RenameWithLinks#execute(File, File, List, IShortcutsTargetUpdater)} as follows :<ul>
    *
    * <li> 1) Under {@code src\test\resources\} creates subfolders :<ol>
    *         <li>{@code testExecute01\sub1\sub2-to-move\sub3-with-file\sub4\}.</li>
@@ -490,7 +490,7 @@ public class RenameWithLinksTest {
    *         <li>5) A shortcut named {@code sub4.lnk} exists in {@code testExecute01\} having folder {@code sub4} as
    *                target.</li></ul></li>
    *
-   * <li> 4) Invokes {@link RenameWithLinks#execute(File, File, File, IShortcutTargetUpdater) the tested method} passing :<ul>
+   * <li> 4) Invokes {@link RenameWithLinks#execute(File, File, List, IShortcutsTargetUpdater) the tested method} passing :<ul>
    *
    *         <li>1) Folder {@code testExecute01\sub1\sub2-to-move\} as the file / folder to rename / move ({@code
    *                originalFileOrFolder} param).</li>
