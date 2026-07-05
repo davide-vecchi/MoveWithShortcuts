@@ -88,7 +88,7 @@ public class RenameWithLinksTest {
   @BeforeClass
   void beforeClass() throws IOException {
 
-    this.tempDir = Files.createTempDirectory("RenameWithLinksTest_");
+    this.tempDir = Files.createTempDirectory(RenameWithLinksTest.class.getSimpleName() + "_");
   }
 
   @AfterClass
