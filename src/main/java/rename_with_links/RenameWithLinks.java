@@ -260,25 +260,32 @@ public class RenameWithLinks {
              , @NotNull List<File>              shortcuts
              , @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws IOException {
     
-    // Do the requested renaming / moving :
+    try {
+      
+      // Do the requested renaming / moving :
+      
+      renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
+      
+      final boolean userAborted =  this.askBeforeProcessingShortcuts
+                                && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(shortcuts.size())
+                                                                     + " shortcut file(s)" + NL2T + "(the processing can be paused with the Enter key)"
+                                                                     + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                                      , EMPTY, CANCEL_CHARS) == null;
+      if (! userAborted) {
+        
+        // Update all the shortcuts that point to the location as it was before the renaming / moving :
+        
+        shortcutsTargetUpdater.updateShortcuts(shortcuts, originalFileOrFolder
+                                                        , destinationFileOrFolder);
+      }
+    }
+    catch (Exception e) {
     
-    renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
-    
-    final boolean userAborted =  this.askBeforeProcessingShortcuts
-                              && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(shortcuts.size())
-                                                                   + " shortcut file(s)" + NL2T + "(the processing can be paused with the Enter key)"
-                                                                   + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
-                                                    , EMPTY, CANCEL_CHARS) == null;
-    if (! userAborted) {
+      this.appContext.outUserLog(NL2 + e.getLocalizedMessage());
       
-      // Update all the shortcuts that point to the location as it was before the renaming / moving :
+      this.appContext.outUserLog(NL2 + getFullDescriptionWithRootCause(e));
       
-      shortcutsTargetUpdater.updateShortcuts(shortcuts, originalFileOrFolder
-                                                      , destinationFileOrFolder);
-      
-      /// @@@@ q - via :
-//      updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
-//                    , shortcuts);
+      throw e;
     }
   }
   
