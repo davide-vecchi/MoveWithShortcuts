@@ -8,7 +8,7 @@ import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
 import dfile.shortcut.IShortcutsTargetUpdater;
 import dfile.shortcut.WinShortcutUpdater_PS_COM_WScript_Shell01;
-import dfile.shortcut.WinShortcutsUpdater_PS_COM_WScript_Shell01;
+import dfile.shortcut.WinShortcutsUpdater_PSScriptsMulti;
 import dlog.log.Log;
 import duser_input_output.AUserInputOutput;
 import dutil.exception.UserRequestedTermination;
@@ -129,7 +129,7 @@ public class RenameWithLinksTest {
     this.shortcutTargetUpdater =  WinShortcutUpdater_PS_COM_WScript_Shell01.newInstance(false
                                                                                                           , null);
     
-    this.shortcutsTargetUpdater = WinShortcutsUpdater_PS_COM_WScript_Shell01.newInstance(this.mockAppContext);
+    this.shortcutsTargetUpdater = WinShortcutsUpdater_PSScriptsMulti.newInstance(this.mockAppContext);
   }
   
   @AfterMethod

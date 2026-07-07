@@ -6,7 +6,7 @@ package rename_with_links;
 
 import application.AAppContext;
 import dfile.shortcut.IShortcutsTargetUpdater;
-import dfile.shortcut.WinShortcutsUpdater_PS_COM_WScript_Shell01;
+import dfile.shortcut.WinShortcutsUpdater_PSScriptsMulti;
 import dlog.log.Log;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
@@ -115,7 +115,7 @@ public class RenameWithLinksMain {
           
           // Create the desired type of shortcuts updater instance :
           
-          final IShortcutsTargetUpdater shortcutsTargetUpdater = WinShortcutsUpdater_PS_COM_WScript_Shell01.newInstance(
+          final IShortcutsTargetUpdater shortcutsTargetUpdater = WinShortcutsUpdater_PSScriptsMulti.newInstance(
                                                                                                            ac);
           showStartupMessages(ac, shortcutsTargetUpdater, args);
           
