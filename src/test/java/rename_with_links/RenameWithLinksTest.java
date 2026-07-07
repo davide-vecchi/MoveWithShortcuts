@@ -39,6 +39,7 @@ import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.checkIsExistingFile;
 import static dfile.file.FileUtilities.checkIsExistingFolder;
 import static dfile.file.FileUtilities.getCanonicalPath;
+import static dlog.log.Log.writeLogsHeaders;
 import static dutil.list.ListUtilities.assertContains;
 import static dutil.list.text.TextListUtilities.listToString;
 import static dutil.number.NumberUtilities.I;
@@ -71,14 +72,11 @@ public class RenameWithLinksTest {
   @Mock
   private AUserInputOutput mockUserIO;
 
-  @Mock
-  private Log mockScreenLog;
+  private Log screenLog;
 
-  @Mock
-  private Log mockUserLog;
+  private Log userLog;
 
-  @Mock
-  private Log mockDevLog;
+  private Log devLog;
 
   private AAppContext mockAppContext;
 
@@ -93,15 +91,27 @@ public class RenameWithLinksTest {
   void beforeClass() throws IOException {
 
     this.tempDir = Files.createTempDirectory(RenameWithLinksTest.class.getSimpleName() + "_");
+
+    final Path logDir = Path.of("LOG");
+
+    this.screenLog = new Log(APP_NAME + " - screen log",    logDir.resolve(APP_NAME + "_screen-log.LOG").toString(), true);
+
+    this.userLog =   new Log(APP_NAME + " - user log",      logDir.resolve(APP_NAME + "_user-log.LOG").toString(),   true);
+
+    this.devLog =    new Log(APP_NAME + " - developer log", logDir.resolve(APP_NAME + "_dev-log.LOG").toString(), true);
+    
+    writeLogsHeaders(this.screenLog, this.userLog, this.devLog, APP_NAME, APP_DESCR);
   }
 
   @AfterClass
-  void afterClass() throws IOException {
+  void afterClass() throws Exception {
+
+    this.mockAppContext.close();
 
     FileUtils.deleteDirectory(this.tempDir.toFile());
-    
+
     this.shortcutTargetUpdater = null;
-    
+
     this.shortcutsTargetUpdater = null;
   }
 
@@ -112,7 +122,7 @@ public class RenameWithLinksTest {
 
     lenient().when(this.mockUserIO.warnChars(anyString())).thenAnswer(i -> i.getArgument(0));
 
-    this.mockAppContext = AppContext.newAppContext(this.mockUserIO, this.mockScreenLog, this.mockUserLog, this.mockDevLog);
+    this.mockAppContext = AppContext.newAppContext(this.mockUserIO, this.screenLog, this.userLog, this.devLog);
     
     this.mockAppContext.currentVerbosity = MAX_VERBOSITY;
     
