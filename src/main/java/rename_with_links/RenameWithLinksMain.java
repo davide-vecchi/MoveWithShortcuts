@@ -157,6 +157,8 @@ public class RenameWithLinksMain {
     }
     else {
       
+      // : Bad launch args, don't run.
+      
       showUsage();
     }
   }
