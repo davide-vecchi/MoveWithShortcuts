@@ -62,7 +62,11 @@ import static org.testng.Assert.assertNotNull;
 
 @Listeners(MockitoTestNGListener.class)
 public class RenameWithLinksTest {
-
+  
+  
+  private static final String APP_NAME =  RenameWithLinksTest.class.getSimpleName();
+  
+  private static final String APP_DESCR = RenameWithLinksTest.class.getName();
   
   @Mock
   private AUserInputOutput mockUserIO;
