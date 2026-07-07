@@ -41,6 +41,7 @@ import static dfile.file.FileUtilities.getCurrentFolder;
 import static dfile.file.FileUtilities.hasPath;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
+import static dutil.jar.JARUtilities.getClasspathMsg;
 import static dutil.list.ListUtilities.assertNoneNull;
 import static dutil.list.number.NumberListUtilities.assertNoneNegative;
 import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
@@ -284,6 +285,8 @@ public class RenameWithLinks {
       this.appContext.outUserLog(NL2 + e.getLocalizedMessage());
       
       this.appContext.outUserLog(NL2 + getFullDescriptionWithRootCause(e));
+      
+      this.appContext.outDevLog( NL2 + getClasspathMsg());
       
       throw e;
     }
