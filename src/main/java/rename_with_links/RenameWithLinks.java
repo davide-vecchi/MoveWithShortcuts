@@ -571,7 +571,12 @@ public class RenameWithLinks {
    *                              the {@link FileUtilities#getCurrentFolder() current folder} is used.
    *
    * @return Whether the user has interrupted the process.
+   *
+   * @deprecated Not used after the implementation "2026-06-29_Single_PS_Process" of {@link IShortcutsTargetUpdater} (<b>note the plural</b>).<br>
+   *             Must create another implementation of that new {@link IShortcutsTargetUpdater}, f.ex. {@code WinShortcutsUpdater_PSCommandMono},
+   *             and use this method's code for the implementation of its {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)}.
    */
+  @Deprecated(forRemoval = true, since = "2026-06-29")
   private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater
                                 , @NotNull File                   oldParentTarget
                                 , @NotNull File                   newParentTarget
@@ -673,8 +678,8 @@ public class RenameWithLinks {
     
     final String searchFolderPath = getCanonicalPath(searchFolder);
     
-    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder"
-                                                 + NL2T + dq(searchFolderPath) + " ...");
+    this.appContext.outUser(ONE_i, NL   + "Retrieving shortcuts to check for needed target update, under folder"
+                                                   + NL2T + dq(searchFolderPath) + " ...");
     
     final List<File> shortcuts = FileUtilities.listFiles(
                         Paths.get(searchFolderPath)
