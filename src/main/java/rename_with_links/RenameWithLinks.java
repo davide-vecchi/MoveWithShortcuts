@@ -681,6 +681,12 @@ public class RenameWithLinks {
                        , new String[] { removeStart(WIN_SHORTCUT_EXTENSION, EXTENSION_SEPARATOR) }
                  , true);
     
+    this.numTotalShortcuts =   shortcuts.size();
+    
+    this.numUpdatedShortcuts = ZERO_i;
+    
+    this.numSkippedShortcuts = ZERO_i;
+    
     this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
                                                    + NL2T + dq(searchFolderPath) + ".");
     return shortcuts;
