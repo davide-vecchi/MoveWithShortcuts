@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
@@ -273,6 +274,9 @@ public class RenameWithLinks {
                                                                      + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                                       , EMPTY, CANCEL_CHARS) == null;
       if (! userAborted) {
+        
+        this.appContext.outUser(NL + "The processing of the " + FMT0DG.format(shortcuts.size()) +
+                                             " shortcut file(s) has started, at " + new Date() + " ." + NL);
         
         // Update all the shortcuts that point to the location as it was before the renaming / moving :
         
