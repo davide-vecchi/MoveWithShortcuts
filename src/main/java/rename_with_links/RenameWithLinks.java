@@ -36,12 +36,13 @@ import java.util.function.Function;
 
 import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.assertExistingPath;
-import static dfile.file.FileUtilities.assertValidPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dfile.file.FileUtilities.hasPath;
 import static dfile.file.FileUtilities.newValidatedFile;
+import static dfile.file.FileUtilities.newValidatedFileOrFolder;
+import static dfile.file.FileUtilities.newValidatedFolder;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.jar.JARUtilities.getClasspathMsg;
@@ -57,7 +58,6 @@ import static dutil.number.NumberUtilities.TWO_i;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.number.NumberUtilities.assertNonNegative;
 import static dutil.number.NumberUtilities.percent;
-import static dutil.object.ObjectUtilities.B;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.FMT0D;
 import static dutil.string.TextUtilities.FMT0DG;
@@ -73,6 +73,7 @@ import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -172,13 +173,13 @@ public class RenameWithLinks {
     
     assertNonNull(shortcutsTargetUpdater, shortcutsTargetUpdater.getClass().getSimpleName() + " updater");
     
-    final File originalFileOrFolder = askOriginalPath();
+    final File originalFileOrFolder =    askOriginalPath();
     
     final File destinationFileOrFolder = askDestinationFileOrFolder(originalFileOrFolder);
     
-    final File searchFolder = askSearchDirectory();
+    final File searchFolder =            askSearchDirectory();
     
-    this.appContext.currentVerbosity = askVerbosity();
+    this.appContext.currentVerbosity =   askVerbosity();
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
       
@@ -224,13 +225,11 @@ public class RenameWithLinks {
     
     assertNonBlankUnlessNull(argVerbosity);
     
-    final File originalFileOrFolder = newValidatedFile(getCanonicalPath(
-                                                               resolveOriginalPath(argOriginalPath))
-                                                 , true, MINUS1_i);
+    final File originalFileOrFolder =    resolveOriginalPath(  argOriginalPath);
 
     final File destinationFileOrFolder = resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
 
-    final File searchFolder = resolveSearchDirectory(argSearchPath);
+    final File searchFolder =            resolveSearchDirectory(        argSearchPath);
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
       
@@ -355,13 +354,7 @@ public class RenameWithLinks {
    */
   private static @NotNull File resolveOriginalPath(@NotBlank String argPath) throws IOException {
 
-    final File file = new File(assertNonBlankNorTrimmable(argPath));
-
-    if (! file.exists()) {
-
-      throw new MissingExternalValueException(dq(argPath) + " does not exist.");
-    }
-    return file.getCanonicalFile();
+  return newValidatedFileOrFolder(argPath, true);
   }
   
   /**
@@ -371,12 +364,12 @@ public class RenameWithLinks {
    * @return
    */
   private static @NotNull File resolveDestinationFileOrFolder(@NotBlank String argDestinationPath
-                                                            , @NotNull  File   original) throws IOException {
+                                                            , @NotNull  File   original) {
     final String effectiveNewName;
 
     if (hasPath(assertNonBlankNorTrimmable(argDestinationPath))) {
 
-      effectiveNewName = getCanonicalPath(argDestinationPath);
+      effectiveNewName = argDestinationPath;
     }
     else {
 
@@ -386,15 +379,18 @@ public class RenameWithLinks {
 
         throw new InvalidExternalValueException("Cannot determine parent folder of " + dq(getCanonicalPath(original)) + ".");
       }
-      effectiveNewName = getCanonicalPath(new File(parent, argDestinationPath).getPath());
+      effectiveNewName = new File(parent, argDestinationPath).getPath();
     }
-    final File destination =  new File(effectiveNewName);
-
+    final File destination = original.isFile() ?
+                             newValidatedFile(    effectiveNewName, false, MINUS1_i)
+                             :
+                             newValidatedFolder(effectiveNewName, false, null);
+    
     if (destination.equals(original)) {
-
-      throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
+      
+      throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(destination.getPath()) + ".");
     }
-    return destination.getCanonicalFile();
+    return destination;
   }
   
   /**
@@ -403,15 +399,9 @@ public class RenameWithLinks {
    * @param argSearchPath
    * @return
    */
-  private static @NotNull File resolveSearchDirectory(@NotBlank String argSearchPath) throws IOException {
+  private static @NotNull File resolveSearchDirectory(@NotBlank String argSearchPath) {
 
-    final File searchDir = assertExistingPath(new File(assertValidPath(argSearchPath
-                                                                                  , TRUE))
-                                               , TRUE);
-
-    assertExistingPath(searchDir, TRUE);
-    
-    return searchDir.getCanonicalFile();
+    return newValidatedFolder(argSearchPath, true, FALSE);// new File(assertExistingPath(argSearchPath, TRUE)).getCanonicalFile();
   }
   
   /**
@@ -451,7 +441,7 @@ public class RenameWithLinks {
    *
    * @throws MissingExternalValueException If the path entered by the user does not exist.
    */
-  private @NotNull File askOriginalPath() throws UserRequestedTermination {
+  private @NotNull File askOriginalPath() throws UserRequestedTermination, IOException {
 
     final String existingPath = this.appContext.userIO.in(
                                                   "Enter the path of the file or folder to rename / move, either absolute"
@@ -462,7 +452,7 @@ public class RenameWithLinks {
       
       throw new UserRequestedTermination();
     }
-    return newValidatedFile(existingPath, true, MINUS1_i);
+    return resolveOriginalPath(existingPath);
   }
 
   /**
@@ -482,7 +472,7 @@ public class RenameWithLinks {
    * @throws InvalidPathException If the specified destination is a folder but the given {@code original} is a file, or
    *                              viceversa.
    */
-  private @NotNull File askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination {
+  private @NotNull File askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination, IOException {
 
     final String newName = this.appContext.userIO.in(
                                       "Enter the new name for the file or folder (may include a path), or type "
@@ -518,13 +508,13 @@ public class RenameWithLinks {
       
       throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
     }
-    return new File(assertValidPath(effectiveNewName, B(original.isDirectory())));
+    return resolveDestinationFileOrFolder(effectiveNewName, original);// new File(assertValidPath(effectiveNewName, B(original.isDirectory())));
   }
 
   /**
    * Asks the user for the path to scan for {@code .lnk} shortcuts to update.
    */
-  private @NotNull File askSearchDirectory() throws UserRequestedTermination {
+  private @NotNull File askSearchDirectory() throws UserRequestedTermination, IOException {
     
     final String searchPath = this.appContext.userIO.in(
                                                 "Enter the path of the folder to scan for " + WIN_SHORTCUT_EXTENSION
@@ -535,9 +525,7 @@ public class RenameWithLinks {
 
       throw new UserRequestedTermination();
     }
-    assertExistingPath(searchPath, TRUE);
-    
-    return newValidatedFile(searchPath, true, MINUS1_i);
+    return resolveSearchDirectory(searchPath);
   }
   
   /**
