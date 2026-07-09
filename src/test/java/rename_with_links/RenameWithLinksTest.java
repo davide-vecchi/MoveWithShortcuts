@@ -564,7 +564,7 @@ public class RenameWithLinksTest {
    * <li>10) For cleanup, deletes the folders {@code sub1} and {@code subA} that were created under {@code testExecute01\}.</li></ul>
    */
   @Test
-  void testExecute01() throws IOException {
+  void testExecute01() throws IOException, UserRequestedTermination {
     
     lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
              .thenReturn("y");

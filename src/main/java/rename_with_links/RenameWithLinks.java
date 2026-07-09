@@ -9,6 +9,7 @@ import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
 import dfile.shortcut.IShortcutTargetUpdater.TargetUpdateOutcome;
 import dfile.shortcut.IShortcutsTargetUpdater;
+import dfile.shortcut.IShortcutsTargetUpdater.ShortcutsUpdateOutcome;
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
@@ -65,6 +66,7 @@ import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.NL2T2;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.NLT2;
+import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
@@ -215,7 +217,7 @@ public class RenameWithLinks {
    */
   public void run(@NotNull IShortcutsTargetUpdater shortcutsTargetUpdater, @NotNull String argOriginalPath
                 , @NotNull String                  argDestinationPath,     @NotNull String argSearchPath
-                ,          String                  argVerbosity) throws IOException {
+                ,          String                  argVerbosity) throws IOException, UserRequestedTermination {
     
     assertWindowsOS();
     
@@ -260,7 +262,15 @@ public class RenameWithLinks {
   void execute(@NotNull File                    originalFileOrFolder
              , @NotNull File                    destinationFileOrFolder
              , @NotNull List<File>              shortcuts
-             , @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws IOException {
+             , @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
+    
+    this.numTotalShortcuts = shortcuts.size();
+    
+    this.numProcessedShortcuts = ZERO_i;
+    
+    this.numUpdatedShortcuts =   ZERO_i;
+    
+    this.numSkippedShortcuts = ZERO_i;
     
     try {
       
@@ -280,8 +290,18 @@ public class RenameWithLinks {
         
         // Update all the shortcuts that point to the location as it was before the renaming / moving :
         
-        shortcutsTargetUpdater.updateShortcuts(shortcuts, originalFileOrFolder
-                                                        , destinationFileOrFolder);
+        final ShortcutsUpdateOutcome outcome = shortcutsTargetUpdater.updateShortcuts(shortcuts
+                                                                    , originalFileOrFolder
+                                                                    , destinationFileOrFolder);
+        if (outcome.userInterrupted()) {
+          
+          throw new UserRequestedTermination("Program terminated upon user's request during shortcuts targets update.");
+        }
+        this.numProcessedShortcuts = outcome.numProcessedShortcuts();
+        
+        this.numUpdatedShortcuts =   outcome.numUpdatedShortcuts();
+        
+        this.numSkippedShortcuts =   outcome.numSkippedShortcuts();
       }
     }
     catch (Exception e) {
@@ -592,12 +612,6 @@ public class RenameWithLinks {
     
     final char abortFromPause = CANCEL_CHARS.charAt(CANCEL_CHARS.length() - ONE_i);
     
-    this.numProcessedShortcuts = ZERO_i;
-    
-    this.numUpdatedShortcuts =   ZERO_i;
-    
-    this.numSkippedShortcuts = ZERO_i;
-    
     String previousPercent = null;
     
     boolean userAborted = false;
@@ -687,10 +701,6 @@ public class RenameWithLinks {
                  , true);
     
     this.numTotalShortcuts =   shortcuts.size();
-    
-    this.numUpdatedShortcuts = ZERO_i;
-    
-    this.numSkippedShortcuts = ZERO_i;
     
     this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
                                                    + NL2T + dq(searchFolderPath) + ".");
