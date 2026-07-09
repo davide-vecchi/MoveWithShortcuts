@@ -137,7 +137,7 @@ public class RenameWithLinksMain {
         }
         catch (Exception e) {
         
-          ac.errUser(ZERO_i, NL2 + "Terminated due to an error : " + e.getClass().getSimpleName() + " :" + NL2T + e.getLocalizedMessage().trim() + NL2);
+          ac.errUser(ZERO_i, NL2 + "Terminated due to an error : " + e.getClass().getSimpleName() + " :" + NL2T + e.getLocalizedMessage() + NL2);
           
           ac.outUserLog(getFullDescriptionWithRootCause(e));
         }
