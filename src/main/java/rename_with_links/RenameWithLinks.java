@@ -549,8 +549,8 @@ public class RenameWithLinks {
     final String verbosity = this.appContext.userIO.in(
                                                "Enter the verbosity level (0 - " + MAX_VERBOSITY
                                                      + "), or press Enter for the default,"
-                                                     + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
-                                        , "1", CANCEL_CHARS);
+                                                     + " or type " + calcCancelCharsPrompt(    CANCEL_CHARS)
+                                        , S(this.appContext.currentVerbosity), CANCEL_CHARS);
     if (verbosity == null) {
       
       throw new UserRequestedTermination();
