@@ -41,6 +41,7 @@ import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dfile.file.FileUtilities.hasPath;
+import static dfile.file.FileUtilities.newValidatedFile;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.jar.JARUtilities.getClasspathMsg;
@@ -227,7 +228,9 @@ public class RenameWithLinks {
     
     assertNonBlankUnlessNull(argVerbosity);
     
-    final File originalFileOrFolder = resolveOriginalPath(argOriginalPath);
+    final File originalFileOrFolder = newValidatedFile(getCanonicalPath(
+                                                               resolveOriginalPath(argOriginalPath))
+                                                 , true, MINUS1_i);
 
     final File destinationFileOrFolder = resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
 
@@ -456,15 +459,7 @@ public class RenameWithLinks {
       
       throw new UserRequestedTermination();
     }
-    final File originalFileOrFolder = new File(existingPath);
-
-    if (! originalFileOrFolder.exists()) {
-
-      final String msg = dq(existingPath) + " does not exist.";
-
-      throw new MissingExternalValueException(msg);
-    }
-    return originalFileOrFolder;
+    return newValidatedFile(existingPath, true, MINUS1_i);
   }
 
   /**
@@ -537,11 +532,9 @@ public class RenameWithLinks {
 
       throw new UserRequestedTermination();
     }
-    final File searchDir = new File(assertValidPath(searchPath, TRUE));
+    assertExistingPath(searchPath, TRUE);
     
-    assertExistingPath(searchDir, TRUE);
-    
-    return searchDir;
+    return newValidatedFile(searchPath, true, MINUS1_i);
   }
   
   /**
