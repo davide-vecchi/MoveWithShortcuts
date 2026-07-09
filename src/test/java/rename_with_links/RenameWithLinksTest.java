@@ -458,7 +458,9 @@ public class RenameWithLinksTest {
     Assert.assertTrue(destinationFile.exists(), "Rename should complete despite corrupted " + WIN_SHORTCUT_EXTENSION);
   }
   
-  /**
+  /** TODO @@@ ADD a shortcut in "sub2-to-move\", which also points to PointedToAndToMove.txt, and verify its target after it has been moved because it was in "sub2-to-move\".<br><br>
+   *
+   *
    * Tests {@link RenameWithLinks#execute(File, File, List, IShortcutsTargetUpdater)} as follows :<ul>
    *
    * <li> 1) Under {@code src\test\resources\} creates subfolders :<ol>
