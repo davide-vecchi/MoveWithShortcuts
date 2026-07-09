@@ -524,8 +524,8 @@ public class RenameWithLinks {
   private @NotNull File askSearchDirectory() throws UserRequestedTermination {
     
     final String searchPath = this.appContext.userIO.in(
-                                                "Enter the path to scan for " + WIN_SHORTCUT_EXTENSION
-                                                        + " shortcuts to update (if the new name entered in the previous question included a path and that caused the folder tree to change, this path to scan must refer to the new folder tree)"
+                                                "Enter the path of the folder to scan for " + WIN_SHORTCUT_EXTENSION
+                                                        + " shortcuts to update (if the \"new name\" entered in the previous question included a path and that causes the folder tree to change, this path to scan must refer to the new folder tree)"
                                                         + " or press Enter for the default, or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                          , getCurrentFolder(), CANCEL_CHARS);
     if (searchPath == null) {
