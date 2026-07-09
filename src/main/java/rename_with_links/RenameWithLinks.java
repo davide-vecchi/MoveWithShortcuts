@@ -278,11 +278,14 @@ public class RenameWithLinks {
       
       renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
       
-      final boolean userAborted =  this.askBeforeProcessingShortcuts
-                                && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(shortcuts.size())
-                                                                     + " shortcut file(s)" + NL2T + "(the processing can be paused with the Enter key)"
-                                                                     + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
-                                                      , EMPTY, CANCEL_CHARS) == null;
+      final boolean userAborted =
+            this.askBeforeProcessingShortcuts
+         && this.appContext.userIO.in("Press Enter "
+                                                + shortcutsTargetUpdater.getPromptTextStartProcessingShortcuts(
+                                                                                 I(shortcuts.size()))
+                                                + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                               , EMPTY, CANCEL_CHARS) == null;
+      
       if (! userAborted) {
         
         this.appContext.outUser(NL + "The processing of the " + FMT0DG.format(shortcuts.size()) +
