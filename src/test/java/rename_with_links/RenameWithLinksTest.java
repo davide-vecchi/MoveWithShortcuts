@@ -694,10 +694,8 @@ public class RenameWithLinksTest {
     
     final Path sub2moved = Path.of(subA.toString(), "subB-to-receive-moved", "sub2-moved");
     
-    app.execute(sub2ToMove.toFile()
-            ,sub2moved. toFile()
-                        , app.retrieveShortcutFiles(testExecute01.toFile())
-                                  , this.shortcutsTargetUpdater);
+    app.execute(sub2ToMove.toFile(),sub2moved. toFile()
+                     , testExecute01.toFile()                   , this.shortcutsTargetUpdater);
     
     // 5 : Verify that now the folder "sub2-to-move\" no longer exists under folder "testExecute01\sub1\" and now exists
     //     as "testExecute01\subA\subBToReceiveMoved\sub2-moved\" :

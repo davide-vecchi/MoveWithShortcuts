@@ -182,13 +182,9 @@ public class RenameWithLinks {
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
       
-      // Retrieve all the shortcuts that need to be checked and possibly updated :
-      
-      final List<File> shortcuts = retrieveShortcutFiles(searchFolder);
-      
       // Perform the renaming / moving and the corresponding shortcuts updating :
       
-      execute(originalFileOrFolder, destinationFileOrFolder, shortcuts, shortcutsTargetUpdater);
+      execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater);
     }
   }
 
@@ -238,48 +234,55 @@ public class RenameWithLinks {
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
       
-      // Retrieve all the shortcuts that need to be checked and possibly updated :
-      
-      final List<File> shortcuts = retrieveShortcutFiles(searchFolder);
-      
       // Perform the renaming / moving and the corresponding shortcuts updating :
       
-      execute(originalFileOrFolder, destinationFileOrFolder, shortcuts, shortcutsTargetUpdater);
+      execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater);
     }
   }
   
   /**
    * Asks for confirmation to the user to start the execution, and if granted executes the program logic: {@link #renameFileOrFolder
-   * renames} the given {@code originalFileOrFolder} to the given {@code destinationFileOrFolder} and {@link #updateShortcuts
+   * renames / moves} the given {@code originalFileOrFolder} to the given {@code destinationFileOrFolder} and {@link #updateShortcuts
    * updates} accordingly all the given {@code shortcuts}, using the given {@code shortcutsTargetUpdater}.
    *
    * @param originalFileOrFolder    The file or folder to rename / move.<br>
    *
    * @param destinationFileOrFolder The new file path / name to which to rename / move the {@code originalFileOrFolder}.<br>
    *
-   * @param shortcuts               The shortcut files whose target must be checked and possibly updated.<br>
+   * @param searchFolder            The folder under which, <b>after</b> {@link #renameFileOrFolder performing} the
+   *                                rename / move, the existing shortcuts must be possibly have their targets updated.
    *
    * @param shortcutsProcessor      The {@link IShortcutsTargetUpdater shortcuts processor} to use to perform the updates of
    *                                the shortcuts' targets that need it.
    */
   void execute(@NotNull File                    originalFileOrFolder
              , @NotNull File                    destinationFileOrFolder
-             , @NotNull List<File>              shortcuts
+             , @NotNull File                    searchFolder
              , @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
     
-    this.numTotalShortcuts = shortcuts.size();
+    assertNoneNull(destinationFileOrFolder, shortcutsTargetUpdater);
+    
+    assertExistingPath(originalFileOrFolder, null);
+    
+    assertExistingPath(searchFolder, TRUE);
     
     this.numProcessedShortcuts = ZERO_i;
     
     this.numUpdatedShortcuts =   ZERO_i;
     
-    this.numSkippedShortcuts = ZERO_i;
+    this.numSkippedShortcuts =   ZERO_i;
     
     try {
       
       // Do the requested renaming / moving :
       
       renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
+      
+      // Retrieve all the shortcuts that need to be checked and possibly updated :
+      
+      final List<File> shortcuts = retrieveShortcutFiles(searchFolder);
+      
+      this.numTotalShortcuts = shortcuts.size();
       
       final boolean userAborted =
             this.askBeforeProcessingShortcuts
