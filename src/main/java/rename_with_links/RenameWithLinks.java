@@ -6,15 +6,12 @@ package rename_with_links;
 
 import application.AAppContext;
 import dfile.file.FileUtilities;
-import dfile.shortcut.IShortcutTargetUpdater;
-import dfile.shortcut.IShortcutTargetUpdater.TargetUpdateOutcome;
 import dfile.shortcut.IShortcutsTargetUpdater;
 import dfile.shortcut.IShortcutsTargetUpdater.ShortcutsUpdateOutcome;
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
 import dutil.exception.exceptions.NonUniqueExternalValueException;
-import dutil.io.IOUtilities;
 import dutil.system.OSUtilities;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,19 +22,16 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 
 import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.assertExistingPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
-import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dfile.file.FileUtilities.hasPath;
 import static dfile.file.FileUtilities.newValidatedFile;
@@ -51,22 +45,15 @@ import static dutil.list.number.NumberListUtilities.assertNoneNegative;
 import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
 import static dutil.number.NumberUtilities.I;
 import static dutil.number.NumberUtilities.MINUS1_i;
-import static dutil.number.NumberUtilities.ONE_d;
 import static dutil.number.NumberUtilities.ONE_i;
-import static dutil.number.NumberUtilities.ONE_l;
-import static dutil.number.NumberUtilities.TWO_i;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.number.NumberUtilities.assertNonNegative;
-import static dutil.number.NumberUtilities.percent;
 import static dutil.object.ObjectUtilities.assertNonNull;
-import static dutil.string.TextUtilities.FMT0D;
 import static dutil.string.TextUtilities.FMT0DG;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
-import static dutil.string.TextUtilities.NL2T2;
 import static dutil.string.TextUtilities.NLT;
-import static dutil.string.TextUtilities.NLT2;
 import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
@@ -77,7 +64,6 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.leftPad;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 
 
@@ -560,113 +546,6 @@ public class RenameWithLinks {
     
     this.appContext.outUser(ONE_i, "Done.");
   }
-
-  /**
-   * For each of the given {@code shortcuts}, it its target matches the original path, updates it to the new path.
-   *
-   * @param shortcutTargetUpdater The object to use to {@link IShortcutTargetUpdater#updateTargetIfMatch update} the
-   *                              target of the shortcuts found under {@code searchFolder} tree that have it {@link FileUtilities#calcDescendantPart
-   *                              matching} {@code oldParentTarget}.<br>
-   *
-   * @param oldParentTarget      See {@code oldParentTarget} param of {@link
-   *                             IShortcutTargetUpdater#updateTargetIfMatch(File, File, File, Function, Function, Function)}.<br>
-   *
-   * @param newParentTarget      See {@code newParentTarget} param of {@link
-   *                             IShortcutTargetUpdater#updateTargetIfMatch(File, File, File, Function, Function, Function)}.<br>
-   *
-   * @param searchFolder          The folder under which to recursively search for shortcuts to update. If {@code null},
-   *                              the {@link FileUtilities#getCurrentFolder() current folder} is used.
-   *
-   * @return Whether the user has interrupted the process.
-   *
-   * @deprecated Not used after the implementation "2026-06-29_Single_PS_Process" of {@link IShortcutsTargetUpdater} (<b>note the plural</b>).<br>
-   *             Must create another implementation of that new {@link IShortcutsTargetUpdater}, f.ex. {@code WinShortcutsUpdater_PSCommandMono},
-   *             and use this method's code for the implementation of its {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)}.
-   */
-  @Deprecated(forRemoval = true, since = "2026-06-29")
-  private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater
-                                , @NotNull File                   oldParentTarget
-                                , @NotNull File                   newParentTarget
-                                , @NotNull List<File>             shortcuts) {
-    
-    assertNoneNull(shortcutTargetUpdater, oldParentTarget, newParentTarget);
-    
-    this.numTotalShortcuts =   shortcuts.size();
-    
-    this.numUpdatedShortcuts = MINUS1_i;
-    
-    this.numSkippedShortcuts = MINUS1_i;
-    
-    final char abortFromPause = CANCEL_CHARS.charAt(CANCEL_CHARS.length() - ONE_i);
-    
-    String previousPercent = null;
-    
-    boolean userAborted = false;
-    
-    for (int iShortcut = ZERO_i; iShortcut < this.numTotalShortcuts && ! userAborted; iShortcut++) {
-      
-      final File shortcut = shortcuts.get(iShortcut);
-      
-      try {
-        
-        final TargetUpdateOutcome updateOutcome = shortcutTargetUpdater.updateTargetIfMatch(
-                                                                           shortcut, oldParentTarget, newParentTarget
-                                                                 , null
-                                                       , s -> this.appContext.warnUser(
-                                                                                          ZERO_i, s)
-                                                       ,   s -> this.appContext.errUser(
-                                                                                          ZERO_i, s));
-        ++this.numProcessedShortcuts;
-        
-        if (updateOutcome.notUpdated() == null) {
-          
-          // : The shortcut has had its target updated.
-          
-          ++this.numUpdatedShortcuts;
-          
-          this.appContext.warnUser(ZERO_i
-                                    , NL   + "Shortcut"              + NLT + getCanonicalPathAsDescr(shortcut)
-                                            + NL2T + ": target updated from" + NL2T2 + dq(updateOutcome.fromTo().o1)
-                                            + NLT  + "to"                    + NLT2 + dq(updateOutcome.fromTo().o2) + ".");
-        }
-        else {
-          
-          // : The shortcut has not had its target updated.
-        
-          this.appContext.outUser(TWO_i, updateOutcome.notUpdated());
-        }
-        userAborted = IOUtilities.handleUserInput( abortFromPause);
-        
-        if (userAborted) {
-          
-          this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after "
-                                                                 + FMT0DG.format(this.numProcessedShortcuts) + " shortcuts of the total "
-                                                                 + FMT0DG.format(this.numTotalShortcuts)     + " were processed, "
-                                                                 + FMT0DG.format(this.numUpdatedShortcuts)   + " of them were updated and "
-                                                                 + FMT0DG.format(this.numSkippedShortcuts)   + " of them were skipped.");
-        }
-      }
-      catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
-        
-        ++this.numSkippedShortcuts;
-        
-        this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
-        
-        this.appContext.errUser(ZERO_i, NL2 + "Skipping" + NL2T + dq(getCanonicalPath(shortcut))
-                                                        + NL2T + ". Reason :" + NLT + e.getLocalizedMessage() + NL);
-      }
-      // Update progress display :
-      
-      previousPercent = showProgress(
-                      iShortcut,      shortcut
-                                   , previousPercent, this.numTotalShortcuts
-                                                       ,this.numUpdatedShortcuts
-                                                       , this.numSkippedShortcuts);
-    }
-    this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(this.numUpdatedShortcuts) + " shortcuts out of " + FMT0DG.format(this.numTotalShortcuts) + " .");
-    
-    return userAborted;
-  }
   
   /**
    * Retrieves all files under the given {@code searchFolder} tree that have the {@link OSUtilities#WIN_SHORTCUT_EXTENSION
@@ -692,58 +571,6 @@ public class RenameWithLinks {
     this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
                                                    + NL2T + dq(searchFolderPath) + ".");
     return shortcuts;
-  }
-  
-  /**
-   * Calculates the percentage corresponding to {@code iLastProcessed}, and displays it if it's different from the
-   * previously displayed one.<br>If the {@link AAppContext#currentVerbosity currently set verbosity} allows, also
-   * displays the last processed shortcut.
-   *
-   * @param iLastProcessed Index (so 0-based) of the last shortcut that has been processed.<br>
-   *
-   * @param lastProcessed  The last processed shortcut. May be {@code null} if the currently set verbosity does not
-   *                       require to show it.
-   *
-   * @param previousPercent The last percentage that has been shown.<br>
-   *
-   * @param totToProcess The total number of shortcuts to process.
-   *
-   * @param totUpdated The total number of shortcuts updated so far.
-   *
-   * @param totSkipped The total number of shortcuts skipped so far because they could not be processed.
-   *
-   * @return The percentage this method just displayed, calculated based on {@code iLastProcessed}, or the last
-   *         displayed one if it's the same.
-   */
-  private String showProgress(int iLastProcessed, File lastProcessed, @NotBlank String previousPercent, int totToProcess
-                            , int totUpdated,     int  totSkipped) {
-    
-    String result = previousPercent != null ? assertNonBlankNorTrimmable(previousPercent) : null;
-    
-    final String currentPercent = FMT0D.format(Math.floor(percent(iLastProcessed + ONE_d, totToProcess)));
-    
-    if (this.appContext.currentVerbosity >= TWO_i) {
-      
-      this.appContext.outUser_Chars(TWO_i, NL2 + "Processing #" + FMT0DG.format(iLastProcessed + ONE_l)
-                                                                 + " of "         + FMT0DG.format(totToProcess)
-                                                                 + " ("           + leftPad(currentPercent, 3)
-                                                                 + "%) :" + NL2T  + getCanonicalPathAsDescr(lastProcessed)
-                                                                 + " (updated : " + FMT0DG.format(totUpdated)
-                                                                 + "; skipped : " + FMT0DG.format(totSkipped)
-                                                                 + ") ..." + NLT);
-    }
-    else if (this.appContext.currentVerbosity >= ONE_i && ! currentPercent.equals(result)) {
-      
-      result = currentPercent;
-      
-      this.appContext.outUser(ONE_i, leftPad(result, 3)
-                                                        + "% (" + FMT0DG.format(iLastProcessed + ONE_l) + " tot"
-                                                        + " / " + FMT0DG.format(totToProcess)           + " processed"
-                                                        + " / " + FMT0DG.format(totUpdated)             + " updated"
-                                                        + " / " + FMT0DG.format(totSkipped)             + " skipped"
-                                                        + ")");
-    }
-    return result;
   }
 
 }
