@@ -140,7 +140,7 @@ public class RenameWithLinks {
    * Invoked if the program has been started without args.<br>
    * Runs the rename-and-update operation first asking to the user the values corresponding to the program args.
    *
-   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)}
+   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)
    *                               update} the target of shortcuts.
    *
    * @throws IOException                     If the rename / move operation fails.<br>
