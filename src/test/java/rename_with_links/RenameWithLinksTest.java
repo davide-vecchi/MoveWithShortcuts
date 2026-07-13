@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Function;
 
 import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.checkIsExistingFile;
@@ -82,9 +83,21 @@ public class RenameWithLinksTest {
 
   private Path tempDir;
   
-  private IShortcutTargetUpdater shortcutTargetUpdater;
-  
   private IShortcutsTargetUpdater shortcutsTargetUpdater;
+  
+  /**
+   * Function to use to read a shortcut's target from this test.
+   */
+  private final Function<File, String> targetReader = new Function<>() {
+    
+    private static @NotNull IShortcutTargetUpdater objThatCanReadTargets = WinShortcutUpdater_PS_WSH01.newInstance(
+                                                                              false, null);
+    @Override
+    public String apply(@NotNull File file) {
+      
+      return objThatCanReadTargets.readTarget(file);
+    }
+  };
   
   
   @BeforeClass
@@ -110,8 +123,6 @@ public class RenameWithLinksTest {
 
     FileUtils.deleteDirectory(this.tempDir.toFile());
 
-    this.shortcutTargetUpdater = null;
-
     this.shortcutsTargetUpdater = null;
   }
 
@@ -125,8 +136,6 @@ public class RenameWithLinksTest {
     this.mockAppContext = AppContext.newAppContext(this.mockUserIO, this.screenLog, this.userLog, this.devLog);
     
     this.mockAppContext.currentVerbosity = MAX_VERBOSITY;
-    
-    this.shortcutTargetUpdater =  WinShortcutUpdater_PS_WSH01.newInstance(false, null);
     
     this.shortcutsTargetUpdater = WinShortcutsUpdater_PSScriptsMulti.newInstance(this.mockAppContext);
   }
@@ -828,7 +837,7 @@ public class RenameWithLinksTest {
                                              + dq(shortcut.getParent().toAbsolutePath().toString())
                                              + NL + "(" + sTmp + ").");
     
-    sTmp = this.shortcutTargetUpdater.readTarget(shortcut.toFile());
+    sTmp = this.targetReader.apply(shortcut.toFile());
     
     Assert.assertEquals(sTmp, expectedTarget.toAbsolutePath().toString()
                                      , prefixMsgTargetNotMatching + " : The shortcut file "
