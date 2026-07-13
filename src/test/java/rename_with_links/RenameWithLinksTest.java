@@ -126,8 +126,7 @@ public class RenameWithLinksTest {
     
     this.mockAppContext.currentVerbosity = MAX_VERBOSITY;
     
-    this.shortcutTargetUpdater =  WinShortcutUpdater_PS_WSH01.newInstance(false
-                                                                                                          , null);
+    this.shortcutTargetUpdater =  WinShortcutUpdater_PS_WSH01.newInstance(false, null);
     
     this.shortcutsTargetUpdater = WinShortcutsUpdater_PSScriptsMulti.newInstance(this.mockAppContext);
   }
