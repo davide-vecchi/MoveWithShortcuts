@@ -1,3 +1,6 @@
+Files.createTempFile(Path.of(this.tempDir.toString(), S(System.currentTimeMillis()))
+
+
 thinking about those actual exceptions that occur when the tests run during the build, this is some context:
 
 They are caused by the fact that that .ps1 script file which is not found is searched for in the wrong folder, that is a subfolder of the calling module which is RenameWithLinks, while the script exists in a subfolder of the module that uses that script file, which is WinShortcutsUpdater_PS_COM_WScript_Shell01 .
