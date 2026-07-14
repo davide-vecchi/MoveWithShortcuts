@@ -188,13 +188,17 @@ public class RenameWithLinksTest {
 
   @Test
   void factoryReturnsNonNullInstance() {
-
+    
+    this.devLog.log("factoryReturnsNonNullInstance()" + NL);
+    
     Assert.assertNotNull(RenameWithLinks.newInstance(this.mockAppContext));
   }
 
   @Test
   void factoryThrowsOnNullContext() {
-
+    
+    this.devLog.log("factoryReturnsNonNullInstance()" + NL);
+    
     Assert.expectThrows(MissingValueException.class, () -> RenameWithLinks.newInstance(
                                                                                                     null));
   }
@@ -205,14 +209,16 @@ public class RenameWithLinksTest {
   void cancelAtFirstPrompt() {
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
-
+      
+      this.devLog.log("cancelAtFirstPrompt() with " + u + NL);
+      
       // 5.1 : Check OS is Windows → passes
       // 5.2 : in() returns null (cancel)
       // → UserRequestedTermination
   
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn(null);
-  
+      
       final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
     
       Assert.expectThrows(amp(u), UserRequestedTermination.class, () -> app.run(u));
@@ -223,6 +229,8 @@ public class RenameWithLinksTest {
   void cancelAtSecondPrompt() throws IOException {
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("cancelAtSecondPrompt() with " + u + NL);
       
       // 5.2 : existing path → temp file exists
       // 5.3 : in() returns null (cancel at new name)
@@ -244,6 +252,8 @@ public class RenameWithLinksTest {
   void cancelAtThirdPrompt() throws IOException {
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("cancelAtThirdPrompt() with " + u + NL);
       
       // 5.2 : existing path → temp file
       // 5.3 : new name → any string
@@ -273,6 +283,8 @@ public class RenameWithLinksTest {
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
       
+      this.devLog.log("nonExistentSourceFile() with " + u + NL);
+      
       final String nonExistentFile = getCanonicalPath(new File(
                                                                     newTempSubfolder(true).toFile()
                                                                    , "does_not_exist.txt"));
@@ -297,6 +309,8 @@ public class RenameWithLinksTest {
     // → MissingExternalValueException
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("nonExistentSourceFolder() with " + u + NL);
       
       final String nonExistentPath = getCanonicalPath(new File(
                                                                     newTempSubfolder(false).toFile()
@@ -323,6 +337,8 @@ public class RenameWithLinksTest {
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
       
+      this.devLog.log("searchPathIsFile() with " + u + NL);
+      
       final File existingDir = Files.createTempDirectory(newTempSubfolder(true), "searchTest_").toFile();
       
       final File aFile = Files.createTempFile(existingDir.getParentFile().toPath(), "notADir_", EXTENSION_SEPARATOR + "txt").toFile();
@@ -344,6 +360,8 @@ public class RenameWithLinksTest {
   void renameFile() throws Throwable {
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("renameFile() with " + u + NL);
       
       // Full happy path: rename a real file
       
@@ -379,6 +397,8 @@ public class RenameWithLinksTest {
   void renameFolder() throws Throwable {
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("renameFolder() with " + u + NL);
       
       final File srcFolder = Files.createTempDirectory(newTempSubfolder(true), "srcFolder_").toFile();
       
@@ -416,6 +436,8 @@ public class RenameWithLinksTest {
   void createParentDirs() throws Throwable {
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("createParentDirs() with " + u + NL);
       
       // New path has a parent that does not exist yet
       
@@ -456,6 +478,8 @@ public class RenameWithLinksTest {
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_mslinks.class);
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("matchingLinkUpdated() with " + u + NL);
       
       // Create a .lnk that points to the source file, verify it's updated
       
@@ -498,6 +522,8 @@ public class RenameWithLinksTest {
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_mslinks.class);
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("nonMatchingLinkUntouched() with " + u + NL);
     
       // Create a .lnk pointing to a different file (not the one being renamed)
       
@@ -539,6 +565,8 @@ public class RenameWithLinksTest {
   void corruptedLinkSkipped() throws Throwable {
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("corruptedLinkSkipped() with " + u + NL);
       
       // A corrupted .lnk should be skipped with a warning
   
@@ -686,6 +714,8 @@ public class RenameWithLinksTest {
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_mslinks.class);
     
     for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+      
+      this.devLog.log("testExecute01() with " + u + NL);
       
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn("y");
@@ -1036,7 +1066,8 @@ public class RenameWithLinksTest {
   }
   
   /**
-   * "amp" = "Assertion Message Prefix", mentions the current {@link #updatersToTest updater}.
+   * "amp" = "Assertion Message Prefix", mentions the given {@code currentUpdater}, supposed to be from the {@link
+   * #updatersToTest}.
    *
    * @param currentUpdater
    *
