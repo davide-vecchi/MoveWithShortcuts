@@ -17,6 +17,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 import static application.AAppContext.MAX_VERBOSITY;
+import static dfile.file.FileUtilities.calcPath;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dlog.log.Log.writeLogsHeaders;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
@@ -113,10 +114,25 @@ public class RenameWithLinksMain {
           
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
+          
+          // -------------------------------------------------------
           // Create the desired type of shortcuts updater instance :
           
-          final IShortcutsTargetUpdater shortcutsTargetUpdater = WinShortcutsUpdater_PSScriptsMulti.newInstance(
-                                                                                                           ac);
+//          final IShortcutsTargetUpdater shortcutsTargetUpdater =
+//                                                            WinShortcutsUpdater_PSScriptsMulti.newInstance(ac);
+          
+          final IShortcutsTargetUpdater shortcutsTargetUpdater =
+            WinShortcutsUpdater_PSScriptsMulti.newInstance(
+                                  calcPath("H:/Users/Davide/Davide/_TRASH/WinShortcutsUpdater_PSScriptsMulti")
+                                             , ac);
+          
+//          final IShortcutsTargetUpdater shortcutsTargetUpdater = WinShortcutsUpdater_OneByOne.newInstance(
+//                  WinShortcutUpdater_PS_WSH01.newInstance(false, ac.devLog)
+//                         , CANCEL_CHARS , ac);
+          
+          // -------------------------------------------------------
+          
+          
           showStartupMessages(ac, shortcutsTargetUpdater, args);
           
           // Perform the renaming operation using the chosen updater :
