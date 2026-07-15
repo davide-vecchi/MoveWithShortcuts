@@ -500,7 +500,7 @@ public class RenameWithLinks {
   /**
    * Asks the user for the path to scan for {@code .lnk} shortcuts to update.
    */
-  private @NotNull File askSearchDirectory() throws UserRequestedTermination, IOException {
+  private @NotNull File askSearchDirectory() throws UserRequestedTermination {
     
     final String searchPath = this.appContext.userIO.in(
                                                 "Enter the path of the folder to scan for " + WIN_SHORTCUT_EXTENSION
