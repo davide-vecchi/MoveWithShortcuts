@@ -143,13 +143,13 @@ public class RenameWithLinksMain {
         }
         finally {
           
-          ac.outUser(NL + "Total shortcuts to process : " + app.numTotalShortcuts     + " .");
+          ac.outUser(NL + "Total shortcuts to process :     " + app.numTotalShortcuts     + " .");
           
-          ac.outUser(NL + "Total shortcuts processed :  " + app.numProcessedShortcuts + " .");
+          ac.outUser(NL + "Total shortcuts needing update : " + app.numProcessedShortcuts + " .");
           
-          ac.outUser(NL + "Total shortcuts updated :    " + app.numUpdatedShortcuts   + " .");
+          ac.outUser(NL + "Total shortcuts updated :        " + app.numUpdatedShortcuts   + " .");
           
-          ac.outUser(NL + "Total shortcuts skipped :    " + app.numSkippedShortcuts   + " .");
+          ac.outUser(NL + "Total shortcuts skipped :        " + app.numSkippedShortcuts   + " .");
           
           ac.showLogInfo(ONE_i);
         }
