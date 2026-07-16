@@ -5,6 +5,25 @@
 
 [Initialization]
 
+# For Windows :
+
+pwsh -Command "Copy-Item C:\RenameWithLinks\RenameWithLinks.jar ('C:\RenameWithLinks\RenameWithLinks-' + (Get-Date -Format 'yyyy-MM-dd_HH-mm-ss') + '.jar')"
+
+cmd.exe /c DIR C:\RenameWithLinks\RenameWithLinks*.jar /O-D
+
+# cmd.exe /c IF EXIST "C:\Users\Davide\.m2\repository\djavalibraries" (RMDIR /S /Q "C:\Users\Davide\.m2\repository\djavalibraries")
+# cmd.exe /c IF EXIST "C:\Users\Davide\.m2\repository\javalibraries3rdparty\threadsafenumberformat" (RMDIR /S /Q "C:\Users\Davide\.m2\repository\javalibraries3rdparty\threadsafenumberformat")
+
+# For Unix :
+
+# cp /home/user/RenameWithLinks/RenameWithLinks.jar /home/user/RenameWithLinks/CopyFile-$(date +'%Y-%m-%d_%H-%M-%S').jar
+# /bin/sh -c "ls -t /home/user/RenameWithLinks/RenameWithLinks*.jar"
+
+# /bin/sh -c 'rm -rf "/home/davide/.m2/repository/djavalibraries"'
+# /bin/sh -c 'rm -rf "/home/davide/.m2/repository/javalibraries3rdparty/threadsafenumberformat"'
+
+
+
 
 [Options]
 

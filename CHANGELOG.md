@@ -17,6 +17,16 @@
 
 ### Added
 
+@ Use new WinShortcutsUpdater_PS_COM_WScript_Shell01 class (note it starts
+  with "WinShortcuts", plural). It uses 2 PowerShell scripts, the first to
+  read all the required shortcuts targets in one process and the second to
+  update all the necessary shortcuts targets in one process.
+
+  Previously it was using WinShortcutUpdater_PS_COM_WScript_Shell01 (starts
+  with "WinShortcut", singular) which, for each shortcut, creates one
+  PowerShell process to read its target and (if update is necessary) creates
+  another PowerShell process to update the target.
+
 - Set system property "file.encoding" to UTF-8.
 
 - Add display of total processed shortcuts and add the info to progress display.

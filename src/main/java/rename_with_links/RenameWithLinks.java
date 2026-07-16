@@ -4,14 +4,15 @@
 package rename_with_links;
 
 
+import application.AAppContext;
 import dfile.file.FileUtilities;
-import dfile.shortcut.IShortcutTargetUpdater;
-import dfile.shortcut.IShortcutTargetUpdater.TargetUpdateOutcome;
+import dfile.shortcut.IShortcutsTargetUpdater;
+import dfile.shortcut.IShortcutsTargetUpdater.ShortcutsUpdateOutcome;
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
 import dutil.exception.exceptions.NonUniqueExternalValueException;
-import dutil.io.IOUtilities;
+import dutil.system.OSUtilities;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -21,53 +22,48 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Date;
 import java.util.List;
 
 import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.assertExistingPath;
-import static dfile.file.FileUtilities.assertValidPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
-import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dfile.file.FileUtilities.hasPath;
+import static dfile.file.FileUtilities.newValidatedFile;
+import static dfile.file.FileUtilities.newValidatedFileOrFolder;
+import static dfile.file.FileUtilities.newValidatedFolder;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
+import static dutil.jar.JARUtilities.getClasspathMsg;
 import static dutil.list.ListUtilities.assertNoneNull;
 import static dutil.list.number.NumberListUtilities.assertNoneNegative;
 import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
 import static dutil.number.NumberUtilities.I;
 import static dutil.number.NumberUtilities.MINUS1_i;
-import static dutil.number.NumberUtilities.ONE_d;
 import static dutil.number.NumberUtilities.ONE_i;
-import static dutil.number.NumberUtilities.ONE_l;
-import static dutil.number.NumberUtilities.TWO_i;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.number.NumberUtilities.assertNonNegative;
-import static dutil.number.NumberUtilities.percent;
-import static dutil.object.ObjectUtilities.B;
 import static dutil.object.ObjectUtilities.assertNonNull;
-import static dutil.string.TextUtilities.FMT0D;
 import static dutil.string.TextUtilities.FMT0DG;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
-import static dutil.string.TextUtilities.NL2T2;
 import static dutil.string.TextUtilities.NLT;
-import static dutil.string.TextUtilities.NLT2;
+import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.leftPad;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 
 
@@ -116,7 +112,7 @@ public class RenameWithLinks {
   
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private final @NotNull AppContext appContext;
+  private final @NotNull AAppContext appContext;
   
   
   /**
@@ -124,7 +120,7 @@ public class RenameWithLinks {
    *
    * @param appContext {@link #appContext}.
    */
-  private RenameWithLinks(@NotNull AppContext appContext) {
+  private RenameWithLinks(@NotNull AAppContext appContext) {
   
     this.appContext = assertNonNull(appContext);
   }
@@ -135,7 +131,7 @@ public class RenameWithLinks {
    *
    * @param appContext {@link #appContext}.
    */
-  public static RenameWithLinks newInstance(@NotNull AppContext appContext) {
+  public static RenameWithLinks newInstance(@NotNull AAppContext appContext) {
   
     return new RenameWithLinks(appContext);
   }
@@ -144,8 +140,8 @@ public class RenameWithLinks {
    * Invoked if the program has been started without args.<br>
    * Runs the rename-and-update operation first asking to the user the values corresponding to the program args.
    *
-   * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
-   *                              update} the target of a shortcut.
+   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)
+   *                               update} the target of shortcuts.
    *
    * @throws IOException                     If the rename / move operation fails.<br>
    *
@@ -157,26 +153,33 @@ public class RenameWithLinks {
    * @throws NonUniqueExternalValueException If the specified {@link #askDestinationFileOrFolder destination file or
    *                                         folder} is the same as the specified {@link #askOriginalPath original path}.
    */
-  public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws UserRequestedTermination, IOException {
+  public void run(@NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws UserRequestedTermination, IOException {
     
     assertWindowsOS();
     
-    final File originalFileOrFolder = askOriginalPath();
+    assertNonNull(shortcutsTargetUpdater, shortcutsTargetUpdater.getClass().getSimpleName() + " updater");
+    
+    final File originalFileOrFolder =    askOriginalPath();
     
     final File destinationFileOrFolder = askDestinationFileOrFolder(originalFileOrFolder);
     
-    final File searchDir = askSearchDirectory();
+    final File searchFolder =            askSearchDirectory();
     
-    this.appContext.currentVerbosity = askVerbosity();
+    this.appContext.currentVerbosity =   askVerbosity();
     
-    execute(originalFileOrFolder, destinationFileOrFolder, searchDir, shortcutTargetUpdater);
+    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
+      
+      // Perform the renaming / moving and the corresponding shortcuts updating :
+      
+      execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater);
+    }
   }
 
   /**
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
-   * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater object} to {@link IShortcutTargetUpdater#updateTargetIfMatch
-   *                              update} the target of a shortcut.<br>
+   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)}
+   *                               update} the target of shortcuts.
    *
    * @param argOriginalPath       The argument given for the path of the file or folder to rename / move.<br>
    *
@@ -196,56 +199,114 @@ public class RenameWithLinks {
    * @throws NonUniqueExternalValueException If the specified {@code argDestinationPath} is the same as {@code
    *                                         originalPath}.
    */
-  public void run(@NotNull IShortcutTargetUpdater shortcutTargetUpdater, @NotNull String argOriginalPath
-                , @NotNull String                 argDestinationPath,    @NotNull String argSearchPath
-                ,          String                 argVerbosity) throws IOException {
+  public void run(@NotNull IShortcutsTargetUpdater shortcutsTargetUpdater, @NotNull String argOriginalPath
+                , @NotNull String                  argDestinationPath,     @NotNull String argSearchPath
+                ,          String                  argVerbosity) throws IOException, UserRequestedTermination {
     
     assertWindowsOS();
     
-    assertNonNull(shortcutTargetUpdater, shortcutTargetUpdater.getClass().getSimpleName() + " updater");
+    assertNonNull(shortcutsTargetUpdater, shortcutsTargetUpdater.getClass().getSimpleName() + " updater");
     
     assertNoneBlankNorTrimmable(argOriginalPath, argDestinationPath, argSearchPath);
     
     assertNonBlankUnlessNull(argVerbosity);
     
-    final File originalFileOrFolder = resolveOriginalPath(argOriginalPath);
+    final File originalFileOrFolder =    resolveOriginalPath(  argOriginalPath);
 
     final File destinationFileOrFolder = resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
 
-    final File searchDir = resolveSearchDirectory(argSearchPath);
+    final File searchFolder =            resolveSearchDirectory(        argSearchPath);
     
-    execute(originalFileOrFolder, destinationFileOrFolder, searchDir, shortcutTargetUpdater);
+    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
+      
+      // Perform the renaming / moving and the corresponding shortcuts updating :
+      
+      execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater);
+    }
   }
   
   /**
-   * {@link #askStartConfirmation Asks for confirmation} to the user to start the execution, and if granted executes the
-   * program logic: {@link #renameFileOrFolder renames} the given {@code originalFileOrFolder} to the given {@code
-   * destinationFileOrFolder} and {@link #updateShortcuts updates} accordingly all the shortcuts found under the given {@code
-   * searchDir}, using the given {@code shortcutTargetUpdater updater}.
+   * Asks for confirmation to the user to start the execution, and if granted executes the program logic: {@link #renameFileOrFolder
+   * renames / moves} the given {@code originalFileOrFolder} to the given {@code destinationFileOrFolder} and {@link #updateShortcuts
+   * updates} accordingly all the given {@code shortcuts}, using the given {@code shortcutsTargetUpdater}.
    *
    * @param originalFileOrFolder    The file or folder to rename / move.<br>
    *
    * @param destinationFileOrFolder The new file path / name to which to rename / move the {@code originalFileOrFolder}.<br>
    *
-   * @param searchFolder            The folder under which to search for shortcut files whose target needs updating.<br>
+   * @param searchFolder            The folder under which, <b>after</b> {@link #renameFileOrFolder performing} the
+   *                                rename / move, the existing shortcuts must be possibly have their targets updated.
    *
-   * @param shortcutTargetUpdater   The updater to use to perform the update of the shortcuts' target that need it.
+   * @param shortcutsProcessor      The {@link IShortcutsTargetUpdater shortcuts processor} to use to perform the updates of
+   *                                the shortcuts' targets that need it.
    */
-  void execute(@NotNull File                   originalFileOrFolder
-             , @NotNull File                   destinationFileOrFolder
-             , @NotNull File                   searchFolder
-             , @NotNull IShortcutTargetUpdater shortcutTargetUpdater) throws IOException {
+  void execute(@NotNull File                    originalFileOrFolder
+             , @NotNull File                    destinationFileOrFolder
+             , @NotNull File                    searchFolder
+             , @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
     
-    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
+    assertNoneNull(destinationFileOrFolder, shortcutsTargetUpdater);
+    
+    assertExistingPath(originalFileOrFolder, null);
+    
+    assertExistingPath(searchFolder, TRUE);
+    
+    this.numProcessedShortcuts = ZERO_i;
+    
+    this.numUpdatedShortcuts =   ZERO_i;
+    
+    this.numSkippedShortcuts =   ZERO_i;
+    
+    try {
       
       // Do the requested renaming / moving :
       
       renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
       
-      // Update all the shortcuts that point to the location as it was before the renaming / moving :
+      // Retrieve all the shortcuts that need to be checked and possibly updated :
       
-      updateShortcuts(shortcutTargetUpdater, originalFileOrFolder, destinationFileOrFolder
-                    , searchFolder);
+      final List<File> shortcuts = retrieveShortcutFiles(searchFolder);
+      
+      this.numTotalShortcuts = shortcuts.size();
+      
+      final boolean userAborted =
+            this.askBeforeProcessingShortcuts
+         && this.appContext.userIO.in("Press Enter "
+                                                + shortcutsTargetUpdater.getPromptTextStartProcessingShortcuts(
+                                                                                 I(shortcuts.size()))
+                                                + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                               , EMPTY, CANCEL_CHARS) == null;
+      
+      if (! userAborted) {
+        
+        this.appContext.outUser(NL + "The processing of the " + FMT0DG.format(shortcuts.size()) +
+                                             " shortcut file(s) has started, at " + new Date() + " ." + NL);
+        
+        // Update all the shortcuts that point to the location as it was before the renaming / moving :
+        
+        final ShortcutsUpdateOutcome outcome = shortcutsTargetUpdater.updateShortcuts(shortcuts
+                                                                    , originalFileOrFolder
+                                                                    , destinationFileOrFolder);
+        if (outcome.userInterrupted()) {
+          
+          throw new UserRequestedTermination("Program terminated upon user's request during shortcuts targets update.");
+        }
+        this.numProcessedShortcuts = outcome.numProcessedShortcuts();
+        
+        this.numUpdatedShortcuts =   outcome.numUpdatedShortcuts();
+        
+        this.numSkippedShortcuts =   outcome.numSkippedShortcuts();
+      }
+    }
+    catch (Exception e) {
+    
+      this.appContext.outUserLog(NL2 + e.getLocalizedMessage());
+      
+      this.appContext.outUserLog(NL2 + getFullDescriptionWithRootCause(e));
+      
+      this.appContext.outDevLog( NL2 + getClasspathMsg());
+      
+      throw e;
     }
   }
   
@@ -279,13 +340,7 @@ public class RenameWithLinks {
    */
   private static @NotNull File resolveOriginalPath(@NotBlank String argPath) throws IOException {
 
-    final File file = new File(assertNonBlankNorTrimmable(argPath));
-
-    if (! file.exists()) {
-
-      throw new MissingExternalValueException(dq(argPath) + " does not exist.");
-    }
-    return file.getCanonicalFile();
+  return newValidatedFileOrFolder(argPath, true);
   }
   
   /**
@@ -295,12 +350,12 @@ public class RenameWithLinks {
    * @return
    */
   private static @NotNull File resolveDestinationFileOrFolder(@NotBlank String argDestinationPath
-                                                            , @NotNull  File   original) throws IOException {
+                                                            , @NotNull  File   original) {
     final String effectiveNewName;
 
     if (hasPath(assertNonBlankNorTrimmable(argDestinationPath))) {
 
-      effectiveNewName = getCanonicalPath(argDestinationPath);
+      effectiveNewName = argDestinationPath;
     }
     else {
 
@@ -310,15 +365,18 @@ public class RenameWithLinks {
 
         throw new InvalidExternalValueException("Cannot determine parent folder of " + dq(getCanonicalPath(original)) + ".");
       }
-      effectiveNewName = getCanonicalPath(new File(parent, argDestinationPath).getPath());
+      effectiveNewName = new File(parent, argDestinationPath).getPath();
     }
-    final File destination =  new File(effectiveNewName);
-
+    final File destination = original.isFile() ?
+                             newValidatedFile(    effectiveNewName, false, MINUS1_i)
+                             :
+                             newValidatedFolder(effectiveNewName, false, null);
+    
     if (destination.equals(original)) {
-
-      throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
+      
+      throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(destination.getPath()) + ".");
     }
-    return destination.getCanonicalFile();
+    return destination;
   }
   
   /**
@@ -327,15 +385,9 @@ public class RenameWithLinks {
    * @param argSearchPath
    * @return
    */
-  private static @NotNull File resolveSearchDirectory(@NotBlank String argSearchPath) throws IOException {
+  private static @NotNull File resolveSearchDirectory(@NotBlank String argSearchPath) {
 
-    final File searchDir = assertExistingPath(new File(assertValidPath(argSearchPath
-                                                                                  , TRUE))
-                                               , TRUE);
-
-    assertExistingPath(searchDir, TRUE);
-    
-    return searchDir.getCanonicalFile();
+    return newValidatedFolder(argSearchPath, true, FALSE);// new File(assertExistingPath(argSearchPath, TRUE)).getCanonicalFile();
   }
   
   /**
@@ -375,7 +427,7 @@ public class RenameWithLinks {
    *
    * @throws MissingExternalValueException If the path entered by the user does not exist.
    */
-  private @NotNull File askOriginalPath() throws UserRequestedTermination {
+  private @NotNull File askOriginalPath() throws UserRequestedTermination, IOException {
 
     final String existingPath = this.appContext.userIO.in(
                                                   "Enter the path of the file or folder to rename / move, either absolute"
@@ -386,15 +438,7 @@ public class RenameWithLinks {
       
       throw new UserRequestedTermination();
     }
-    final File originalFileOrFolder = new File(existingPath);
-
-    if (! originalFileOrFolder.exists()) {
-
-      final String msg = dq(existingPath) + " does not exist.";
-
-      throw new MissingExternalValueException(msg);
-    }
-    return originalFileOrFolder;
+    return resolveOriginalPath(existingPath);
   }
 
   /**
@@ -414,7 +458,7 @@ public class RenameWithLinks {
    * @throws InvalidPathException If the specified destination is a folder but the given {@code original} is a file, or
    *                              viceversa.
    */
-  private @NotNull File askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination {
+  private @NotNull File askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination, IOException {
 
     final String newName = this.appContext.userIO.in(
                                       "Enter the new name for the file or folder (may include a path), or type "
@@ -450,7 +494,7 @@ public class RenameWithLinks {
       
       throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
     }
-    return new File(assertValidPath(effectiveNewName, B(original.isDirectory())));
+    return resolveDestinationFileOrFolder(effectiveNewName, original);// new File(assertValidPath(effectiveNewName, B(original.isDirectory())));
   }
 
   /**
@@ -459,32 +503,27 @@ public class RenameWithLinks {
   private @NotNull File askSearchDirectory() throws UserRequestedTermination {
     
     final String searchPath = this.appContext.userIO.in(
-                                                "Enter the path to scan for " + WIN_SHORTCUT_EXTENSION
-                                                        + " shortcuts to update (if the new name entered in the previous question included a path and that caused the folder tree to change, this path to scan must refer to the new folder tree)"
-                                                        + " or press Enter for the default,"
-                                                        + "Or, type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                                "Enter the path of the folder to scan for " + WIN_SHORTCUT_EXTENSION
+                                                        + " shortcuts to update (if the \"new name\" entered in the previous question included a path and that causes the folder tree to change, this path to scan must refer to the new folder tree)"
+                                                        + " or press Enter for the default, or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                          , getCurrentFolder(), CANCEL_CHARS);
     if (searchPath == null) {
 
       throw new UserRequestedTermination();
     }
-    final File searchDir = new File(assertValidPath(searchPath, TRUE));
-    
-    assertExistingPath(searchDir, TRUE);
-    
-    return searchDir;
+    return resolveSearchDirectory(searchPath);
   }
   
   /**
-   * Asks the user for the {@link AppContext#currentVerbosity verbosity level}.
+   * Asks the user for the {@link AAppContext#currentVerbosity verbosity level}.
    */
   private int askVerbosity() throws UserRequestedTermination {
     
     final String verbosity = this.appContext.userIO.in(
                                                "Enter the verbosity level (0 - " + MAX_VERBOSITY
                                                      + "), or press Enter for the default,"
-                                                     + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
-                                        , "1", CANCEL_CHARS);
+                                                     + " or type " + calcCancelCharsPrompt(    CANCEL_CHARS)
+                                        , S(this.appContext.currentVerbosity), CANCEL_CHARS);
     if (verbosity == null) {
       
       throw new UserRequestedTermination();
@@ -507,185 +546,31 @@ public class RenameWithLinks {
     
     this.appContext.outUser(ONE_i, "Done.");
   }
-
-  /**
-   * Recursively scans the search directory for {@code .lnk} files and, for each shortcut whose target matches the
-   * original path, updates it to the new path.
-   *
-   * @param shortcutTargetUpdater The object to use to {@link IShortcutTargetUpdater#updateTargetIfMatch update} the
-   *                              target of the shortcuts found under {@code searchFolder} tree that have it {@link FileUtilities#isDescendant
-   *                              matching} {@code oldTarget}.<br>
-   *
-   * @param oldTarget             The target that - if present in a shortcut - must be updated to {@code newTarget}.<br>
-   *
-   * @param newTarget             The target to set into the shortcuts that have it equal to {@code oldTarget}.<br>
-   *
-   * @param searchFolder          The folder under which to recursively search for shortcuts to update. If {@code null},
-   *                              the {@link FileUtilities#getCurrentFolder() current folder} is used.
-   *
-   * @return Whether the user has interrupted the process.
-   */
-  private boolean updateShortcuts(@NotNull IShortcutTargetUpdater shortcutTargetUpdater, @NotNull File oldTarget
-                                , @NotNull File                   newTarget,                      File searchFolder) {
-    
-    assertNoneNull(shortcutTargetUpdater, oldTarget, newTarget);
-    
-    this.numTotalShortcuts =   MINUS1_i;
-    
-    this.numUpdatedShortcuts = MINUS1_i;
-    
-    this.numSkippedShortcuts = MINUS1_i;
-    
-    final Path effectiveSearchFolder = searchFolder != null ? searchFolder.toPath() : Path.of(getCurrentFolder());
-    
-    this.appContext.outUser(ONE_i, NL + "Retrieving shortcuts to check for needed target update, under folder"
-                                                         + NL2T + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + " ...");
-    
-    final char abortFromPause = CANCEL_CHARS.charAt(CANCEL_CHARS.length() - ONE_i);
-    
-    final List<File> shortcuts = FileUtilities.listFiles(
-                                             effectiveSearchFolder
-                                            , new String[] { removeStart(WIN_SHORTCUT_EXTENSION
-                                                                                , EXTENSION_SEPARATOR) }
-                                      , true);
-    
-    this.numTotalShortcuts = shortcuts.size();
-    
-    this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
-                                                         + NL2T + dq(getCanonicalPath(effectiveSearchFolder.toFile())) + ".");
-    
-    boolean userAborted =  this.askBeforeProcessingShortcuts
-                        && this.appContext.userIO.in("Press Enter to start processing the " + FMT0DG.format(this.numTotalShortcuts)
-                                                            + " shortcut file(s) under" + NL2T + dq(getCanonicalPath(
-                                                                               effectiveSearchFolder.toFile())) + NL2T
-                                                            + "(the processing can be paused with the Enter key)"
-                                                            + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
-                                             , EMPTY, CANCEL_CHARS) == null;
-    if (! userAborted) {
-      
-      this.numProcessedShortcuts = ZERO_i;
-      
-      this.numUpdatedShortcuts =   ZERO_i;
-      
-      this.numSkippedShortcuts = ZERO_i;
-      
-      String previousPercent = null;
-      
-      for (int iShortcut = ZERO_i; iShortcut < this.numTotalShortcuts && ! userAborted; iShortcut++) {
-        
-        final File shortcut = shortcuts.get(iShortcut);
-        
-        try {
-          
-          final TargetUpdateOutcome updateOutcome = shortcutTargetUpdater.updateTargetIfMatch(
-                                                                             shortcut, oldTarget, newTarget
-                                                                   , null
-                                                         , s -> this.appContext.warnUser(
-                                                                                            ZERO_i, s)
-                                                         ,   s -> this.appContext.errUser(
-                                                                                            ZERO_i, s));
-          ++this.numProcessedShortcuts;
-          
-          if (updateOutcome.notUpdated() == null) {
-            
-            // : The shortcut has had its target updated.
-            
-            ++this.numUpdatedShortcuts;
-            
-            this.appContext.warnUser(ZERO_i
-                                      , NL   + "Shortcut"              + NLT + getCanonicalPathAsDescr(shortcut)
-                                              + NL2T + ": target updated from" + NL2T2 + dq(updateOutcome.fromTo().o1)
-                                              + NLT  + "to"                    + NLT2 + dq(updateOutcome.fromTo().o2) + ".");
-          }
-          else {
-            
-            // : The shortcut has not had its target updated.
-          
-            this.appContext.outUser(TWO_i, updateOutcome.notUpdated());
-          }
-          userAborted = IOUtilities.handleUserInput( abortFromPause);
-          
-          if (userAborted) {
-            
-            this.appContext.warnUser(ZERO_i, NL2 + "Interruption requested by the user after "
-                                                                   + FMT0DG.format(this.numProcessedShortcuts) + " shortcuts of the total "
-                                                                   + FMT0DG.format(this.numTotalShortcuts)     + " were processed, "
-                                                                   + FMT0DG.format(this.numUpdatedShortcuts)   + " of them were updated and "
-                                                                   + FMT0DG.format(this.numSkippedShortcuts)   + " of them were skipped.");
-          }
-        }
-        catch (IOException | InvalidExternalValueException | UncheckedIOException e) {
-          
-          ++this.numSkippedShortcuts;
-          
-          this.appContext.outUserLog(getFullDescriptionWithRootCause(e));
-          
-          this.appContext.errUser(ZERO_i, NL2 + "Skipping" + NL2T + dq(getCanonicalPath(shortcut))
-                                                          + NL2T + ". Reason :" + NLT + e.getLocalizedMessage() + NL);
-        }
-        // Update progress display :
-        
-        previousPercent = showProgress(
-                        iShortcut,      shortcut
-                                     , previousPercent, this.numTotalShortcuts
-                                                         ,this.numUpdatedShortcuts
-                                                         , this.numSkippedShortcuts);
-      }
-      this.appContext.outUser(ONE_i, NL2 + "Finished updating " + FMT0DG.format(this.numUpdatedShortcuts) + " shortcuts out of " + FMT0DG.format(this.numTotalShortcuts) + " .");
-    }
-    return userAborted;
-  }
   
   /**
-   * Calculates the percentage corresponding to {@code iLastProcessed}, and displays it if it's different from the
-   * previously displayed one.<br>If the {@link AppContext#currentVerbosity currently set verbosity} allows, also
-   * displays the last processed shortcut.
+   * Retrieves all files under the given {@code searchFolder} tree that have the {@link OSUtilities#WIN_SHORTCUT_EXTENSION
+   * extension} of Windows shortcut files.
    *
-   * @param iLastProcessed Index (so 0-based) of the last shortcut that has been processed.<br>
-   *
-   * @param lastProcessed  The last processed shortcut. May be {@code null} if the currently set verbosity does not
-   *                       require to show it.
-   *
-   * @param previousPercent The last percentage that has been shown.<br>
-   *
-   * @param totToProcess The total number of shortcuts to process.
-   *
-   * @param totUpdated The total number of shortcuts updated so far.
-   *
-   * @param totSkipped The total number of shortcuts skipped so far because they could not be processed.
-   *
-   * @return The percentage this method just displayed, calculated based on {@code iLastProcessed}, or the last
-   *         displayed one if it's the same.
+   * @param searchFolder
+   * @return
    */
-  private String showProgress(int iLastProcessed, File lastProcessed, @NotBlank String previousPercent, int totToProcess
-                            , int totUpdated,     int  totSkipped) {
+  @NotNull List<File> retrieveShortcutFiles(@NotNull File searchFolder) {
     
-    String result = previousPercent != null ? assertNonBlankNorTrimmable(previousPercent) : null;
+    final String searchFolderPath = getCanonicalPath(searchFolder);
     
-    final String currentPercent = FMT0D.format(Math.floor(percent(iLastProcessed + ONE_d, totToProcess)));
+    this.appContext.outUser(ONE_i, NL   + "Retrieving shortcuts to check for needed target update, under folder"
+                                                   + NL2T + dq(searchFolderPath) + " ...");
     
-    if (this.appContext.currentVerbosity >= TWO_i) {
-      
-      this.appContext.outUser_Chars(TWO_i, NL2 + "Processing #" + FMT0DG.format(iLastProcessed + ONE_l)
-                                                                 + " of "         + FMT0DG.format(totToProcess)
-                                                                 + " ("           + leftPad(currentPercent, 3)
-                                                                 + "%) :" + NL2T  + getCanonicalPathAsDescr(lastProcessed)
-                                                                 + " (updated : " + FMT0DG.format(totUpdated)
-                                                                 + "; skipped : " + FMT0DG.format(totSkipped)
-                                                                 + ") ..." + NLT);
-    }
-    else if (this.appContext.currentVerbosity >= ONE_i && ! currentPercent.equals(result)) {
-      
-      result = currentPercent;
-      
-      this.appContext.outUser(ONE_i, leftPad(result, 3)
-                                                        + "% (" + FMT0DG.format(iLastProcessed + ONE_l) + " tot"
-                                                        + " / " + FMT0DG.format(totToProcess)           + " processed"
-                                                        + " / " + FMT0DG.format(totUpdated)             + " updated"
-                                                        + " / " + FMT0DG.format(totSkipped)             + " skipped"
-                                                        + ")");
-    }
-    return result;
+    final List<File> shortcuts = FileUtilities.listFiles(
+                        Paths.get(searchFolderPath)
+                       , new String[] { removeStart(WIN_SHORTCUT_EXTENSION, EXTENSION_SEPARATOR) }
+                 , true);
+    
+    this.numTotalShortcuts =   shortcuts.size();
+    
+    this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
+                                                   + NL2T + dq(searchFolderPath) + ".");
+    return shortcuts;
   }
 
 }

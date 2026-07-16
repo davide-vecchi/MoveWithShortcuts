@@ -1,11 +1,12 @@
 /**
- * Created by OpenCode on 2026-05-08 .
+ * Created by Davide on 2026-05-08 .
  */
 package rename_with_links;
 
 
-import dfile.shortcut.IShortcutTargetUpdater;
-import dfile.shortcut.WinShortcutUpdater_PS_COM_WScript_Shell01;
+import application.AAppContext;
+import dfile.shortcut.IShortcutsTargetUpdater;
+import dfile.shortcut.WinShortcutsUpdater_PSScriptsMulti;
 import dlog.log.Log;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
@@ -16,6 +17,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 import static application.AAppContext.MAX_VERBOSITY;
+import static dfile.file.FileUtilities.calcPath;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dlog.log.Log.writeLogsHeaders;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
@@ -96,7 +98,7 @@ public class RenameWithLinksMain {
         final ConditionallyCloseablePrintStream err = new ConditionallyCloseablePrintStream(
                                                                              System.err,   true
                                                                                         , CHARSET_UTF_8, false);
-        final AppContext ac = AppContext.newAppContext(
+        final AAppContext ac = AppContext.newAppContext(
                          ColorConsoleUserIO.newInstance1(System.in,         out,                 err
                                                              , CYAN,   BLACK,   RED
                                                              , BLACK, YELLOW, BLACK)
@@ -112,21 +114,36 @@ public class RenameWithLinksMain {
           
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
-          // Create the desired type of updater instance :
           
-          final IShortcutTargetUpdater shortcutTargetUpdater = WinShortcutUpdater_PS_COM_WScript_Shell01.newInstance(
-                                                                              false, ac.devLog);
-          showStartupMessages(ac, shortcutTargetUpdater, args);
+          // -------------------------------------------------------
+          // Create the desired type of shortcuts updater instance :
+          
+//          final IShortcutsTargetUpdater shortcutsTargetUpdater =
+//                                                            WinShortcutsUpdater_PSScriptsMulti.newInstance(ac);
+          
+          final IShortcutsTargetUpdater shortcutsTargetUpdater =
+            WinShortcutsUpdater_PSScriptsMulti.newInstance(
+                                  calcPath("H:/Users/Davide/Davide/_TRASH/WinShortcutsUpdater_PSScriptsMulti")
+                                             , ac);
+          
+//          final IShortcutsTargetUpdater shortcutsTargetUpdater = WinShortcutsUpdater_OneByOne.newInstance(
+//                  WinShortcutUpdater_PS_WSH01.newInstance(false, ac.devLog)
+//                         , CANCEL_CHARS , ac);
+          
+          // -------------------------------------------------------
+          
+          
+          showStartupMessages(ac, shortcutsTargetUpdater, args);
           
           // Perform the renaming operation using the chosen updater :
           
           if (args.length == ZERO_i) {
             
-            app.run(shortcutTargetUpdater);
+            app.run(shortcutsTargetUpdater);
           }
           else {
             
-            app.run(shortcutTargetUpdater, args[ZERO_i], args[ONE_i]
+            app.run(shortcutsTargetUpdater, args[ZERO_i], args[ONE_i]
                                            , args[TWO_i],       args[3]);
           }
         }
@@ -136,25 +153,27 @@ public class RenameWithLinksMain {
         }
         catch (Exception e) {
         
-          ac.errUser(ZERO_i, NL2 + "Terminated due to an error : " + e.getClass().getSimpleName() + " :" + NL2T + e.getLocalizedMessage().trim() + NL2);
+          ac.errUser(ZERO_i, NL2 + "Terminated due to an error : " + e.getClass().getSimpleName() + " :" + NL2T + e.getLocalizedMessage() + NL2);
           
           ac.outUserLog(getFullDescriptionWithRootCause(e));
         }
         finally {
           
-          ac.outUser(NL + "Total shortcuts to process : " + app.numTotalShortcuts     + " .");
+          ac.outUser(NL + "Total shortcuts to process :     " + app.numTotalShortcuts     + " .");
           
-          ac.outUser(NL + "Total shortcuts processed :  " + app.numProcessedShortcuts + " .");
+          ac.outUser(NL + "Total shortcuts needing update : " + app.numProcessedShortcuts + " .");
           
-          ac.outUser(NL + "Total shortcuts updated :    " + app.numUpdatedShortcuts   + " .");
+          ac.outUser(NL + "Total shortcuts updated :        " + app.numUpdatedShortcuts   + " .");
           
-          ac.outUser(NL + "Total shortcuts skipped :    " + app.numSkippedShortcuts   + " .");
+          ac.outUser(NL + "Total shortcuts skipped :        " + app.numSkippedShortcuts   + " .");
           
           ac.showLogInfo(ONE_i);
         }
       }
     }
     else {
+      
+      // : Bad launch args, don't run.
       
       showUsage();
     }
@@ -163,13 +182,13 @@ public class RenameWithLinksMain {
   /**
    * Shows the startup messages.
    *
-   * @param ac                    The application context.<br>
+   * @param ac                     The application context.<br>
    *
-   * @param shortcutTargetUpdater The {@link IShortcutTargetUpdater} instance that this execution will use.<br>
+   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater} instance that this execution will use.<br>
    *
-   * @param args                  The command line arguments with which this execution has been started.
+   * @param args                   The command line arguments with which this execution has been started.
    */
-  private static void showStartupMessages(@NotNull AppContext ac, @NotNull IShortcutTargetUpdater shortcutTargetUpdater
+  private static void showStartupMessages(@NotNull AAppContext ac, @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater
                                         , @NotNull String[] args) {
   
     ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date());
@@ -184,8 +203,8 @@ public class RenameWithLinksMain {
     
     ac.outUser(ONE_i, NL + OSUtilities.getDescription());
     
-    ac.outUser(ONE_i, NL + "Using "    + IShortcutTargetUpdater.class.getSimpleName() + " implementation "
-                                           + dq(shortcutTargetUpdater.getClass().getSimpleName()) + ".");
+    ac.outUser(ONE_i, NL + "Using "    + IShortcutsTargetUpdater.class.getSimpleName() + " implementation "
+                                           + dq(shortcutsTargetUpdater.getClass().getSimpleName()) + ".");
     
     ac.outUser(ONE_i, NL + "Current verbosity (0-" + MAX_VERBOSITY + ") : " + ac.currentVerbosity + " .");
     
