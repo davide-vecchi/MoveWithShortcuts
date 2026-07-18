@@ -1143,7 +1143,7 @@ public class RenameWithLinksTest {
     }
     catch (RuntimeException re) {
       
-      throw getExceptionSupplier(re.getClass(), amp(updater) + re.getMessage()).get();
+      throw getExceptionSupplier(re.getClass(), re, amp(updater) + re.getMessage()).get();
     }
   }
   
@@ -1151,7 +1151,7 @@ public class RenameWithLinksTest {
    * {@link RenameWithLinks#execute(File, File, File, IShortcutsTargetUpdater) Executes} the given {@code app} with the
    * given {@code updater}, and if that throws a {@link RuntimeException}, catches it and rethrows a new one of the same
    * type with the same {@link Throwable#getMessage() message} but prefixed by the {@link #amp(IShortcutsTargetUpdater)
-   * Assertion Message Prefix} for the {@code updater}.
+   * Assertion Message Prefix} for the {@code updater} and with its {@link Throwable#getCause() cause}.
    *
    * @param app
    * @param originalFileOrFolder
@@ -1170,7 +1170,7 @@ public class RenameWithLinksTest {
     }
     catch (RuntimeException re) {
       
-      throw getExceptionSupplier(re.getClass(), amp(updater) + re.getMessage()).get();
+      throw getExceptionSupplier(re.getClass(), re, amp(updater) + re.getMessage()).get();
     }
   }
   
