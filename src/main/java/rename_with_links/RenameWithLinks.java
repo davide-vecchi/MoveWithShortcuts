@@ -326,7 +326,7 @@ public class RenameWithLinks {
                                                           + (originalFileOrFolder.isFile() ? "file" : "folder")    + NL2T
                                                           + dq(getCanonicalPath(originalFileOrFolder))      + NL2T + "to" + NL2T
                                                           + dq(getCanonicalPath(destinationFileOrFolder))   + NL2T
-                                                          + "and updating the targets of the shortcuts pointing to it that are found under" + NL2T
+                                                          + "and updating the targets and/or the working directories of the shortcuts pointing to it that are found under" + NL2T
                                                           + dq(getCanonicalPath(searchFolder)) + NL2T
                                                           + ", or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS) != null;
