@@ -338,7 +338,7 @@ public class RenameWithLinks {
    * @param argPath
    * @return
    */
-  private static @NotNull File resolveOriginalPath(@NotBlank String argPath) throws IOException {
+  private static @NotNull File resolveOriginalPath(@NotBlank String argPath) {
 
   return newValidatedFileOrFolder(argPath, true);
   }
