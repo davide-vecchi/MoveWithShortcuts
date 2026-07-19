@@ -8,7 +8,7 @@
 
 $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
-cd C:\RenameWithLinks\
+Set-Location C:\RenameWithLinks\
 
 java -jar C:\RenameWithLinks\RenameWithLinks.jar
 
