@@ -6,8 +6,8 @@ package rename_with_links;
 
 import application.AAppContext;
 import dfile.file.FileUtilities;
+import dfile.shortcut.IShortcutUpdater.ShortcutsUpdateOutcome;
 import dfile.shortcut.IShortcutsUpdater;
-import dfile.shortcut.IShortcutsUpdater.ShortcutsUpdateOutcome;
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
@@ -285,8 +285,8 @@ public class RenameWithLinks {
         // Update all the shortcuts that point to the location as it was before the renaming / moving :
         
         final ShortcutsUpdateOutcome outcome = shortcutsTargetUpdater.updateShortcuts(shortcuts
-                                                                    , originalFileOrFolder
-                                                                    , destinationFileOrFolder);
+                                                                          , originalFileOrFolder
+                                                                          , destinationFileOrFolder);
         if (outcome.userInterrupted()) {
           
           throw new UserRequestedTermination("Program terminated upon user's request during shortcuts targets update.");
