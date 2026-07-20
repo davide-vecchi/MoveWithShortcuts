@@ -152,7 +152,7 @@ public class RenameWithLinksTest {
   @BeforeMethod
   void beforeMethod() {
 
-    lenient().when(this.mockUserIO.outChars(anyString())).thenAnswer(i -> i.getArgument(0));
+    lenient().when(this.mockUserIO.outChars( anyString())).thenAnswer(i -> i.getArgument(0));
 
     lenient().when(this.mockUserIO.warnChars(anyString())).thenAnswer(i -> i.getArgument(0));
 
