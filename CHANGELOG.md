@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.1.0-SNAPSHOT] - Unreleased
+## [2.1.0]
 
 
 ### Changed
@@ -10,22 +10,23 @@
   which carries more info to show to the user about what update took place
   if any.
 
-- Bump version to 2.1.0-SNAPSHOT
+- Bump version to 2.1.0 .
 
-- Update all dependencies on DLibs to 2.1.0-SNAPSHOT
+- Update all dependencies on DLibs to 2.1.0 .
 
 
 ### Added
 
-@ Use new WinShortcutsUpdater_PS_COM_WScript_Shell01 class (note it starts
+- Use new WinShortcutsUpdater_PSScriptsMulti class (note it starts
   with "WinShortcuts", plural). It uses 2 PowerShell scripts, the first to
-  read all the required shortcuts targets in one process and the second to
-  update all the necessary shortcuts targets in one process.
+  read all the required shortcuts targets and working directories in one process
+  and the second to update all the necessary shortcuts target and working
+  directories in one process.
 
-  Previously it was using WinShortcutUpdater_PS_COM_WScript_Shell01 (starts
-  with "WinShortcut", singular) which, for each shortcut, creates one
-  PowerShell process to read its target and (if update is necessary) creates
-  another PowerShell process to update the target.
+  Previously it was using WinShortcutUpdater_PS_WSH01 (starts with "WinShortcut",
+  singular) which, for each shortcut, creates one PowerShell process to read its
+  target and working directory and (if update is necessary) creates another
+  PowerShell process to update the target.
 
 - Set system property "file.encoding" to UTF-8.
 
