@@ -6,7 +6,7 @@ package rename_with_links;
 import application.AAppContext;
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutTargetUpdater;
-import dfile.shortcut.IShortcutsTargetUpdater;
+import dfile.shortcut.IShortcutsUpdater;
 import dfile.shortcut.WinShortcutUpdater_DeepSeek_NoLibs01;
 import dfile.shortcut.WinShortcutUpdater_PS_WSH01;
 import dfile.shortcut.WinShortcutUpdater_mslinks;
@@ -82,9 +82,9 @@ public class RenameWithLinksTest {
   private static final String APP_DESCR = RenameWithLinksTest.class.getName();
   
   /**
-   * Each test must run once with each of these instances of {@link IShortcutsTargetUpdater} implementations.
+   * Each test must run once with each of these instances of {@link IShortcutsUpdater} implementations.
    */
-  private List<? extends IShortcutsTargetUpdater> updatersToTest;
+  private List<? extends IShortcutsUpdater> updatersToTest;
   
   @Mock
   private AUserInputOutput mockUserIO;
@@ -215,7 +215,7 @@ public class RenameWithLinksTest {
   @Test
   void cancelAtFirstPrompt() {
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("cancelAtFirstPrompt() with " + u + NL);
       
@@ -235,7 +235,7 @@ public class RenameWithLinksTest {
   @Test
   void cancelAtSecondPrompt() throws IOException {
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("cancelAtSecondPrompt() with " + u + NL);
       
@@ -258,7 +258,7 @@ public class RenameWithLinksTest {
   @Test
   void cancelAtThirdPrompt() throws IOException {
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("cancelAtThirdPrompt() with " + u + NL);
       
@@ -288,7 +288,7 @@ public class RenameWithLinksTest {
     // 5.2 : in() returns a non-existent path (parent folder exists but file in it does not)
     // → MissingExternalValueException
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("nonExistentSourceFile() with " + u + NL);
       
@@ -315,7 +315,7 @@ public class RenameWithLinksTest {
     // 5.2 : in() returns a non-existent path (parent folder does not exist)
     // → MissingExternalValueException
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("nonExistentSourceFolder() with " + u + NL);
       
@@ -342,7 +342,7 @@ public class RenameWithLinksTest {
     // 5.4 : search dir → a file, not a directory
     // → InvalidPathException
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("searchPathIsFile() with " + u + NL);
       
@@ -366,7 +366,7 @@ public class RenameWithLinksTest {
   @Test
   void renameFile() throws Throwable {
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("renameFile() with " + u + NL);
       
@@ -403,7 +403,7 @@ public class RenameWithLinksTest {
   @Test
   void renameFolder() throws Throwable {
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("renameFolder() with " + u + NL);
       
@@ -442,7 +442,7 @@ public class RenameWithLinksTest {
   @Test
   void createParentDirs() throws Throwable {
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("createParentDirs() with " + u + NL);
       
@@ -484,7 +484,7 @@ public class RenameWithLinksTest {
     
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_mslinks.class);
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("matchingLinkUpdated() with " + u + NL);
       
@@ -528,7 +528,7 @@ public class RenameWithLinksTest {
     
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_mslinks.class);
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("nonMatchingLinkUntouched() with " + u + NL);
     
@@ -571,7 +571,7 @@ public class RenameWithLinksTest {
   @Test
   void corruptedLinkSkipped() throws Throwable {
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("corruptedLinkSkipped() with " + u + NL);
       
@@ -608,7 +608,7 @@ public class RenameWithLinksTest {
   /** TODO @@@ ADD a shortcut in "sub2-to-move\", which also points to PointedToAndToMove.txt, and verify its target after it has been moved because it was in "sub2-to-move\".<br><br>
    *
    *
-   * Tests {@link RenameWithLinks#execute(File, File, List, IShortcutsTargetUpdater)} as follows :<ul>
+   * Tests {@link RenameWithLinks#execute(File, File, List, IShortcutsUpdater )} as follows :<ul>
    *
    * <li> 1) Under {@code src\test\resources\} creates subfolders :<ol>
    *         <li>{@code testExecute01\sub1\sub2-to-move\sub3-with-file\sub4\}.</li>
@@ -653,7 +653,7 @@ public class RenameWithLinksTest {
    *         <li>5) A shortcut named {@code sub4.lnk} exists in {@code testExecute01\} having folder {@code sub4} as
    *                target.</li></ul></li>
    *
-   * <li> 4) Invokes {@link RenameWithLinks#execute(File, File, List, IShortcutsTargetUpdater) the tested method} passing :<ul>
+   * <li> 4) Invokes {@link RenameWithLinks#execute(File, File, List, IShortcutsUpdater ) the tested method} passing :<ul>
    *
    *         <li>1) Folder {@code testExecute01\sub1\sub2-to-move\} as the file / folder to rename / move ({@code
    *                originalFileOrFolder} param).</li>
@@ -720,7 +720,7 @@ public class RenameWithLinksTest {
     
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_mslinks.class);
     
-    for (final IShortcutsTargetUpdater u : this.updatersToTest) {
+    for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("testExecute01() with " + u + NL);
       
@@ -1104,7 +1104,7 @@ public class RenameWithLinksTest {
    *
    * @return The prefix for the assertion messages.
    */
-  private static String amp(@NotNull IShortcutsTargetUpdater currentUpdater) {
+  private static String amp(@NotNull IShortcutsUpdater currentUpdater) {
     
     String result = "Current Updater : " + currentUpdater.getClass().getSimpleName();
     
@@ -1136,15 +1136,15 @@ public class RenameWithLinksTest {
     
     int result = ZERO_i;
     
-    for (final ListIterator<? extends IShortcutsTargetUpdater> iterator = this.updatersToTest.listIterator();
+    for (final ListIterator<? extends IShortcutsUpdater> iterator = this.updatersToTest.listIterator();
                                                                           iterator.hasNext();) {
-      final IShortcutsTargetUpdater updater = iterator.next();
+      final IShortcutsUpdater updater = iterator.next();
       
       if (updater instanceof WinShortcutsUpdater_OneByOne updaterOneByOne) {
         
         if (updaterOneByOne.getShortcutTargetUpdater().getClass().equals(unwantedClass)) {
           
-          this.devLog.log("Removing a " + updater.getClass().getSimpleName() + " from the list of the " + this.updatersToTest.size() + " " + IShortcutsTargetUpdater.class.getSimpleName() + " updaters to test.");
+          this.devLog.log("Removing a " + updater.getClass().getSimpleName() + " from the list of the " + this.updatersToTest.size() + " " + IShortcutsUpdater.class.getSimpleName() + " updaters to test.");
           
           iterator.remove();
           
@@ -1156,9 +1156,9 @@ public class RenameWithLinksTest {
   }
   
   /**
-   * {@link RenameWithLinks#run(IShortcutsTargetUpdater) Runs} the given {@code app} with the given {@code updater}, and
+   * {@link RenameWithLinks#run( IShortcutsUpdater ) Runs} the given {@code app} with the given {@code updater}, and
    * if that throws a {@link RuntimeException}, catches it and rethrows a new one of the same type with the same {@link Throwable#getMessage()
-   * message} but prefixed by the {@link #amp(IShortcutsTargetUpdater) Assertion Message Prefix} for the {@code updater}.
+   * message} but prefixed by the {@link #amp( IShortcutsUpdater ) Assertion Message Prefix} for the {@code updater}.
    *
    * @param app
    * @param updater
@@ -1166,7 +1166,7 @@ public class RenameWithLinksTest {
    * @throws UserRequestedTermination
    * @throws IOException
    */
-  private static void runApp(RenameWithLinks app, IShortcutsTargetUpdater updater) throws UserRequestedTermination, IOException {
+  private static void runApp(RenameWithLinks app, IShortcutsUpdater updater) throws UserRequestedTermination, IOException {
     
     try {
       
@@ -1179,9 +1179,9 @@ public class RenameWithLinksTest {
   }
   
   /**
-   * {@link RenameWithLinks#execute(File, File, File, IShortcutsTargetUpdater) Executes} the given {@code app} with the
+   * {@link RenameWithLinks#execute(File, File, File, IShortcutsUpdater ) Executes} the given {@code app} with the
    * given {@code updater}, and if that throws a {@link RuntimeException}, catches it and rethrows a new one of the same
-   * type with the same {@link Throwable#getMessage() message} but prefixed by the {@link #amp(IShortcutsTargetUpdater)
+   * type with the same {@link Throwable#getMessage() message} but prefixed by the {@link #amp( IShortcutsUpdater )
    * Assertion Message Prefix} for the {@code updater} and with its {@link Throwable#getCause() cause}.
    *
    * @param app
@@ -1194,7 +1194,7 @@ public class RenameWithLinksTest {
    * @throws IOException
    */
   private static void executeApp(RenameWithLinks app, File originalFileOrFolder, File destinationFileOrFolder
-                               , File searchFolder, IShortcutsTargetUpdater updater) throws UserRequestedTermination, IOException {
+                               , File searchFolder, IShortcutsUpdater updater) throws UserRequestedTermination, IOException {
     try {
       
       app.execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, updater);

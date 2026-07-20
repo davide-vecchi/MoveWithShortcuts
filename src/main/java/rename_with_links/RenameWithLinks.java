@@ -6,8 +6,8 @@ package rename_with_links;
 
 import application.AAppContext;
 import dfile.file.FileUtilities;
-import dfile.shortcut.IShortcutsTargetUpdater;
-import dfile.shortcut.IShortcutsTargetUpdater.ShortcutsUpdateOutcome;
+import dfile.shortcut.IShortcutsUpdater;
+import dfile.shortcut.IShortcutsUpdater.ShortcutsUpdateOutcome;
 import dutil.exception.UserRequestedTermination;
 import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
@@ -140,7 +140,7 @@ public class RenameWithLinks {
    * Invoked if the program has been started without args.<br>
    * Runs the rename-and-update operation first asking to the user the values corresponding to the program args.
    *
-   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)
+   * @param shortcutsTargetUpdater The {@link IShortcutsUpdater object} to {@link IShortcutsUpdater#updateShortcuts(List, File, File)
    *                               update} the target of shortcuts.
    *
    * @throws IOException                     If the rename / move operation fails.<br>
@@ -153,7 +153,7 @@ public class RenameWithLinks {
    * @throws NonUniqueExternalValueException If the specified {@link #askDestinationFileOrFolder destination file or
    *                                         folder} is the same as the specified {@link #askOriginalPath original path}.
    */
-  public void run(@NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws UserRequestedTermination, IOException {
+  public void run(@NotNull IShortcutsUpdater shortcutsTargetUpdater) throws UserRequestedTermination, IOException {
     
     assertWindowsOS();
     
@@ -178,7 +178,7 @@ public class RenameWithLinks {
   /**
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
-   * @param shortcutsTargetUpdater The {@link IShortcutsTargetUpdater object} to {@link IShortcutsTargetUpdater#updateShortcuts(List, File, File)}
+   * @param shortcutsTargetUpdater The {@link IShortcutsUpdater object} to {@link IShortcutsUpdater#updateShortcuts(List, File, File)}
    *                               update} the target of shortcuts.
    *
    * @param argOriginalPath       The argument given for the path of the file or folder to rename / move.<br>
@@ -199,7 +199,7 @@ public class RenameWithLinks {
    * @throws NonUniqueExternalValueException If the specified {@code argDestinationPath} is the same as {@code
    *                                         originalPath}.
    */
-  public void run(@NotNull IShortcutsTargetUpdater shortcutsTargetUpdater, @NotNull String argOriginalPath
+  public void run(@NotNull IShortcutsUpdater shortcutsTargetUpdater, @NotNull String argOriginalPath
                 , @NotNull String                  argDestinationPath,     @NotNull String argSearchPath
                 ,          String                  argVerbosity) throws IOException, UserRequestedTermination {
     
@@ -237,13 +237,13 @@ public class RenameWithLinks {
    * @param searchFolder            The folder under which, <b>after</b> {@link #renameFileOrFolder performing} the
    *                                rename / move, the existing shortcuts must be possibly have their targets updated.
    *
-   * @param shortcutsProcessor      The {@link IShortcutsTargetUpdater shortcuts processor} to use to perform the updates of
+   * @param shortcutsProcessor      The {@link IShortcutsUpdater shortcuts processor} to use to perform the updates of
    *                                the shortcuts' targets that need it.
    */
   void execute(@NotNull File                    originalFileOrFolder
              , @NotNull File                    destinationFileOrFolder
              , @NotNull File                    searchFolder
-             , @NotNull IShortcutsTargetUpdater shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
+             , @NotNull IShortcutsUpdater shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
     
     assertNoneNull(destinationFileOrFolder, shortcutsTargetUpdater);
     
