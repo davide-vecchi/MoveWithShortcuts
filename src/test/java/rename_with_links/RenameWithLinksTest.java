@@ -5,7 +5,7 @@ package rename_with_links;
 
 import application.AAppContext;
 import dfile.file.FileUtilities;
-import dfile.shortcut.IShortcutTargetUpdater;
+import dfile.shortcut.IShortcutUpdater;
 import dfile.shortcut.IShortcutsUpdater;
 import dfile.shortcut.WinShortcutUpdater_DeepSeek_NoLibs01;
 import dfile.shortcut.WinShortcutUpdater_PS_WSH01;
@@ -110,7 +110,7 @@ public class RenameWithLinksTest {
     
     new Function<>() {
       
-      private final @NotNull IShortcutTargetUpdater objThatCanReadShortcuts = WinShortcutUpdater_PS_WSH01.newInstance(
+      private final @NotNull IShortcutUpdater objThatCanReadShortcuts = WinShortcutUpdater_PS_WSH01.newInstance(
                                                          false, RenameWithLinksTest.this.devLog);
       @Override
       public @NotNull TwoObjects<@NotNull String, @NotNull String> apply(@NotNull File file) {
@@ -979,11 +979,11 @@ public class RenameWithLinksTest {
    *
    * @param shortcut                   The shortcut {@link File#isFile() file} to assert on.<br>
    *
-   * @param expectedTarget             The {@link IShortcutTargetUpdater#readTarget target} that the given {@code
+   * @param expectedTarget             The {@link IShortcutUpdater#readTarget target} that the given {@code
    *                                   shortcut} must have for the assertion to not fail. Its {@link Path#toAbsolutePath()
    *                                   absolute form} will be used.<br>
    *
-   * @param expectedWorkingDir         String representing the {@link IShortcutTargetUpdater#readWorkingDir working
+   * @param expectedWorkingDir         String representing the {@link IShortcutUpdater#readWorkingDir working
    *                                   directory} that the given {@code shortcut} must have for the assertion not to
    *                                   fail. May be {@link StringUtils#EMPTY empty}.<br>
    *
@@ -1122,7 +1122,7 @@ public class RenameWithLinksTest {
    * WinShortcutUpdater_mslinks} are deprecated because they don't work in certain situations, so the tests that would
    * fail because of that must avoid to test them, and they avoid that by using this method.
    *
-   * @param unwantedClass The class of the {@link IShortcutTargetUpdater} that, if used by the {@link #updatersToTest}
+   * @param unwantedClass The class of the {@link IShortcutUpdater} that, if used by the {@link #updatersToTest}
    *                        that are instances of {@link WinShortcutsUpdater_OneByOne}, causes those updaters to be
    *                        removed from {@link #updatersToTest}.
    *
@@ -1130,7 +1130,7 @@ public class RenameWithLinksTest {
    */
   @SuppressWarnings("deprecation")
   private int remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(
-                                                         @NotNull Class<? extends IShortcutTargetUpdater> unwantedClass) {
+                                                         @NotNull Class<? extends IShortcutUpdater> unwantedClass) {
     
     Assert.assertNotNull(unwantedClass, "unwantedClass");
     
