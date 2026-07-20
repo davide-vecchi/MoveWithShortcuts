@@ -1,3 +1,13 @@
+H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\tmpTestExecute01\sub1\sub2-to-move
+
+H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\tmpTestExecute01\sub1\sub2a-to-stay
+H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\tmpTestExecute01\sub1\sub2a-to-stay\PointedToAndToStay.txt
+
+H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\tmpTestExecute01\sub1\sub2-to-move\sub3-with-file
+H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\src\test\resources\tmpTestExecute01\sub1\sub2-to-move\sub3-with-file\PointedToAndToMove.txt
+
+
+
 Files.createTempFile(Path.of(this.tempDir.toString(), S(System.currentTimeMillis()))
 
 
