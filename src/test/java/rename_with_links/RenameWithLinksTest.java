@@ -62,6 +62,7 @@ import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.assertNonBlankUnlessEmpty;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
+import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -123,7 +124,9 @@ public class RenameWithLinksTest {
   
   @BeforeClass
   void beforeClass() throws IOException {
-
+    
+    setSystemEncodingUTF8();
+    
     this.tempDir = Files.createTempDirectory(RenameWithLinksTest.class.getSimpleName() + "_");
     
     this.nextTempDirCounter = ZERO_i;
