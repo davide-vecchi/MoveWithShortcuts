@@ -32,6 +32,7 @@ import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
+import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.fusesource.jansi.Ansi.Color.BLACK;
@@ -69,7 +70,7 @@ public class RenameWithLinksMain {
    */
   public static void main(String[] originalArgs) throws Exception {
     
-    System.setProperty("file.encoding", CHARSET_UTF_8.name());
+    setSystemEncodingUTF8();
     
     // If 3 args were given, the 4th (the verbosity) must be the default (the max), so add it as if it had been given :
     
