@@ -4,3 +4,5 @@
 *.bak
 *.LOG
 /src/test/resources/tmpTestExecute/
+/*.lnk
+/ToDo/**/*.lnk
