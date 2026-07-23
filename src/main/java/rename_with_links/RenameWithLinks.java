@@ -71,7 +71,7 @@ import static org.apache.commons.lang3.StringUtils.removeStart;
 
 /**
  * Renames and / or moves files and folders and updates all the shortcuts that were pointing to them, so that the
- * shortcuts point to the moved location instead of becoming broken.
+ * shortcuts' target and working directory point to the moved location instead of becoming broken.
  */
 @Getter
 @ToString
