@@ -38,20 +38,40 @@ mvn clean install
 
 , Maven will download the required `DJavaLibraries` dependencies from GitHub Packages using your token.
 
+## Build and deployment
 
-## Requires
-- At least Java 21.
-- TestNG to run the tests.
-- See dependencies in pom.xml .
+  Building with Maven (e.g. `mvn clean install`) produces an Uber jar which is executable and contains all the needed
+  dependencies. No other files are needed to run the program.  
+  
+  This jar is created in the project's root folder and is called `RenameWithLinks-<VERSION>-jar-with-dependencies.jar`
+  (e.g. `RenameWithLinks-2.1.0-jar-with-dependencies.jar`). It's recommended to rename it to `RenameWithLinks.jar` and
+  to move it to a `C:\RenameWithLinks\` folder (but it's not required).  
+  
+  The jar can be executed normally with e.g. `java -jar RenameWithLinks.jar`, but the recommended way is to use the
+  script `RenameWithLinks.BAT` which in turn calls the PowerShell script `RenameWithLinks.ps1` which starts the program
+  in Windows Terminal, which is the recommended environment because it provides the best Unicode support.
+  Running the program in PowerShell or Command Prompt outside of Windows Terminal may result in poor handling of certain
+  Unicode characters.
+  
+  The content of those 2 scripts must be adjusted if the jar has not been renamed to `RenameWithLinks.jar` or has not
+  been deployed to a `C:\RenameWithLinks\` folder.
 
-### INDENTATION
+## Indentation of Java code
 
 The indentation of the Java code is tuned to IntelliJ and it works if the inlay hints are shown, with the setting "Use
 editor font for inlay hints" true (Settings / Editor / General / Appearance) and the editor font "JetBrains Mono" size
 13.0 (Settings / Editor / Font).
 
+## Requires
+
+- At least Java 21.
+- TestNG to run the tests.
+- See dependencies in pom.xml .
+
 ## Project Status
+
 - Active and in use.
 
 ## Contacts
+
 - ciustea@lorettastan.eu
