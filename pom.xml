@@ -18,13 +18,13 @@
 	<dependencies>
 		
         <!-- Beginning of DJavaLibraries -->
-
+		
         <dependency>
             <groupId>djavalibraries</groupId>
             <artifactId>dapplication</artifactId>
             <version>2.1.0</version>
         </dependency>
-
+		
         <dependency>
             <groupId>djavalibraries</groupId>
             <artifactId>dutil</artifactId>
@@ -42,7 +42,7 @@
 			<artifactId>dlog</artifactId>
 			<version>2.1.0</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>djavalibraries</groupId>
 			<artifactId>duserinputoutput</artifactId>
@@ -64,7 +64,7 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.20.0</version>
 		</dependency>
-
+		
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-io -->
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -95,7 +95,7 @@
 			<version>2.0.17</version>
 			<scope>compile</scope>
 		</dependency>
-	
+		
 		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-testng -->
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -103,7 +103,7 @@
 			<version>0.5.4</version>
 			<scope>test</scope>
 		</dependency>
-
+		
 		<!-- Override Byte Buddy to a version supporting Java 21 (transitive from mockito-core) -->
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
@@ -117,7 +117,7 @@
 			<version>1.14.18</version>
 			<scope>test</scope>
 		</dependency>
-
+		
 	</dependencies>
 	
 	<build>
@@ -150,7 +150,7 @@
 							</descriptorRefs>
 						</configuration>
 					</execution>
-				
+					
 				</executions>
 			
 			</plugin>
