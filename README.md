@@ -7,7 +7,7 @@ the new location instead of becoming broken.
 
 To build this Maven project, you need several custom dependencies (`DJavaLibraries`), which will be downloaded during the build
 if you have a GitHub Personal Access Token (PAT) with `read:packages` scope configured in your `~/.m2/settings.xml`;
-if you don't already have one, you can create one following these 2 steps :
+if you don't already have that, you can do that following these 2 steps :
 
 1. Create a token at: https://github.com/settings/tokens
    <br><br>
