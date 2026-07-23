@@ -1,13 +1,15 @@
 
 ## Commits
 
+If you want to contribute, you can follow these commit conventions but that's not required, you are welcome not to.
+
 - `<type>` is required and must be one of the types listed below.
 - `<scope>` is optional and should describe the part of the codebase affected (e.g., `core`, `api`, `config`, `ui`, `logging`).
 - `<subject>` is a short, imperative description of the change (e.g., "Add validation for user input", "Fix null pointer in parser").
 
 ### Valid Types
 
-| Type        | Description (from Techor specification with my variations)                                                                                             |
+| Type        | Description (from Techor specification with variations)                                                                                                |
 |-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `feat`      | Introducing a new feature.                                                                                                                             |
 | `fix`       | Patching a bug.                                                                                                                                        |
@@ -32,7 +34,7 @@
 | `build`     | Changes to build system. F.ex. modifying dependencies (scope: “dependencies").                                                                         |
 | `bump`      | For manually triggering a version bump (bump(patch), bump(minor), bump(major)).                                                                        |
 
-### Known Scopes (mine)
+### Known Scopes (open set, more may be added)
 
 | Scope                | Description                                                                            |
 |----------------------|----------------------------------------------------------------------------------------|
