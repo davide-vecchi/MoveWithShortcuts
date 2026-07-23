@@ -40,22 +40,25 @@ mvn clean install
 
 ## Build and deployment
 
-  Building with Maven (e.g. `mvn clean install`) produces an Uber jar which is executable and contains all the needed
-  dependencies. No other files are needed to run the program.  
+- Building with Maven (e.g. `mvn clean install`) produces an Uber jar which is executable and contains all the needed
+  dependencies. No other files are needed to run the program.<br><br>
   
   This jar is created in the project's root folder and is called `RenameWithLinks-<VERSION>-jar-with-dependencies.jar`
   (e.g. `RenameWithLinks-2.1.0-jar-with-dependencies.jar`). It's recommended to rename it to `RenameWithLinks.jar` and
-  to move it to a `C:\RenameWithLinks\` folder (but it's not required).  
+  to move it to a `C:\RenameWithLinks\` folder (but it's not required).<br><br>
   
   The jar can be executed normally with e.g. `java -jar RenameWithLinks.jar`, but the recommended way is to use the
   script `RenameWithLinks.BAT` which in turn calls the PowerShell script `RenameWithLinks.ps1` which starts the program
   in Windows Terminal, which is the recommended environment because it provides the best Unicode support.
   Running the program in PowerShell or Command Prompt outside of Windows Terminal may result in poor handling of certain
-  Unicode characters.
+  Unicode characters.<br><br>
   
   The content of those 2 scripts must be adjusted if the jar has not been renamed to `RenameWithLinks.jar` or has not
-  been deployed to a `C:\RenameWithLinks\` folder.
-
+  been deployed to a `C:\RenameWithLinks\` folder.<br><br>
+  
+- The files `Build List RenameWithLinks *.TXT` found in the root folder are _Build List_ files used by another program,
+  _BuildOrchestrator_, which is currently not published. So these files can currently be ignored.
+  
 ## Indentation of Java code
 
 The indentation of the Java code is tuned to IntelliJ and it works if the inlay hints are shown, with the setting "Use
