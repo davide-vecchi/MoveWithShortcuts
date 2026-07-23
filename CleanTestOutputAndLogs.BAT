@@ -6,8 +6,6 @@ CHCP 65001 >NUL
 
 @ECHO ON
 
-CD /D "H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks\"
-
 DEL /S /Q "*.LOG"
 
 DEL /S /Q "*.TMP"
