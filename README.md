@@ -1,13 +1,13 @@
 # RenameWithLinks
-Java program for Windows only, that renames and / or moves files and folders and updates all the shortcuts (`.lnk
-` files) that were pointing to the moved elements, so that the shortcuts' target and working directory point to
-the new location instead of becoming broken.
+Java program, currently for Windows only, that renames and / or moves files and folders and updates all the shortcuts
+(`.lnk` files) that were pointing to the moved elements, so that the shortcuts' target and working directory point to
+the updated location instead of becoming broken.
 
 ## Prerequisites
 
-To build this Maven project, you need several custom dependencies (`DJavaLibraries`), which will be downloaded during the build
-if you have a GitHub Personal Access Token (PAT) with at least `read:packages` scope configured in your `~/.m2/settings.xml`;
-if you don't already have that, you can do that following these 2 steps :
+To build this Maven project, you need several custom dependencies (`DJavaLibraries`), which will be downloaded during
+the build if you have a GitHub Personal Access Token (PAT) with at least `read:packages` scope configured in your
+`~/.m2/settings.xml`; if you don't already have that, you can follow these 2 steps :
 
 1. Create a token at: https://github.com/settings/tokens
    <br><br>
