@@ -1,7 +1,31 @@
 # RenameWithLinks
-Java program, currently for Windows only, that renames and / or moves files and folders and updates all the shortcuts
-(`.lnk` files) that were pointing to the moved elements, so that the shortcuts' target and working directory point to
-the updated location instead of becoming broken.
+Java program, currently for Windows only, that possibly renames and/or moves a file or folder, and updates the Windows
+shortcuts (`.lnk` files) so that their target and working directory (the "Start in" field) point to the updated location,
+instead of the shortcut becoming broken.
+
+In detail :
+
+1. Optionally renames and/or moves a file or folder.<br><br>
+
+   - If the given source path exists and the given destination path does not, the source will be moved to the
+     destination.<br><br>
+     
+   - If the given source path does not exist and the given destination path exists, the moving / renaming from the
+     source to the destination will be considered as having already happened outside of the program.<br><br>
+
+2. Updates all the shortcuts found under a given search path if their target and/or working directory are pointing to
+   the moved element, so that they point to the updated location instead of becoming broken.
+
+
+## Usage
+
+The program can be started without arguments, in which case it will prompt on the consone for the 4 needed values.<br><br>
+
+In alternative, it can be started with 3 or 4 arguments :<br>
+
+1. Source
+2. 
+
 
 ## Prerequisites
 
@@ -12,8 +36,7 @@ the build if you have a GitHub Personal Access Token (PAT) with at least `read:p
 1. Create a token at: https://github.com/settings/tokens
    <br><br>
     - Select `read:packages` scope.<br><br>
-    - Copy the token value.
-
+    - Copy the token value.<br><br>
 
 2. Add the token to your Maven `settings.xml` file (located at `~/.m2/settings.xml`) :
 
