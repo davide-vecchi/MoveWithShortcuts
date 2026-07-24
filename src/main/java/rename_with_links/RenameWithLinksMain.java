@@ -17,7 +17,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 import static application.AAppContext.MAX_VERBOSITY;
-import static dfile.file.FileUtilities.calcPath;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dlog.log.Log.writeLogsHeaders;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
@@ -62,6 +61,11 @@ public class RenameWithLinksMain {
    */
   public static final String APP_DESCR = APP_NAME + " - Renames / moves a file or folder and updates all " + WIN_SHORTCUT_EXTENSION + " shortcuts that point to it.";
   
+  /**
+   * The DEFAULT value for the {@link AAppContext#currentVerbosity verbosity} level if not specified.
+   */
+  public static final int DEFAULT_VERBOSITY = ONE_i;
+  
   
   /**
    * Entry point of the RenameWithLinks program.
@@ -72,13 +76,13 @@ public class RenameWithLinksMain {
     
     setSystemEncodingUTF8();
     
-    // If 3 args were given, the 4th (the verbosity) must be the default (the max), so add it as if it had been given :
+    // If 3 args were given, the 4th (the verbosity) must be the default, so add it as if it had been given :
     
     String[] args = originalArgs;
     
     if (args.length == 3) {
       
-      args = new String[] {args[ZERO_i], args[ONE_i], args[TWO_i], S(MAX_VERBOSITY)};
+      args = new String[] {args[ZERO_i], args[ONE_i], args[TWO_i], S(DEFAULT_VERBOSITY)};
     }
     // Start the execution :
     
@@ -111,7 +115,7 @@ public class RenameWithLinksMain {
         try {
           
           ac.currentVerbosity = resolveVerbosity(args.length >= 4 ? args[3] : null
-                                               , MAX_VERBOSITY, ONE_i);
+                                               , MAX_VERBOSITY, DEFAULT_VERBOSITY);
           
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
@@ -123,9 +127,7 @@ public class RenameWithLinksMain {
 //                                                            WinShortcutsUpdater_PSScriptsMulti.newInstance(ac);
           
           final IShortcutsUpdater shortcutsTargetUpdater =
-            WinShortcutsUpdater_PSScriptsMulti.newInstance(
-                                  calcPath("H:/Users/Davide/Davide/_TRASH/WinShortcutsUpdater_PSScriptsMulti")
-                                             , ac);
+                             WinShortcutsUpdater_PSScriptsMulti.newInstance(null, ac);
           
 //          final IShortcutsUpdater shortcutsTargetUpdater = WinShortcutsUpdater_OneByOne.newInstance(
 //                  WinShortcutUpdater_PS_WSH01.newInstance(false, ac.devLog)
@@ -189,8 +191,8 @@ public class RenameWithLinksMain {
    *
    * @param args                   The command line arguments with which this execution has been started.
    */
-  private static void showStartupMessages(@NotNull AAppContext ac, @NotNull IShortcutsUpdater shortcutsTargetUpdater
-                                        , @NotNull String[] args) {
+  private static void showStartupMessages(@NotNull AAppContext ac,  @NotNull IShortcutsUpdater shortcutsTargetUpdater
+                                        , @NotNull String[]    args) {
   
     ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date());
     
@@ -211,23 +213,28 @@ public class RenameWithLinksMain {
     
     ac.outUser(ONE_i, NL);
   }
-
+  
+  /**
+   * Displays a description of the launch arguments.
+   */
   private static void showUsage() {
 
     System.out.println();
-
+    
     System.out.println(APP_DESCR);
-
+    
     System.out.println();
-
-    System.out.println("Usage: RenameWithLinksMain [<originalPath> <destinationPath> <searchPath>]");
-
+    
+    System.out.println("Usage: RenameWithLinksMain [ <originalPath> <destinationPath> <searchPath> [verbosity] ]");
+    
     System.out.println();
-
+    
     System.out.println("  When no arguments are provided, the program prompts interactively.");
-
-    System.out.println("  When 3 arguments are provided, they are used as the paths (no prompts).");
-
+    
+    System.out.println("  When 3 arguments are provided, they are used as the paths and the verbosity level (0-" + MAX_VERBOSITY + ") defaults to " + DEFAULT_VERBOSITY + " (no prompts).");
+    
+    System.out.println("  When 4 arguments are provided, the first 3 are used as the paths and the last one is the verbosity level (0-" + MAX_VERBOSITY + ") (no prompts).");
+    
     System.out.println("  Any other number of arguments prints this message.");
   }
   
