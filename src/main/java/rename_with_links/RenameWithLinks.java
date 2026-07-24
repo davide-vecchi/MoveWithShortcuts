@@ -427,7 +427,7 @@ public class RenameWithLinks {
    *
    * @throws MissingExternalValueException If the path entered by the user does not exist.
    */
-  private @NotNull File askOriginalPath() throws UserRequestedTermination, IOException {
+  private @NotNull File askOriginalPath() throws UserRequestedTermination {
 
     final String existingPath = this.appContext.userIO.in(
                                                   "Enter the path of the file or folder to rename / move, either absolute"
@@ -458,7 +458,7 @@ public class RenameWithLinks {
    * @throws InvalidPathException If the specified destination is a folder but the given {@code original} is a file, or
    *                              viceversa.
    */
-  private @NotNull File askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination, IOException {
+  private @NotNull File askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination {
 
     final String newName = this.appContext.userIO.in(
                                       "Enter the new name for the file or folder (may include a path), or type "
