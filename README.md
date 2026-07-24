@@ -7,11 +7,11 @@ In detail :
 
 1. Optionally renames and/or moves a file or folder.<br><br>
 
-   - If the given source path exists and the given destination path does not, the source will be moved to the
+   - If the given original path exists and the given destination path does not, the original will be moved to the
      destination.<br><br>
      
-   - If the given source path does not exist and the given destination path exists, the moving / renaming from the
-     source to the destination will be considered as having already happened outside of the program.<br><br>
+   - If the given original path does not exist and the given destination path exists, the moving / renaming from the
+     original to the destination will be considered as having already happened outside of the program.<br><br>
 
 2. Updates all the shortcuts found under a given search path if their target and/or working directory are pointing to
    the moved element, so that they point to the updated location instead of becoming broken.
@@ -19,13 +19,23 @@ In detail :
 
 ## Usage
 
-The program can be started without arguments, in which case it will prompt on the consone for the 4 needed values.<br><br>
+The program can be started without arguments, in which case it will prompt on the consone for the 4 needed values.<br>
 
 In alternative, it can be started with 3 or 4 arguments :<br>
 
-1. Source
-2. 
+1. Original : The path to the file or folder to rename / move or that has already been renamed / moved.<br><br>
 
+2. Destination : The path to the file or folder to which the given original is requested to be renamed / moved or
+   already was. Must be of the same type (that is, file or folder) as the given original.<br><br>
+   
+   May include a different path, which means the original is requested to be moved there rather than just renamed.<br><br>
+
+3. Search path : The path inside which to search for the shortcut files to possibly update. If the renaming / moving
+   resulted in changes to the filesystem structure (f.ex. because the destination path did not exist so it has been
+   created), this value obviously refers to the filesystem as it is after the renaming / moving, not before it.<br><br>
+
+4. (Optional) Verbosity level, from 0 to 3. A value of 0 means that only possible error or warning messages will be
+   shown.
 
 ## Prerequisites
 
