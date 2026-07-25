@@ -28,7 +28,8 @@ In alternative, it can be started with 3 or 4 arguments :<br>
 2. Destination : The path to the file or folder to which the given original is requested to be renamed / moved or
    already was. Must be of the same type (that is, file or folder) as the given original.<br><br>
    
-   May include a different path, which means the original is requested to be moved there rather than just renamed.<br><br>
+   May include a different path, which means the original is requested to be - or it already has been - moved there
+   rather than just renamed.<br><br>
 
 3. Search path : The path inside which to search for the shortcut files to possibly update. If the renaming / moving
    resulted in changes to the filesystem structure (f.ex. because the destination path did not exist so it has been
