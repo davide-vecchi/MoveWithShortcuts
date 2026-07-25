@@ -200,8 +200,8 @@ public class RenameWithLinks {
    *                                         originalPath}.
    */
   public void run(@NotNull IShortcutsUpdater shortcutsTargetUpdater, @NotNull String argOriginalPath
-                , @NotNull String                  argDestinationPath,     @NotNull String argSearchPath
-                ,          String                  argVerbosity) throws IOException, UserRequestedTermination {
+                , @NotNull String            argDestinationPath,     @NotNull String argSearchPath
+                ,          String            argVerbosity) throws IOException, UserRequestedTermination {
     
     assertWindowsOS();
     
@@ -244,6 +244,7 @@ public class RenameWithLinks {
              , @NotNull File                    destinationFileOrFolder
              , @NotNull File                    searchFolder
              , @NotNull IShortcutsUpdater shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
+  void execute(@NotNull File                      originalFileOrFolder
     
     assertNoneNull(destinationFileOrFolder, shortcutsTargetUpdater);
     
@@ -289,7 +290,7 @@ public class RenameWithLinks {
                                                                           , destinationFileOrFolder);
         if (outcome.userInterrupted()) {
           
-          throw new UserRequestedTermination("Program terminated upon user's request during shortcuts targets update.");
+          throw new UserRequestedTermination("Program terminated upon user's request during shortcuts update.");
         }
         this.numProcessedShortcuts = outcome.numProcessedShortcuts();
         
@@ -353,17 +354,17 @@ public class RenameWithLinks {
   private static @NotNull File resolveDestinationFileOrFolder(@NotBlank String argDestinationPath
                                                             , @NotNull  File   original) {
     final String effectiveNewName;
-
+    
     if (hasPath(assertNonBlankNorTrimmable(argDestinationPath))) {
-
+      
       effectiveNewName = argDestinationPath;
     }
     else {
-
+      
       final File parent = original.getAbsoluteFile().getParentFile();
-
+      
       if (parent == null) {
-
+        
         throw new InvalidExternalValueException("Cannot determine parent folder of " + dq(getCanonicalPath(original)) + ".");
       }
       effectiveNewName = new File(parent, argDestinationPath).getPath();
