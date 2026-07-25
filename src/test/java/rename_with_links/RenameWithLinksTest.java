@@ -774,7 +774,7 @@ public class RenameWithLinksTest {
                                                                 , "sub2a-to-stay"));
       
       final Path subBToReceiveMoved = Files.createDirectories(Path.of(testExecute01.toString()
-                                                          , "subA", "subB-to-receive-moved"));
+                                                                        , "subA", "subB-to-receive-moved"));
       // 2 : Create 2 files as follows :
       //
       //   1 : In "sub3-with-file" folder create file "PointedToAndToMove.txt".
@@ -942,7 +942,7 @@ public class RenameWithLinksTest {
       //         path of "testExecute01\subA\subBToReceiveMoved\sub2-moved\sub3-with-file\" :
       
       assertShortcutToPathExists(shortcutTo_sub3WithFile
-                ,Path.of(sub3WithFile_Moved), EMPTY
+                 ,Path.of(sub3WithFile_Moved), EMPTY
       , amp(u) + "Step 8.3a"
       ,amp(u) + "Step 8.3b");
       
