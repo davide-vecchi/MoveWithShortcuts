@@ -34,7 +34,7 @@ import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.assertExistingPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCurrentFolder;
-import static dfile.file.FileUtilities.hasPath;
+import static dfile.file.FileUtilities.hasParentInfo;
 import static dfile.file.FileUtilities.newValidatedFile;
 import static dfile.file.FileUtilities.newValidatedFileOrFolder;
 import static dfile.file.FileUtilities.newValidatedFolder;
@@ -409,7 +409,7 @@ public class RenameWithLinks {
                                                                                    , @NotNull  File   original) {
     final String effectiveNewName;
     
-    if (hasPath(assertNonBlankNorTrimmable(argDestinationPath))) {
+    if (hasParentInfo(assertNonBlankNorTrimmable(argDestinationPath))) {
       
       effectiveNewName = argDestinationPath;
     }
@@ -551,7 +551,7 @@ public class RenameWithLinks {
     }
     final String effectiveNewName;
     
-    if (hasPath(newName)) {
+    if (hasParentInfo(newName)) {
       
       // : The specified destination represents a file or folder with path info.
       
