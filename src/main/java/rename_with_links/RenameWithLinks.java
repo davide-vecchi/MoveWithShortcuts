@@ -245,6 +245,8 @@ public class RenameWithLinks {
              , @NotNull File                    searchFolder
              , @NotNull IShortcutsUpdater shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
   void execute(@NotNull File                      originalFileOrFolder
+  void execute(@NotNull File                      originalFileOrFolder
+             , @NotNull IShortcutsUpdater         shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
     
     assertNoneNull(destinationFileOrFolder, shortcutsTargetUpdater);
     
