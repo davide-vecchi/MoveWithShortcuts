@@ -179,14 +179,14 @@ public class RenameWithLinks {
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
    * @param shortcutsTargetUpdater The {@link IShortcutsUpdater object} to {@link IShortcutsUpdater#updateShortcuts(List, File, File)}
-   *                               update} the target of shortcuts.
+   *                               update} the target and working directories of shortcuts.
    *
    * @param argOriginalPath       The argument given for the path of the file or folder to rename / move.<br>
    *
    * @param argDestinationPath    The argument given for the new name/path for the file or folder (may include a path
    *                              → move).<br>
    *
-   * @param argSearchPath         The argument given for the path to scan for {@code .lnk} shortcuts to update.
+   * @param argSearchPath         The argument given for the path to scan for shortcuts to possibly update.
    *
    * @param argVerbosity          The argument given for the verbosity level. May be {@code null}, defaults to 0 .
    *
@@ -219,7 +219,7 @@ public class RenameWithLinks {
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
       
-      // Perform the renaming / moving and the corresponding shortcuts updating :
+      // Possibly perform the renaming / moving, and do the corresponding shortcuts updating :
       
       execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater);
     }
@@ -235,7 +235,7 @@ public class RenameWithLinks {
    * @param destinationFileOrFolder The new file path / name to which to rename / move the {@code originalFileOrFolder}.<br>
    *
    * @param searchFolder            The folder under which, <b>after</b> {@link #renameFileOrFolder performing} the
-   *                                rename / move, the existing shortcuts must be possibly have their targets updated.
+   *                                rename / move, the existing shortcuts must be possibly have their targets updated.<br>
    *
    * @param shortcutsProcessor      The {@link IShortcutsUpdater shortcuts processor} to use to perform the updates of
    *                                the shortcuts' targets that need it.
@@ -334,9 +334,10 @@ public class RenameWithLinks {
   }
   
   /**
-   * TODO @@@@@@ COMMENT
-   * @param argPath
-   * @return
+   * @param argOriginalPath The candidate path for the file / folder to possibly rename / move.
+   *
+   * @return A new {@link File} instance created from the given file / folder path, which must be valid and doesn't need
+   *         to exist.
    */
   private static @NotNull File resolveOriginalPath(@NotBlank String argPath) {
 
@@ -380,14 +381,13 @@ public class RenameWithLinks {
   }
   
   /**
-   * TODO @@@@@@ COMMENT
+   * @param argSearchPath The path where to search for the shortcuts to possibly update.
    *
-   * @param argSearchPath
-   * @return
+   * @return A new {@link File} instance created from the given file / folder path, which must exist.
    */
   private static @NotNull File resolveSearchDirectory(@NotBlank String argSearchPath) {
-
-    return newValidatedFolder(argSearchPath, true, FALSE);// new File(assertExistingPath(argSearchPath, TRUE)).getCanonicalFile();
+    
+    return newValidatedFolder(argSearchPath, true, FALSE);
   }
   
   /**
@@ -494,7 +494,7 @@ public class RenameWithLinks {
       
       throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
     }
-    return resolveDestinationFileOrFolder(effectiveNewName, original);// new File(assertValidPath(effectiveNewName, B(original.isDirectory())));
+    return resolveDestinationFileOrFolder(effectiveNewName, original);
   }
 
   /**
