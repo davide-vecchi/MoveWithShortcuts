@@ -61,6 +61,7 @@ import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
+import static dutil.string.TextUtilities.getStringsOp;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
 import static java.lang.Boolean.FALSE;
@@ -68,6 +69,7 @@ import static java.lang.Boolean.TRUE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 
 // @formatter:off
@@ -355,10 +357,16 @@ public class RenameWithLinks {
     
     destinationFileOrFolder.assertNeitherNull();
     
+    final boolean isRenameOnly = getStringsOp(IS_OS_WINDOWS)
+                                    .equals(getCanonicalPath(originalFileOrFolder.      getParentFile())
+                                          , getCanonicalPath(destinationFileOrFolder.o1.getParentFile()));
+    
     final String msgDoRenameMove = destinationFileOrFolder.o2.booleanValue() ?
-                                   "renaming / moving " + (originalFileOrFolder.isFile() ? "file" : "folder") + NL2T
-                                   + dq(            originalFileOrFolder.getPath()) + NL2T + "to"      + NL2T
-                                   + dq(            destinationFileOrFolder.o1.getPath())              + NL2T
+                                   (isRenameOnly ? "renaming " : "renaming / moving ")
+                                               + (         originalFileOrFolder.isFile() ? "file" : "folder")     + NL2T
+                                               + dq(originalFileOrFolder.getPath()) + NL2T + "to"          + NL2T
+                                               + dq((isRenameOnly ? destinationFileOrFolder.o1.getName()
+                                                                         : destinationFileOrFolder.o1.getPath())) + NL2T
                                    + "and "                                  : EMPTY;
     
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm " + msgDoRenameMove
@@ -631,7 +639,7 @@ public class RenameWithLinks {
     
     final String searchFolderPath = getCanonicalPath(searchFolder);
     
-    this.appContext.outUser(ONE_i, NL   + "Retrieving shortcuts to check for needed target update, under folder"
+    this.appContext.outUser(ONE_i, NL   + "Retrieving shortcuts to check for needed update, under folder"
                                                    + NL2T + dq(searchFolderPath) + " ...");
     
     final List<File> shortcuts = FileUtilities.listFiles(
