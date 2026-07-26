@@ -6,7 +6,7 @@ CHCP 65001 >NUL
 REM Start Windows Terminal around a PowerShell instance.
 REM If pwsh.exe (PowerShell 7) is not available on the target system,
 REM replace "pwsh" with "powershell". In alternative the program can
-REM also be executed with the normal "java -jar RenameWithLinks.jar"
+REM also be executed with the normal "java -jar MoveWithShortcuts.jar"
 REM but the best Unicode support is provided by Windows Terminal.
 
-wt pwsh -NoExit -File "C:\RenameWithLinks\RenameWithLinks.ps1"
+wt pwsh -NoExit -File "C:\MoveWithShortcuts\MoveWithShortcuts.ps1"

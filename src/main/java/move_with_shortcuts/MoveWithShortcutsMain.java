@@ -1,7 +1,7 @@
 /**
  * Created by Davide on 2026-05-08 .
  */
-package rename_with_links;
+package move_with_shortcuts;
 
 
 import application.AAppContext;
@@ -33,33 +33,33 @@ import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static java.util.Arrays.asList;
+import static move_with_shortcuts.MoveWithShortcuts.resolveVerbosity;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.fusesource.jansi.Ansi.Color.BLACK;
 import static org.fusesource.jansi.Ansi.Color.CYAN;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.Color.YELLOW;
-import static rename_with_links.RenameWithLinks.resolveVerbosity;
 
 
 // @formatter:off
 
 
 /**
- * The startup class of the {@code RenameWithLinks} application.
+ * The startup class of the {@code MoveWithShortcuts} application.
  */
 @SuppressWarnings("PublicConstructor")
-public class RenameWithLinksMain {
+public class MoveWithShortcutsMain {
 
 
   /**
    * The name of this program. Short name, no description (see #APP_DESCR).
    */
-  public static final String APP_NAME = "Rename With Links";
+  public static final String APP_NAME = "Move With Shortcuts";
   
   /**
    * The description of this program. Description, not a Short name (see #APP_NAME).
    */
-  public static final String APP_DESCR = APP_NAME + " - Renames / moves a file or folder and updates all " + WIN_SHORTCUT_EXTENSION + " shortcuts that point to it.";
+  public static final String APP_DESCR = APP_NAME + " - Renames / moves a file or folder and updates all " + WIN_SHORTCUT_EXTENSION + " shortcuts accordingly.";
   
   /**
    * The DEFAULT value for the {@link AAppContext#currentVerbosity verbosity} level if not specified.
@@ -68,7 +68,7 @@ public class RenameWithLinksMain {
   
   
   /**
-   * Entry point of the RenameWithLinks program.
+   * Entry point of the MoveWithShortcuts program.
    *
    * @param originalArgs The command line args.
    */
@@ -110,7 +110,7 @@ public class RenameWithLinksMain {
                                                                         , screenLog,          userLog,            devLog))
       {
         
-        final RenameWithLinks app = RenameWithLinks.newInstance(ac);
+        final MoveWithShortcuts app = MoveWithShortcuts.newInstance(ac);
         
         try {
           
@@ -225,7 +225,7 @@ public class RenameWithLinksMain {
     
     System.out.println();
     
-    System.out.println("Usage: RenameWithLinksMain [ <originalPath> <destinationPath> <searchPath> [verbosity] ]");
+    System.out.println("Usage: MoveWithShortcutsMain [ <originalPath> <destinationPath> <searchPath> [verbosity] ]");
     
     System.out.println();
     

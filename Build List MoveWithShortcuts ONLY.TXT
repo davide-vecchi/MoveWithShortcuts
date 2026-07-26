@@ -1,26 +1,28 @@
 
-# RenameWithLinks artifact Build List.
-# (REPOS subfolder : "FileTools\RenameWithLinks\").
+# MoveWithShortcuts artifact Build List.
+# (REPOS subfolder : "FileTools\MoveWithShortcuts\").
 
 
 [Initialization]
 
 # For Windows :
 
-pwsh -Command "Copy-Item C:\RenameWithLinks\RenameWithLinks.jar ('C:\RenameWithLinks\RenameWithLinks-' + (Get-Date -Format 'yyyy-MM-dd_HH-mm-ss') + '.jar')"
+pwsh -Command "Copy-Item C:\MoveWithShortcuts\MoveWithShortcuts.jar ('C:\MoveWithShortcuts\MoveWithShortcuts-' + (Get-Date -Format 'yyyy-MM-dd_HH-mm-ss') + '.jar')"
 
-cmd.exe /c DIR C:\RenameWithLinks\RenameWithLinks*.jar /O-D
+cmd.exe /c DIR C:\MoveWithShortcuts\MoveWithShortcuts*.jar /O-D
 
 # cmd.exe /c IF EXIST "C:\Users\Davide\.m2\repository\djavalibraries" (RMDIR /S /Q "C:\Users\Davide\.m2\repository\djavalibraries")
 # cmd.exe /c IF EXIST "C:\Users\Davide\.m2\repository\javalibraries3rdparty\threadsafenumberformat" (RMDIR /S /Q "C:\Users\Davide\.m2\repository\javalibraries3rdparty\threadsafenumberformat")
 
 # For Unix :
 
-# cp /home/user/RenameWithLinks/RenameWithLinks.jar /home/user/RenameWithLinks/CopyFile-$(date +'%Y-%m-%d_%H-%M-%S').jar
-# /bin/sh -c "ls -t /home/user/RenameWithLinks/RenameWithLinks*.jar"
+# cp /home/user/MoveWithShortcuts/MoveWithShortcuts.jar /home/user/MoveWithShortcuts/CopyFile-$(date +'%Y-%m-%d_%H-%M-%S').jar
+# /bin/sh -c "ls -t /home/user/MoveWithShortcuts/MoveWithShortcuts*.jar"
 
 # /bin/sh -c 'rm -rf "/home/davide/.m2/repository/djavalibraries"'
 # /bin/sh -c 'rm -rf "/home/davide/.m2/repository/javalibraries3rdparty/threadsafenumberformat"'
+
+
 
 
 [Options]
@@ -51,8 +53,8 @@ cmd.exe /c DIR C:\RenameWithLinks\RenameWithLinks*.jar /O-D
 #   There must be at least one empty line between blocks.
 #
 
-# Build the RenameWithLinks module, as an executable jar, and deploy it :
+# Build the MoveWithShortcuts module, as an executable jar, and deploy it :
 
-H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\RenameWithLinks
-mvn clean install -DskipTests
-C:\RenameWithLinks
+H:\Users\Davide\Davide\Sviluppo\REPOS\FileTools\MoveWithShortcuts
+mvn clean install
+C:\MoveWithShortcuts

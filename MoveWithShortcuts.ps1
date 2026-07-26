@@ -1,15 +1,15 @@
 # PowerShell helper script to launch the executable JAR.
-# This script gets called by a batch file (RenameWithLinks.BAT)
+# This script gets called by a batch file (MoveWithShortcuts.BAT)
 # which has the following content to call this script :
 #
 # @ECHO OFF
-# wt pwsh -NoExit -File "C:\RenameWithLinks\RenameWithLinks.ps1"
+# wt pwsh -NoExit -File "C:\MoveWithShortcuts\MoveWithShortcuts.ps1"
 #
 
 $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
-Set-Location C:\RenameWithLinks\
+Set-Location C:\MoveWithShortcuts\
 
-java -jar C:\RenameWithLinks\RenameWithLinks.jar
+java -jar C:\MoveWithShortcuts\MoveWithShortcuts.jar
 
 # Read-Host "Press Enter to exit"

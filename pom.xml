@@ -5,8 +5,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<groupId>DFileTools</groupId>
-	<artifactId>RenameWithLinks</artifactId>
-	<version>2.1.0</version>
+	<artifactId>MoveWithShortcuts</artifactId>
+	<version>3.0.0-SNAPSHOT</version>
 	
 	<properties>
 		<maven.compiler.release>21</maven.compiler.release>
@@ -150,7 +150,7 @@
 							<archive>
 								<manifest>
 									<mainClass>
-										rename_with_links.RenameWithLinksMain
+										move_with_shortcuts.MoveWithShortcutsMain
 									</mainClass>
 								</manifest>
 							</archive>

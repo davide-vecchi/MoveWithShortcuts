@@ -1,7 +1,7 @@
 /**
  * Created by OpenCode on 2026-05-09 .
  */
-package rename_with_links;
+package move_with_shortcuts;
 
 import application.AAppContext;
 import dfile.file.FileUtilities;
@@ -64,11 +64,11 @@ import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static java.lang.Boolean.TRUE;
+import static move_with_shortcuts.MoveWithShortcuts.CANCEL_CHARS;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
-import static rename_with_links.RenameWithLinks.CANCEL_CHARS;
 
 
 // @formatter:off
@@ -76,12 +76,12 @@ import static rename_with_links.RenameWithLinks.CANCEL_CHARS;
 
 @SuppressWarnings("PublicConstructor")
 @Listeners(MockitoTestNGListener.class)
-public class RenameWithLinksTest {
+public class MoveWithShortcutsTest {
   
   
-  private static final String APP_NAME =  RenameWithLinksTest.class.getSimpleName();
+  private static final String APP_NAME =  MoveWithShortcutsTest.class.getSimpleName();
   
-  private static final String APP_DESCR = RenameWithLinksTest.class.getName();
+  private static final String APP_DESCR = MoveWithShortcutsTest.class.getName();
   
   /**
    * Each test must run once with each of these instances of {@link IShortcutsUpdater} implementations.
@@ -113,7 +113,7 @@ public class RenameWithLinksTest {
     new Function<>() {
       
       private final @NotNull IShortcutUpdater objThatCanReadShortcuts = WinShortcutUpdater_PS_WSH01.newInstance(
-                                                         false, RenameWithLinksTest.this.devLog);
+                                                         false, MoveWithShortcutsTest.this.devLog);
       @Override
       public @NotNull TwoObjects<@NotNull String, @NotNull String> apply(@NotNull File file) {
         
@@ -128,7 +128,7 @@ public class RenameWithLinksTest {
     
     setSystemEncodingUTF8();
     
-    this.tempDir = Files.createTempDirectory(RenameWithLinksTest.class.getSimpleName() + "_");
+    this.tempDir = Files.createTempDirectory(MoveWithShortcutsTest.class.getSimpleName() + "_");
     
     this.nextTempDirCounter = ZERO_i;
     
@@ -202,7 +202,7 @@ public class RenameWithLinksTest {
     
     this.devLog.log("factoryReturnsNonNullInstance()" + NL);
     
-    Assert.assertNotNull(RenameWithLinks.newInstance(this.mockAppContext));
+    Assert.assertNotNull(MoveWithShortcuts.newInstance(this.mockAppContext));
   }
 
   @Test
@@ -210,7 +210,7 @@ public class RenameWithLinksTest {
     
     this.devLog.log("factoryReturnsNonNullInstance()" + NL);
     
-    Assert.expectThrows(MissingValueException.class, () -> RenameWithLinks.newInstance(
+    Assert.expectThrows(MissingValueException.class, () -> MoveWithShortcuts.newInstance(
                                                                                                     null));
   }
 
@@ -230,7 +230,7 @@ public class RenameWithLinksTest {
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn(null);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
     
       Assert.expectThrows(amp(u), UserRequestedTermination.class, () -> app.run(u));
     }
@@ -253,7 +253,7 @@ public class RenameWithLinksTest {
                .thenReturn(getCanonicalPath(existingFile))
                .thenReturn(null);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       Assert.expectThrows(amp(u), UserRequestedTermination.class, () -> app.run(u));
     }
@@ -278,7 +278,7 @@ public class RenameWithLinksTest {
                .thenReturn("renamed_file.txt")
                .thenReturn(null);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       Assert.expectThrows(amp(u), UserRequestedTermination.class, () -> app.run(u));
     }
@@ -311,7 +311,7 @@ public class RenameWithLinksTest {
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn(nonExistentOriginal, nonExistentDestination);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
     
       Assert.expectThrows(amp(u), MissingExternalValueException.class, () -> app.run(u));
     }
@@ -340,7 +340,7 @@ public class RenameWithLinksTest {
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn(nonExistentOriginal, nonExistentDestination);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       Assert.expectThrows(amp(u), MissingExternalValueException.class, () -> app.run(u));
     }
@@ -367,7 +367,7 @@ public class RenameWithLinksTest {
                .thenReturn("renamed")
                .thenReturn(getCanonicalPath(aFile));
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       Assert.expectThrows(amp(u), InvalidPathException.class, () -> app.run(u));
     }
@@ -400,7 +400,7 @@ public class RenameWithLinksTest {
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
       
@@ -437,7 +437,7 @@ public class RenameWithLinksTest {
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
       
@@ -476,7 +476,7 @@ public class RenameWithLinksTest {
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
       
@@ -522,7 +522,7 @@ public class RenameWithLinksTest {
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
       
@@ -568,7 +568,7 @@ public class RenameWithLinksTest {
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
       
@@ -609,7 +609,7 @@ public class RenameWithLinksTest {
                .thenReturn(getCanonicalPath(searchFolder))
                .thenReturn(verbosity);
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
       
@@ -620,7 +620,7 @@ public class RenameWithLinksTest {
   /** TODO @@@ ADD a shortcut in "sub2-to-move\", which also points to PointedToAndToMove.txt, and verify its target after it has been moved because it was in "sub2-to-move\".<br><br>
    *
    *
-   * Tests {@link RenameWithLinks#execute(File, File, List, IShortcutsUpdater )} as follows :<ul>
+   * Tests {@link MoveWithShortcuts#execute(File, File, List, IShortcutsUpdater )} as follows :<ul>
    *
    * <li> 1) Under {@code src\test\resources\} creates subfolders :<ol>
    *         <li>{@code testExecute01\sub1\sub2-to-move\sub3-with-file\sub4\}.</li>
@@ -665,7 +665,7 @@ public class RenameWithLinksTest {
    *         <li>5) A shortcut named {@code sub4.lnk} exists in {@code testExecute01\} having folder {@code sub4} as
    *                target.</li></ul></li>
    *
-   * <li> 4) Invokes {@link RenameWithLinks#execute(File, File, List, IShortcutsUpdater ) the tested method} passing :<ul>
+   * <li> 4) Invokes {@link MoveWithShortcuts#execute(File, File, List, IShortcutsUpdater ) the tested method} passing :<ul>
    *
    *         <li>1) Folder {@code testExecute01\sub1\sub2-to-move\} as the file / folder to rename / move ({@code
    *                originalFileOrFolder} param).</li>
@@ -860,7 +860,7 @@ public class RenameWithLinksTest {
       //      to   "testExecute01\subA\subBToReceiveMoved\sub2-moved\sub3-with-file\PointedToAndToMove.txt"
       //  :
       
-      final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
+      final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       app.askBeforeProcessingShortcuts = false;
       
@@ -1170,7 +1170,7 @@ public class RenameWithLinksTest {
   }
   
   /**
-   * {@link RenameWithLinks#run( IShortcutsUpdater ) Runs} the given {@code app} with the given {@code updater}, and
+   * {@link MoveWithShortcuts#run( IShortcutsUpdater ) Runs} the given {@code app} with the given {@code updater}, and
    * if that throws a {@link RuntimeException}, catches it and rethrows a new one of the same type with the same {@link Throwable#getMessage()
    * message} but prefixed by the {@link #amp( IShortcutsUpdater ) Assertion Message Prefix} for the {@code updater}.
    *
@@ -1180,7 +1180,7 @@ public class RenameWithLinksTest {
    * @throws UserRequestedTermination
    * @throws IOException
    */
-  private static void runApp(RenameWithLinks app, IShortcutsUpdater updater) throws UserRequestedTermination, IOException {
+  private static void runApp(MoveWithShortcuts app, IShortcutsUpdater updater) throws UserRequestedTermination, IOException {
     
     try {
       
@@ -1193,26 +1193,26 @@ public class RenameWithLinksTest {
   }
   
   /**
-   * {@link RenameWithLinks#execute( File, TwoObjects, File, IShortcutsUpdater) Executes} the given {@code app} with the
+   * {@link MoveWithShortcuts#execute( File, TwoObjects, File, IShortcutsUpdater) Executes} the given {@code app} with the
    * given {@code updater}, and if that throws a {@link RuntimeException}, catches it and rethrows a new one of the same
    * type with the same {@link Throwable#getMessage() message} but prefixed by the {@link #amp( IShortcutsUpdater )
    * Assertion Message Prefix} for the {@code updater} and with its {@link Throwable#getCause() cause}.
    *
-   * @param app                     The {@link RenameWithLinks} instance to {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)
+   * @param app                     The {@link MoveWithShortcuts} instance to {@link MoveWithShortcuts#execute(File, TwoObjects, File, IShortcutsUpdater)
    *                                execute}.<br>
    *                                
-   * @param originalFileOrFolder    Same param of {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
+   * @param originalFileOrFolder    Same param of {@link MoveWithShortcuts#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
    *                                
-   * @param destinationFileOrFolder Same param of {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
+   * @param destinationFileOrFolder Same param of {@link MoveWithShortcuts#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
    *                                
-   * @param searchFolder            Same param of {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
+   * @param searchFolder            Same param of {@link MoveWithShortcuts#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
    *                                
-   * @param updater                 Same param of {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
+   * @param updater                 Same param of {@link MoveWithShortcuts#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
    *
    * @throws UserRequestedTermination
    * @throws IOException
    */
-  private static void executeApp(@NotNull RenameWithLinks app
+  private static void executeApp(@NotNull MoveWithShortcuts app
                                , @NotNull File originalFileOrFolder
                                , @NotNull TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder
                                , @NotNull File searchFolder

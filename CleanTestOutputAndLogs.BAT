@@ -18,7 +18,7 @@ RMDIR /S /Q "test-output\"
 PAUSE
 
 
-CD /D "C:\RenameWithLinks"
+CD /D "C:\MoveWithShortcuts"
 
 DEL /S /Q "*.LOG"
 

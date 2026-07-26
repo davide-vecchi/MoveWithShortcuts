@@ -1,7 +1,7 @@
 /**
  * Created by OpenCode on 2026-05-08 .
  */
-package rename_with_links;
+package move_with_shortcuts;
 
 import application.AAppContext;
 import dlog.log.Log;
@@ -16,7 +16,7 @@ import static dutil.string.TextUtilities.NL;
 
 
 /**
- * Implementation of {@link AAppContext} for {@link RenameWithLinks}.
+ * Implementation of {@link AAppContext} for {@link MoveWithShortcuts}.
  */
 public class AppContext extends AAppContext {
   

@@ -1,7 +1,7 @@
 /**
  * Created by OpenCode on 2026-05-08 .
  */
-package rename_with_links;
+package move_with_shortcuts;
 
 
 import application.AAppContext;
@@ -56,6 +56,7 @@ import static dutil.string.TextUtilities.FMT0DG;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NL2T;
+import static dutil.string.TextUtilities.NL2T2;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
@@ -80,7 +81,7 @@ import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
  */
 @Getter
 @ToString
-public class RenameWithLinks {
+public class MoveWithShortcuts {
   
   
   /**
@@ -125,7 +126,7 @@ public class RenameWithLinks {
    *
    * @param appContext {@link #appContext}.
    */
-  private RenameWithLinks(@NotNull AAppContext appContext) {
+  private MoveWithShortcuts(@NotNull AAppContext appContext) {
   
     this.appContext = assertNonNull(appContext);
   }
@@ -136,9 +137,9 @@ public class RenameWithLinks {
    *
    * @param appContext {@link #appContext}.
    */
-  public static RenameWithLinks newInstance(@NotNull AAppContext appContext) {
+  public static MoveWithShortcuts newInstance(@NotNull AAppContext appContext) {
   
-    return new RenameWithLinks(appContext);
+    return new MoveWithShortcuts(appContext);
   }
   
   /**
@@ -377,8 +378,10 @@ public class RenameWithLinks {
                                    + "and "                                  : EMPTY;
     
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm " + msgDoRenameMove
-                                                          + "updating the targets and/or the working directories of the shortcuts pointing to it that are found under" + NL2T
+                                                          + "updating the targets and/or the working directories of the shortcuts that are found under" + NL2T
                                                           + dq(getCanonicalPath(searchFolder)) + NL2T
+                                                          + "from pointing to the original location under" + NL2T2 + dq(getCanonicalPath(originalFileOrFolder)) + NL2T
+                                                          + "to pointing to the moved location under" + NL2T2 + dq(getCanonicalPath(destinationFileOrFolder.o1)) + NL2T
                                                           + ", or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS) != null;
     return confirmed;
