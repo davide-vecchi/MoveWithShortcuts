@@ -1,7 +1,7 @@
 # RenameWithLinks
 Java program, currently for Windows only, that possibly renames and/or moves a file or folder, and updates the Windows
-shortcuts (`.lnk` files) so that their target and working directory (the "Start in" field) point to the updated location,
-instead of the shortcut becoming broken.
+shortcuts (`.lnk` files) so that their target and working directory (the "Start in" field) point to the updated location
+and the shortcuts still works, instead of becoming broken.
 
 In detail :
 
@@ -22,7 +22,7 @@ In detail :
 
 ## Usage
 
-The program can be started without arguments, in which case it will prompt on the consone for the 4 needed values.<br>
+The program can be started without arguments, in which case it will prompt on the console for the 4 needed values.<br>
 
 In alternative, it can be started with 3 or 4 arguments :<br>
 
