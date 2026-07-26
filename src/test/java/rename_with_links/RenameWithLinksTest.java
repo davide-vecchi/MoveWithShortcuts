@@ -63,6 +63,7 @@ import static dutil.string.TextUtilities.assertNonBlankUnlessEmpty;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.setSystemEncodingUTF8;
+import static java.lang.Boolean.TRUE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -288,23 +289,27 @@ public class RenameWithLinksTest {
   @Test
   void nonExistentSourceFile() throws IOException {
     
-    // 5.2 : in() returns a non-existent path (parent folder exists but file in it does not)
-    // → MissingExternalValueException
+    // 5.2 : in() returns a non-existent path (parent folder exists but file in it does not) for original and also for
+    //       destination → MissingExternalValueException
     
     for (final IShortcutsUpdater u : this.updatersToTest) {
       
       this.devLog.log("nonExistentSourceFile() with " + u + NL);
       
-      final String nonExistentFile = getCanonicalPath(new File(
-                                                                    newTempSubfolder(true).toFile()
-                                                                   , "does_not_exist.txt"));
+      final String nonExistentOriginal =    getCanonicalPath(new File(
+                                                                      newTempSubfolder(true).toFile()
+                                                                    , "does_not_exist1.txt"));
       
-      Assert.assertTrue(new File(nonExistentFile).getParentFile().exists(), amp(u) + "Invalid test prerequisite, " + dq(getCanonicalPath(new File(nonExistentFile).getParentFile())) + " was not created.");
+      Assert.assertTrue( new File(nonExistentOriginal).getParentFile().exists(), amp(u) + "Invalid test prerequisite, " + dq(getCanonicalPath(new File(nonExistentOriginal).getParentFile())) + " was not created.");
       
-      Assert.assertFalse(new File(nonExistentFile).exists(), amp(u) + "Invalid test prerequisite, file " + dq(getCanonicalPath(new File(nonExistentFile))) + " exists.");
+      Assert.assertFalse(new File(nonExistentOriginal).exists(), amp(u) + "Invalid test prerequisite, file " + dq(getCanonicalPath(new File(nonExistentOriginal))) + " exists.");
+      
+      final String nonExistentDestination = getCanonicalPath(new File(
+                                                                               new File(nonExistentOriginal).getParentFile()
+                                                                      , "does_not_exist2.txt"));
       
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-               .thenReturn(nonExistentFile);
+               .thenReturn(nonExistentOriginal, nonExistentDestination);
       
       final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
     
@@ -322,14 +327,18 @@ public class RenameWithLinksTest {
       
       this.devLog.log("nonExistentSourceFolder() with " + u + NL);
       
-      final String nonExistentPath = getCanonicalPath(new File(
-                                                                    newTempSubfolder(false).toFile()
-                                                                   , "not_even_the_parent_folder_exists.txt"));
+      final String nonExistentOriginal =    getCanonicalPath(new File(
+                                                                          newTempSubfolder(false).toFile()
+                                                                         , "not_even_the_parent_folder_exists.txt"));
       
-      Assert.assertFalse(new File(nonExistentPath).exists(), amp(u) + "Invalid test prerequisite, folder " + dq(getCanonicalPath(new File(nonExistentPath))) + " exists.");
+      Assert.assertFalse(new File(nonExistentOriginal).exists(), amp(u) + "Invalid test prerequisite, folder " + dq(getCanonicalPath(new File(nonExistentOriginal))) + " exists.");
+      
+      final String nonExistentDestination = getCanonicalPath(new File(
+                                                                          new File(nonExistentOriginal).getParentFile()
+                                                                         , "not_even_the_parent_folder_exists2.txt"));
       
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
-               .thenReturn(nonExistentPath);
+               .thenReturn(nonExistentOriginal, nonExistentDestination);
       
       final RenameWithLinks app = RenameWithLinks.newInstance(this.mockAppContext);
       
@@ -765,7 +774,7 @@ public class RenameWithLinksTest {
                                                                 , "sub2a-to-stay"));
       
       final Path subBToReceiveMoved = Files.createDirectories(Path.of(testExecute01.toString()
-                                                          , "subA", "subB-to-receive-moved"));
+                                                                        , "subA", "subB-to-receive-moved"));
       // 2 : Create 2 files as follows :
       //
       //   1 : In "sub3-with-file" folder create file "PointedToAndToMove.txt".
@@ -859,7 +868,9 @@ public class RenameWithLinksTest {
       
       final Path sub2moved = Path.of(subA.toString(), "subB-to-receive-moved", "sub2-moved");
       
-      executeApp(app, sub2ToMove.toFile(),sub2moved. toFile(), testExecute01.toFile(), u);
+      executeApp(app, sub2ToMove.toFile(), new TwoObjects<>(
+                                                                                      sub2moved. toFile(), TRUE)
+                           , testExecute01.toFile(), u);
       
       // 5 : Verify that now the folder "sub2-to-move\" no longer exists under folder "testExecute01\sub1\" and now exists
       //     as "testExecute01\subA\subBToReceiveMoved\sub2-moved\" :
@@ -931,7 +942,7 @@ public class RenameWithLinksTest {
       //         path of "testExecute01\subA\subBToReceiveMoved\sub2-moved\sub3-with-file\" :
       
       assertShortcutToPathExists(shortcutTo_sub3WithFile
-                ,Path.of(sub3WithFile_Moved), EMPTY
+                 ,Path.of(sub3WithFile_Moved), EMPTY
       , amp(u) + "Step 8.3a"
       ,amp(u) + "Step 8.3b");
       
@@ -1182,22 +1193,30 @@ public class RenameWithLinksTest {
   }
   
   /**
-   * {@link RenameWithLinks#execute(File, File, File, IShortcutsUpdater ) Executes} the given {@code app} with the
+   * {@link RenameWithLinks#execute( File, TwoObjects, File, IShortcutsUpdater) Executes} the given {@code app} with the
    * given {@code updater}, and if that throws a {@link RuntimeException}, catches it and rethrows a new one of the same
    * type with the same {@link Throwable#getMessage() message} but prefixed by the {@link #amp( IShortcutsUpdater )
    * Assertion Message Prefix} for the {@code updater} and with its {@link Throwable#getCause() cause}.
    *
-   * @param app
-   * @param originalFileOrFolder
-   * @param destinationFileOrFolder
-   * @param searchFolder
-   * @param updater
+   * @param app                     The {@link RenameWithLinks} instance to {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)
+   *                                execute}.<br>
+   *                                
+   * @param originalFileOrFolder    Same param of {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
+   *                                
+   * @param destinationFileOrFolder Same param of {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
+   *                                
+   * @param searchFolder            Same param of {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
+   *                                
+   * @param updater                 Same param of {@link RenameWithLinks#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
    *
    * @throws UserRequestedTermination
    * @throws IOException
    */
-  private static void executeApp(RenameWithLinks app, File originalFileOrFolder, File destinationFileOrFolder
-                               , File searchFolder, IShortcutsUpdater updater) throws UserRequestedTermination, IOException {
+  private static void executeApp(@NotNull RenameWithLinks app
+                               , @NotNull File originalFileOrFolder
+                               , @NotNull TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder
+                               , @NotNull File searchFolder
+                               , @NotNull IShortcutsUpdater updater) throws UserRequestedTermination, IOException {
     try {
       
       app.execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, updater);

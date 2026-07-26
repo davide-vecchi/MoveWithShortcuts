@@ -13,6 +13,7 @@ import dutil.exception.exceptions.InvalidExternalValueException;
 import dutil.exception.exceptions.MissingExternalValueException;
 import dutil.exception.exceptions.NonUniqueExternalValueException;
 import dutil.system.OSUtilities;
+import dutil.value_holder.TwoObjects;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -33,7 +34,7 @@ import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.assertExistingPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCurrentFolder;
-import static dfile.file.FileUtilities.hasPath;
+import static dfile.file.FileUtilities.hasParentInfo;
 import static dfile.file.FileUtilities.newValidatedFile;
 import static dfile.file.FileUtilities.newValidatedFileOrFolder;
 import static dfile.file.FileUtilities.newValidatedFolder;
@@ -48,7 +49,9 @@ import static dutil.number.NumberUtilities.MINUS1_i;
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.number.NumberUtilities.assertNonNegative;
+import static dutil.object.ObjectUtilities.B;
 import static dutil.object.ObjectUtilities.assertNonNull;
+import static dutil.object.ObjectUtilities.assertTrue;
 import static dutil.string.TextUtilities.FMT0DG;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
@@ -58,6 +61,7 @@ import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
+import static dutil.string.TextUtilities.getStringsOp;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.assertWindowsOS;
 import static java.lang.Boolean.FALSE;
@@ -65,6 +69,7 @@ import static java.lang.Boolean.TRUE;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 
 // @formatter:off
@@ -161,7 +166,8 @@ public class RenameWithLinks {
     
     final File originalFileOrFolder =    askOriginalPath();
     
-    final File destinationFileOrFolder = askDestinationFileOrFolder(originalFileOrFolder);
+    final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
+                                         askDestinationFileOrFolder(originalFileOrFolder);
     
     final File searchFolder =            askSearchDirectory();
     
@@ -179,14 +185,14 @@ public class RenameWithLinks {
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
    * @param shortcutsTargetUpdater The {@link IShortcutsUpdater object} to {@link IShortcutsUpdater#updateShortcuts(List, File, File)}
-   *                               update} the target of shortcuts.
+   *                               update} the target and working directories of shortcuts.
    *
    * @param argOriginalPath       The argument given for the path of the file or folder to rename / move.<br>
    *
    * @param argDestinationPath    The argument given for the new name/path for the file or folder (may include a path
    *                              → move).<br>
    *
-   * @param argSearchPath         The argument given for the path to scan for {@code .lnk} shortcuts to update.
+   * @param argSearchPath         The argument given for the path to scan for shortcuts to possibly update.
    *
    * @param argVerbosity          The argument given for the verbosity level. May be {@code null}, defaults to 0 .
    *
@@ -200,8 +206,8 @@ public class RenameWithLinks {
    *                                         originalPath}.
    */
   public void run(@NotNull IShortcutsUpdater shortcutsTargetUpdater, @NotNull String argOriginalPath
-                , @NotNull String                  argDestinationPath,     @NotNull String argSearchPath
-                ,          String                  argVerbosity) throws IOException, UserRequestedTermination {
+                , @NotNull String            argDestinationPath,     @NotNull String argSearchPath
+                ,          String            argVerbosity) throws IOException, UserRequestedTermination {
     
     assertWindowsOS();
     
@@ -211,15 +217,16 @@ public class RenameWithLinks {
     
     assertNonBlankUnlessNull(argVerbosity);
     
-    final File originalFileOrFolder =    resolveOriginalPath(  argOriginalPath);
+    final File originalFileOrFolder =    resolveOriginalPath(           argOriginalPath);
 
-    final File destinationFileOrFolder = resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
+    final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
+                                         resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
 
     final File searchFolder =            resolveSearchDirectory(        argSearchPath);
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
       
-      // Perform the renaming / moving and the corresponding shortcuts updating :
+      // Possibly perform the renaming / moving, and do the corresponding shortcuts updating :
       
       execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater);
     }
@@ -232,22 +239,40 @@ public class RenameWithLinks {
    *
    * @param originalFileOrFolder    The file or folder to rename / move.<br>
    *
-   * @param destinationFileOrFolder The new file path / name to which to rename / move the {@code originalFileOrFolder}.<br>
+   * @param destinationFileOrFolder <ul><li>In {@link TwoObjects#o1 o1} the {@link File} instance representing the
+   *                                destination (file or folder) to which the given {@code original} is requested to be
+   *                                renamed / moved.</li><li>
+   *                                In {@link TwoObjects#o2 o2} : <ul><li>{@link Boolean#TRUE TRUE} if the {@code
+   *                                originalFileOrFolder} path exists and the {@link TwoObjects#o1 destination} doesn't,
+   *                                which means that <b>the renaming / moving needs to be performed</b>.</li>
+   *                                <li>{@link Boolean#FALSE FALSE} if the {@code originalFileOrFolder} path doesn't
+   *                                exist and the {@link TwoObjects#o1 destination} does, which means that <b>the
+   *                                renaming / moving does not need to be performed as it's assumed to have been already
+   *                                occurred</b>.</li></ul>
+   *                                Whether the renaming / moving needs to be performed or not must be determined
+   *                                exclusively from this value, not by re-checking which path exists and which doesn't.</li></ul>
    *
    * @param searchFolder            The folder under which, <b>after</b> {@link #renameFileOrFolder performing} the
-   *                                rename / move, the existing shortcuts must be possibly have their targets updated.
+   *                                rename / move, the existing shortcuts must be possibly have their targets updated.<br>
    *
    * @param shortcutsProcessor      The {@link IShortcutsUpdater shortcuts processor} to use to perform the updates of
    *                                the shortcuts' targets that need it.
    */
-  void execute(@NotNull File                    originalFileOrFolder
-             , @NotNull File                    destinationFileOrFolder
-             , @NotNull File                    searchFolder
-             , @NotNull IShortcutsUpdater shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
+  void execute(@NotNull File                      originalFileOrFolder
+             , @NotNull TwoObjects<File, Boolean> destinationFileOrFolder
+             , @NotNull File                      searchFolder
+             , @NotNull IShortcutsUpdater         shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
     
     assertNoneNull(destinationFileOrFolder, shortcutsTargetUpdater);
     
-    assertExistingPath(originalFileOrFolder, null);
+    destinationFileOrFolder.assertNeitherNull();
+    
+    final boolean mustRenameMove = destinationFileOrFolder.o2.booleanValue();
+    
+    assertExistingPath(mustRenameMove ? originalFileOrFolder : destinationFileOrFolder.o1
+                        , null);
+    
+    assertTrue(mustRenameMove != destinationFileOrFolder.o1.exists(), "One of", getCanonicalPath(originalFileOrFolder), "and", getCanonicalPath(destinationFileOrFolder.o1), "must exist and the other one must not, instead they both", originalFileOrFolder.exists() ? "exist."  : "don't exist.");
     
     assertExistingPath(searchFolder, TRUE);
     
@@ -259,10 +284,12 @@ public class RenameWithLinks {
     
     try {
       
-      // Do the requested renaming / moving :
-      
-      renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder);
-      
+      if (mustRenameMove) {
+        
+        // Do the requested renaming / moving :
+        
+        renameFileOrFolder(originalFileOrFolder, destinationFileOrFolder.o1);
+      }
       // Retrieve all the shortcuts that need to be checked and possibly updated :
       
       final List<File> shortcuts = retrieveShortcutFiles(searchFolder);
@@ -286,10 +313,10 @@ public class RenameWithLinks {
         
         final ShortcutsUpdateOutcome outcome = shortcutsTargetUpdater.updateShortcuts(shortcuts
                                                                           , originalFileOrFolder
-                                                                          , destinationFileOrFolder);
+                                                                          , destinationFileOrFolder.o1);
         if (outcome.userInterrupted()) {
           
-          throw new UserRequestedTermination("Program terminated upon user's request during shortcuts targets update.");
+          throw new UserRequestedTermination("Program terminated upon user's request during shortcuts update.");
         }
         this.numProcessedShortcuts = outcome.numProcessedShortcuts();
         
@@ -312,21 +339,45 @@ public class RenameWithLinks {
   
   /**
    * Asks for confirmation to {@link #renameFileOrFolder rename} the given {@code originalFileOrFolder} to the given {@code
-   * destinationFileOrFolder} and to {@link #updateShortcuts update} accordingly all the shortcuts found under the given {@code
-   * searchDir}.
+   * destinationFileOrFolder} and to update accordingly all the shortcuts found under the given {@code searchFolder}.
+   *
+   * @param destinationFileOrFolder <ul><li>In {@link TwoObjects#o1 o1} the {@link File} instance representing the
+   *                                destination (file or folder) to which the given {@code original} is requested to be
+   *                                renamed / moved.</li><li>
+   *                                In {@link TwoObjects#o2 o2} : <ul><li>{@link Boolean#TRUE TRUE} if the {@code
+   *                                originalFileOrFolder} path exists and the {@link TwoObjects#o1 destination} doesn't,
+   *                                which means that <b>the renaming / moving needs to be performed</b>.</li>
+   *                                <li>{@link Boolean#FALSE FALSE} if the {@code originalFileOrFolder} path doesn't
+   *                                exist and the {@link TwoObjects#o1 destination} does, which means that <b>the
+   *                                renaming / moving does not need to be performed as it's assumed to have been already
+   *                                occurred</b>.</li></ul>
+   *                                Whether the renaming / moving needs to be performed or not must be determined
+   *                                exclusively from this value, not by re-checking which path exists and which doesn't.</li></ul>
    *
    * @return Whether the user confirmed that the processing can start.
    */
-  private boolean askStartConfirmation(@NotNull File originalFileOrFolder, @NotNull File destinationFileOrFolder
-                                     , @NotNull File searchFolder) {
+  private boolean askStartConfirmation(@NotNull File                                        originalFileOrFolder
+                                     , @NotNull TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder
+                                     , @NotNull File                                        searchFolder) {
     
     assertNoneNull(originalFileOrFolder, destinationFileOrFolder, searchFolder);
     
-    boolean confirmed = this.appContext.userIO.in("Press Enter to confirm renaming / moving "
-                                                          + (originalFileOrFolder.isFile() ? "file" : "folder")    + NL2T
-                                                          + dq(getCanonicalPath(originalFileOrFolder))      + NL2T + "to" + NL2T
-                                                          + dq(getCanonicalPath(destinationFileOrFolder))   + NL2T
-                                                          + "and updating the targets and/or the working directories of the shortcuts pointing to it that are found under" + NL2T
+    destinationFileOrFolder.assertNeitherNull();
+    
+    final boolean isRenameOnly = getStringsOp(IS_OS_WINDOWS)
+                                    .equals(getCanonicalPath(originalFileOrFolder.      getParentFile())
+                                          , getCanonicalPath(destinationFileOrFolder.o1.getParentFile()));
+    
+    final String msgDoRenameMove = destinationFileOrFolder.o2.booleanValue() ?
+                                   (isRenameOnly ? "renaming " : "renaming / moving ")
+                                               + (         originalFileOrFolder.isFile() ? "file" : "folder")     + NL2T
+                                               + dq(originalFileOrFolder.getPath()) + NL2T + "to"          + NL2T
+                                               + dq((isRenameOnly ? destinationFileOrFolder.o1.getName()
+                                                                         : destinationFileOrFolder.o1.getPath())) + NL2T
+                                   + "and "                                  : EMPTY;
+    
+    boolean confirmed = this.appContext.userIO.in("Press Enter to confirm " + msgDoRenameMove
+                                                          + "updating the targets and/or the working directories of the shortcuts pointing to it that are found under" + NL2T
                                                           + dq(getCanonicalPath(searchFolder)) + NL2T
                                                           + ", or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS) != null;
@@ -334,60 +385,91 @@ public class RenameWithLinks {
   }
   
   /**
-   * TODO @@@@@@ COMMENT
-   * @param argPath
-   * @return
+   * @param argOriginalPath The candidate path for the file / folder to possibly rename / move.
+   *
+   * @return A new {@link File} instance created from the given file / folder path, which must be valid and doesn't need
+   *         to exist.
    */
-  private static @NotNull File resolveOriginalPath(@NotBlank String argPath) {
-
-  return newValidatedFileOrFolder(argPath, true);
+  private static @NotNull File resolveOriginalPath(@NotBlank String argOriginalPath) {
+    
+    return newValidatedFileOrFolder(argOriginalPath, false);
   }
   
   /**
-   * TODO @@@@@@ COMMENT
-   * @param argDestinationPath
-   * @param original
-   * @return
+   * @param argDestinationPath The candidate path for the file / folder to which to possibly rename / move the given {@code
+   *                           original}.<br>
+   *
+   * @param original The {@link #resolveOriginalPath(String) original} path to possibly rename / move.
+   *
+   * @return <ul><li>In {@link TwoObjects#o1 o1} a new {@link File} instance created from the given {@code
+   *         destinationPath} (a file or folder), which must be valid.<br>It must exist if {@code original} doesn't, and
+   *         not exist if {@code original} does.</li><li>
+   *         In {@link TwoObjects#o2 o2} : <ul><li>{@link Boolean#TRUE TRUE} if the {@code original} path exists and the {@code
+   *         destination} doesn't, which means that <b>the renaming / moving needs to be performed</b>.</li><li>{@link Boolean#FALSE
+   *         FALSE} if the {@code original} path doesn't exist and the {@code destination} does, which means that <b>the
+   *         renaming / moving does not need to be performed as it's assumed to have been already occurred</b>.</li></ul>
+   *         Whether the renaming / moving needs to be performed or not must be determined exclusively from the value
+   *         returned here, not by re-checking - after this method returned - which path exists and which doesn't.</li></ul>
    */
-  private static @NotNull File resolveDestinationFileOrFolder(@NotBlank String argDestinationPath
-                                                            , @NotNull  File   original) {
+  private static @NotNull TwoObjects<@NotNull File, @NotNull Boolean> resolveDestinationFileOrFolder(
+                                                                                     @NotBlank String argDestinationPath
+                                                                                   , @NotNull  File   original) {
     final String effectiveNewName;
-
-    if (hasPath(assertNonBlankNorTrimmable(argDestinationPath))) {
-
+    
+    if (hasParentInfo(assertNonBlankNorTrimmable(argDestinationPath))) {
+      
       effectiveNewName = argDestinationPath;
     }
     else {
-
+      
       final File parent = original.getAbsoluteFile().getParentFile();
-
+      
       if (parent == null) {
-
+        
         throw new InvalidExternalValueException("Cannot determine parent folder of " + dq(getCanonicalPath(original)) + ".");
       }
       effectiveNewName = new File(parent, argDestinationPath).getPath();
     }
-    final File destination = original.isFile() ?
-                             newValidatedFile(    effectiveNewName, false, MINUS1_i)
-                             :
-                             newValidatedFolder(effectiveNewName, false, null);
+    final File effectiveDest;
     
-    if (destination.equals(original)) {
+    final boolean originalExists = original.exists();
+    
+    if (originalExists) {
       
-      throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(destination.getPath()) + ".");
+      // : The original exists, so the destination must not exist and this means that the renaming / moving will have to
+      //   be performed.
+      
+      effectiveDest = original.isFile() ?
+                               newValidatedFile(    effectiveNewName, false,   MINUS1_i)
+                               :
+                               newValidatedFolder(effectiveNewName, false, null);
     }
-    return destination;
+    else {
+      
+      // : The original does not exist, so the destination must exist and this means that the renaming / moving must not
+      //   be performed because it already has.
+      
+      assertExistingPath(effectiveNewName, null, "The previously given original " + dq(original.getPath()) + " does not exist, so the given destination must exist, instead it does not :");
+      
+      effectiveDest = newValidatedFileOrFolder(effectiveNewName, false);
+    }
+    if (effectiveDest.equals(original)) {
+      
+      throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(effectiveDest.getPath()) + ".");
+    }
+    assertTrue(effectiveDest.exists() != originalExists, "One of original and destination must exist and the other one must not, instead" + NLT + dq(original.getPath() + NLT + "and" + NLT + dq(effectiveDest.getPath()) + NLT + "both " + (originalExists ? "exist" : "don't exist") + "."));
+    
+    return new TwoObjects<>(effectiveDest, B(originalExists));
   }
   
   /**
-   * TODO @@@@@@ COMMENT
+   * @param argSearchPath The path where to search for the shortcuts to possibly update.
    *
-   * @param argSearchPath
-   * @return
+   * @return A new {@link File} instance created from the given file / folder path, which must exist.
    */
   private static @NotNull File resolveSearchDirectory(@NotBlank String argSearchPath) {
-
-    return newValidatedFolder(argSearchPath, true, FALSE);// new File(assertExistingPath(argSearchPath, TRUE)).getCanonicalFile();
+    
+    return newValidatedFolder(argSearchPath, true, FALSE);
   }
   
   /**
@@ -427,18 +509,18 @@ public class RenameWithLinks {
    *
    * @throws MissingExternalValueException If the path entered by the user does not exist.
    */
-  private @NotNull File askOriginalPath() throws UserRequestedTermination, IOException {
+  private @NotNull File askOriginalPath() throws UserRequestedTermination {
 
-    final String existingPath = this.appContext.userIO.in(
+    final String originalPath = this.appContext.userIO.in(
                                                   "Enter the path of the file or folder to rename / move, either absolute"
                                                           + " or relative to the current folder (" + dq(getCurrentFolder()) + "),"
                                                           + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS);
-    if (existingPath == null) {
+    if (originalPath == null) {
       
       throw new UserRequestedTermination();
     }
-    return resolveOriginalPath(existingPath);
+    return resolveOriginalPath(originalPath);
   }
 
   /**
@@ -448,8 +530,14 @@ public class RenameWithLinks {
    *
    * @param original The file or folder that was previously specified as to be renamed / moved.
    *
-   * @return A {@link File} representing the destination (file or folder) to which the given {@code original} is
-   *         requested to be renamed / moved.
+   * @return <ul><li>In {@link TwoObjects#o1 o1} a new {@link File} instance representing the destination (file or
+   *         folder) to which the given {@code original} is requested to be renamed / moved.</li><li>
+   *         In {@link TwoObjects#o2 o2} : <ul><li>{@link Boolean#TRUE TRUE} if the {@code original} path exists and the {@code
+   *         destination} doesn't, which means that <b>the renaming / moving needs to be performed</b>.</li><li>{@link Boolean#FALSE
+   *         FALSE} if the {@code original} path doesn't exist and the {@code destination} does, which means that <b>the
+   *         renaming / moving does not need to be performed as it's assumed to have been already occurred</b>.</li></ul>
+   *         Whether the renaming / moving needs to be performed or not must be determined exclusively from the value
+   *         returned here, not by re-checking - after this method returned - which path exists and which doesn't.</li></ul>
    *
    * @throws UserRequestedTermination If the user responds to the question with one of the {@#link #CANCEL_CHARS}.
    *
@@ -458,7 +546,7 @@ public class RenameWithLinks {
    * @throws InvalidPathException If the specified destination is a folder but the given {@code original} is a file, or
    *                              viceversa.
    */
-  private @NotNull File askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination, IOException {
+  private @NotNull TwoObjects<@NotNull File, @NotNull Boolean> askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination {
 
     final String newName = this.appContext.userIO.in(
                                       "Enter the new name for the file or folder (may include a path), or type "
@@ -470,7 +558,7 @@ public class RenameWithLinks {
     }
     final String effectiveNewName;
     
-    if (hasPath(newName)) {
+    if (hasParentInfo(newName)) {
       
       // : The specified destination represents a file or folder with path info.
       
@@ -494,7 +582,7 @@ public class RenameWithLinks {
       
       throw new NonUniqueExternalValueException("The specified destination is the same as the original : " + dq(getCanonicalPath(original)) + ".");
     }
-    return resolveDestinationFileOrFolder(effectiveNewName, original);// new File(assertValidPath(effectiveNewName, B(original.isDirectory())));
+    return resolveDestinationFileOrFolder(effectiveNewName, original);
   }
 
   /**
@@ -504,7 +592,7 @@ public class RenameWithLinks {
     
     final String searchPath = this.appContext.userIO.in(
                                                 "Enter the path of the folder to scan for " + WIN_SHORTCUT_EXTENSION
-                                                        + " shortcuts to update (if the \"new name\" entered in the previous question included a path and that causes the folder tree to change, this path to scan must refer to the new folder tree)"
+                                                        + " shortcuts to update (if the \"new name\" entered in the previous question included a parent path, and that path does not exist so some folders will be created, this path to scan must refer to the new folder tree)"
                                                         + " or press Enter for the default, or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                          , getCurrentFolder(), CANCEL_CHARS);
     if (searchPath == null) {
@@ -558,7 +646,7 @@ public class RenameWithLinks {
     
     final String searchFolderPath = getCanonicalPath(searchFolder);
     
-    this.appContext.outUser(ONE_i, NL   + "Retrieving shortcuts to check for needed target update, under folder"
+    this.appContext.outUser(ONE_i, NL   + "Retrieving shortcuts to check for needed update, under folder"
                                                    + NL2T + dq(searchFolderPath) + " ...");
     
     final List<File> shortcuts = FileUtilities.listFiles(

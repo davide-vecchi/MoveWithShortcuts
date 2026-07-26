@@ -1,7 +1,47 @@
 # RenameWithLinks
-Java program, currently for Windows only, that renames and / or moves files and folders and updates all the shortcuts
-(`.lnk` files) that were pointing to the moved elements, so that the shortcuts' target and working directory point to
-the updated location instead of becoming broken.
+Java program, currently for Windows only, that possibly renames and/or moves a file or folder, and updates the Windows
+shortcuts (`.lnk` files) so that their target and working directory (the "Start in" field) point to the updated location,
+instead of the shortcut becoming broken.
+
+In detail :
+
+1. Optionally renames and/or moves a file or folder.<br><br>
+
+   - If the given original path exists and the given destination path does not, the original will be moved to the
+     destination.<br><br>
+     
+   - If the given original path does not exist and the given destination path exists, the moving / renaming from the
+     original to the destination will be considered as having already happened outside of the program.<br><br>
+
+   - If both the given original path and the given destination path exist, or neither one exists, an error is shown and
+     the program terminates. It is a prerequisite that one exists and the other one does not.<br><br>
+
+2. Updates all the shortcuts found under a given search path if their target and/or working directory are pointing to
+   the moved element, so that they point to the updated location instead of becoming broken.
+
+
+## Usage
+
+The program can be started without arguments, in which case it will prompt on the consone for the 4 needed values.<br>
+
+In alternative, it can be started with 3 or 4 arguments :<br>
+
+1. Original : The path to the file or folder to rename / move or that has already been renamed / moved.<br><br>
+
+2. Destination : The file or folder to which the given original is requested to be renamed / moved or
+   already was. If it does not include a parent path, it is assumed to be in the same folder of the given original.<br><br>
+   
+   Must be of the same type (that is, file or folder) as the given original.<br><br>
+   
+   May include a different path, which means the original is requested to be - or it already has been - moved there
+   rather than just renamed.<br><br>
+   
+3. Search path : The path inside which to search for the shortcut files to possibly update. If the renaming / moving
+   resulted in changes to the filesystem structure (f.ex. because the destination path did not exist so it has been
+   created), this value obviously refers to the filesystem as it is after the renaming / moving, not before it.<br><br>
+
+4. (Optional) Verbosity level, from 0 to 3. A value of 0 means that only possible error or warning messages will be
+   shown.
 
 ## Prerequisites
 
@@ -12,8 +52,7 @@ the build if you have a GitHub Personal Access Token (PAT) with at least `read:p
 1. Create a token at: https://github.com/settings/tokens
    <br><br>
     - Select `read:packages` scope.<br><br>
-    - Copy the token value.
-
+    - Copy the token value.<br><br>
 
 2. Add the token to your Maven `settings.xml` file (located at `~/.m2/settings.xml`) :
 
