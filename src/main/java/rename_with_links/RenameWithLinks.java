@@ -265,7 +265,14 @@ public class RenameWithLinks {
     
     assertNoneNull(destinationFileOrFolder, shortcutsTargetUpdater);
     
-    assertExistingPath(originalFileOrFolder, null);
+    destinationFileOrFolder.assertNeitherNull();
+    
+    final boolean mustRenameMove = destinationFileOrFolder.o2.booleanValue();
+    
+    assertExistingPath(mustRenameMove ? originalFileOrFolder : destinationFileOrFolder.o1
+                        , null);
+    
+    assertTrue(mustRenameMove != destinationFileOrFolder.o1.exists(), "One of", getCanonicalPath(originalFileOrFolder), "and", getCanonicalPath(destinationFileOrFolder.o1), "must exist and the other one must not, instead they both", originalFileOrFolder.exists() ? "exist."  : "don't exist.");
     
     assertExistingPath(searchFolder, TRUE);
     
@@ -277,7 +284,7 @@ public class RenameWithLinks {
     
     try {
       
-      if (destinationFileOrFolder.o2.booleanValue()) {
+      if (mustRenameMove) {
         
         // Do the requested renaming / moving :
         
