@@ -26,7 +26,7 @@ _refactor(exceptions) : Remove spurious 'throws' clauses._
 | `update`    | Static content updates such as articles, news, about, profile, etc.                                                                                    |
 | `improve`   | Improving existing functionality (e.g. _Improve(Home): Swap the order of Feature and Pricing)._                                                        |
 | `deprecate` | Deprecating features, options, parameters, units, pages, etc.                                                                                          |
-| `upgrade`   | Upgrading environment, system, dependencies, etc.                                                                                                      |
+| `upgrade`   | Upgrading environment, system, etc.                                                                                                                    |
 | `revert`    | Reverting a previous commit.                                                                                                                           |
 | `docs`      | Documentation only changes (also comments except TODO/FIXME (see `chore`)).                                                                            |
 | `style`     | Code formatting (e.g. white-space), etc.                                                                                                               |
