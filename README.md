@@ -1,7 +1,7 @@
 # MoveWithShortcuts
 Java program, currently for Windows only, that possibly renames and/or moves a file or folder, and updates the Windows
-shortcuts (`.lnk` files) so that their target and working directory (the "Start in" field) point to the updated location
-and the shortcuts still works, instead of becoming broken.
+shortcuts (`.lnk` files) so that their target and working directory (the "Start in" field) have their value adjusted
+according to the renaming / moving, instead of becoming broken.
 
 In detail :
 
