@@ -372,7 +372,7 @@ public class MoveWithShortcuts {
     final String msgDoRenameMove = destinationFileOrFolder.o2.booleanValue() ?
                                    (isRenameOnly ? "renaming " : "renaming / moving ")
                                                + (         originalFileOrFolder.isFile() ? "file" : "folder")     + NL2T
-                                               + dq(originalFileOrFolder.getPath()) + NL2T + "to"          + NL2T
+                                               + dq(originalFileOrFolder.getPath()) + NL2T + "to *become*" + NL2T
                                                + dq((isRenameOnly ? destinationFileOrFolder.o1.getName()
                                                                          : destinationFileOrFolder.o1.getPath())) + NL2T
                                    + "and "                                  : EMPTY;
