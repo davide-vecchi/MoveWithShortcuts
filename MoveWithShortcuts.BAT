@@ -9,4 +9,4 @@ REM replace "pwsh" with "powershell". In alternative the program can
 REM also be executed with the normal "java -jar MoveWithShortcuts.jar"
 REM but the best Unicode support is provided by Windows Terminal.
 
-wt pwsh -NoExit -File "C:\MoveWithShortcuts\MoveWithShortcuts.ps1"
+wt pwsh -NoExit -File "%~dp0MoveWithShortcuts.ps1" -WorkDir "%CD%"
