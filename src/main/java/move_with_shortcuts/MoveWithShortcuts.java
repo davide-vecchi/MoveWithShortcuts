@@ -77,7 +77,7 @@ import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 /**
  * Renames and / or moves files and folders and updates all the shortcuts that were pointing to them, so that the
- * shortcuts' target and working directory point to the moved location instead of becoming broken.
+ * shortcuts' target and working folder point to the moved location instead of becoming broken.
  */
 @Getter
 @ToString
@@ -153,7 +153,7 @@ public class MoveWithShortcuts {
    *
    * @throws MissingExternalValueException   If the specified {@link #askOriginalPath original path} does not exist.<br>
    *
-   * @throws InvalidExternalValueException   If the specified {@link #askSearchDirectory()} search path} does not exist
+   * @throws InvalidExternalValueException   If the specified {@link #askSearchFolder()} search path} does not exist
    *                                         or is not a folder.<br>
    *
    * @throws NonUniqueExternalValueException If the specified {@link #askDestinationFileOrFolder destination file or
@@ -170,7 +170,7 @@ public class MoveWithShortcuts {
     final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
                                          askDestinationFileOrFolder(originalFileOrFolder);
     
-    final File searchFolder =            askSearchDirectory();
+    final File searchFolder =            askSearchFolder();
     
     this.appContext.currentVerbosity =   askVerbosity();
     
@@ -201,7 +201,7 @@ public class MoveWithShortcuts {
    *
    * @throws MissingExternalValueException   If the specified {@code originalPath} does not exist.<br>
    *
-   * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a directory.<br>
+   * @throws InvalidExternalValueException   If {@code searchPath} does not exist or is not a folder.<br>
    *
    * @throws NonUniqueExternalValueException If the specified {@code argDestinationPath} is the same as {@code
    *                                         originalPath}.
@@ -223,7 +223,7 @@ public class MoveWithShortcuts {
     final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
                                          resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
 
-    final File searchFolder =            resolveSearchDirectory(        argSearchPath);
+    final File searchFolder =            resolveSearchFolder(        argSearchPath);
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
       
@@ -470,7 +470,7 @@ public class MoveWithShortcuts {
    *
    * @return A new {@link File} instance created from the given file / folder path, which must exist.
    */
-  private static @NotNull File resolveSearchDirectory(@NotBlank String argSearchPath) {
+  private static @NotNull File resolveSearchFolder(@NotBlank String argSearchPath) {
     
     return newValidatedFolder(argSearchPath, true, FALSE);
   }
@@ -591,7 +591,7 @@ public class MoveWithShortcuts {
   /**
    * Asks the user for the path to scan for {@code .lnk} shortcuts to update.
    */
-  private @NotNull File askSearchDirectory() throws UserRequestedTermination {
+  private @NotNull File askSearchFolder() throws UserRequestedTermination {
     
     final String searchPath = this.appContext.userIO.in(
                                                 "Enter the path of the folder to scan for " + WIN_SHORTCUT_EXTENSION
@@ -602,7 +602,7 @@ public class MoveWithShortcuts {
 
       throw new UserRequestedTermination();
     }
-    return resolveSearchDirectory(searchPath);
+    return resolveSearchFolder(searchPath);
   }
   
   /**

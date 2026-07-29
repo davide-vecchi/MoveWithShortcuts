@@ -104,8 +104,8 @@ public class MoveWithShortcutsTest {
   private int nextTempDirCounter;
   
   /**
-   * Function to use to read a shortcut's target and working directory from this test class.<br><br>The {@link
-   * TwoObjects} it returns has the shortcut's target in {@link TwoObjects#o1 o1} and the shortcut's working directory
+   * Function to use to read a shortcut's target and working folder from this test class.<br><br>The {@link
+   * TwoObjects} it returns has the shortcut's target in {@link TwoObjects#o1 o1} and the shortcut's working folder
    * in {@link TwoObjects#o2 o2}.
    */
   private final Function<@NotNull File, @NotNull TwoObjects<@NotNull String, @NotNull String>> targetReader =
@@ -118,7 +118,7 @@ public class MoveWithShortcutsTest {
       public @NotNull TwoObjects<@NotNull String, @NotNull String> apply(@NotNull File file) {
         
         return new TwoObjects<>(this.objThatCanReadShortcuts.readTarget(    file)
-                              , this.objThatCanReadShortcuts.readWorkingDir(file));
+                              , this.objThatCanReadShortcuts.readWorkingFolder(file));
       }
   };
   
@@ -351,7 +351,7 @@ public class MoveWithShortcutsTest {
 
     // 5.2 : existing path → temp dir
     // 5.3 : new name → any string
-    // 5.4 : search dir → a file, not a directory
+    // 5.4 : search dir → a file, not a folder
     // → InvalidPathException
     
     for (final IShortcutsUpdater u : this.updatersToTest) {
@@ -998,7 +998,7 @@ public class MoveWithShortcutsTest {
    *                                   absolute form} will be used.<br>
    *
    * @param expectedWorkingDir         String representing the {@link IShortcutUpdater#readWorkingDir working
-   *                                   directory} that the given {@code shortcut} must have for the assertion not to
+   *                                   folder} that the given {@code shortcut} must have for the assertion not to
    *                                   fail. May be {@link StringUtils#EMPTY empty}.<br>
    *
    * @param prefixMsgShortcutNotFound  The prefix for the message to show if the assertion that the given {@code
@@ -1033,7 +1033,7 @@ public class MoveWithShortcutsTest {
     Assert.assertEquals(workingDir, assertNonBlankUnlessEmpty(expectedWorkingDir)
                                            , prefixMsgTargetNotMatching + " : The shortcut file "
                                                       + dq(shortcut.toAbsolutePath().toString()) + NL
-                                                      + "does not have the expected working directory.");
+                                                      + "does not have the expected working folder.");
   }
   
   /**
