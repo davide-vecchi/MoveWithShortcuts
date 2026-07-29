@@ -113,11 +113,11 @@ public class MoveWithShortcutsTest {
     new Function<>() {
       
       private final @NotNull IShortcutUpdater objThatCanReadShortcuts = WinShortcutUpdater_PS_WSH01.newInstance(
-                                                         false, MoveWithShortcutsTest.this.devLog);
+                                                       false, MoveWithShortcutsTest.this.devLog);
       @Override
       public @NotNull TwoObjects<@NotNull String, @NotNull String> apply(@NotNull File file) {
         
-        return new TwoObjects<>(this.objThatCanReadShortcuts.readTarget(    file)
+        return new TwoObjects<>(this.objThatCanReadShortcuts.readTarget(       file)
                               , this.objThatCanReadShortcuts.readWorkingFolder(file));
       }
   };
