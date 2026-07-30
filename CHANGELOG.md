@@ -5,14 +5,20 @@
 
 ### Changed
 
-- Bump version to 3.0.0 .<br><br>
+- Bump version to 3.0.0-SNAPSHOT .<br><br>
 
 - **Breaking:**
   Program renamed to MoveWithShortcuts. The old name RenameWithLinks must not appear anywhere anymore.<br><br>
 
 - Improved several user messages and prompts.<br><br>
 
-- Update dependency on DFile to 2.2.0 .
+- Update DFile dependency to 2.2.0-SNAPSHOT .
+
+- Update DApplication dependency to 2.2.0-SNAPSHOT .
+
+- Update DUtil dependency to 2.2.0-SNAPSHOT .
+
+- Update DLog dependency to 2.2.0-SNAPSHOT .
 
 ### Added
 
