@@ -77,7 +77,7 @@ import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 /**
  * Renames and / or moves files and folders and updates all the shortcuts that were pointing to them, so that the
- * shortcuts' target and working folder point to the moved location instead of becoming broken.
+ * shortcuts' target and work folder point to the moved location instead of becoming broken.
  */
 @Getter
 @ToString
@@ -186,7 +186,7 @@ public class MoveWithShortcuts {
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
    * @param shortcutsTargetUpdater The {@link IShortcutsUpdater object} to {@link IShortcutsUpdater#updateShortcuts(List, File, File)}
-   *                               update} the target and working folders of shortcuts.
+   *                               update} the target and work folders of shortcuts.
    *
    * @param argOriginalPath       The argument given for the path of the file or folder to rename / move.<br>
    *
@@ -378,7 +378,7 @@ public class MoveWithShortcuts {
                                    + "and "                                  : EMPTY;
     
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm " + msgDoRenameMove
-                                                          + "updating the targets and/or the working folders of the shortcuts that are found under" + NL2T
+                                                          + "updating the targets and/or the work folders of the shortcuts that are found under" + NL2T
                                                           + dq(getCanonicalPath(searchFolder)) + NL2T
                                                           + "from pointing to the original location under" + NL2T2 + dq(getCanonicalPath(originalFileOrFolder)) + NL2T
                                                           + "to pointing to the moved location under" + NL2T2 + dq(getCanonicalPath(destinationFileOrFolder.o1)) + NL2T

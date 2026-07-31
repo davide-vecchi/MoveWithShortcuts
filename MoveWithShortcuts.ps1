@@ -14,7 +14,7 @@ param(
 
 $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
-# Handle the setting of the working folder :
+# Handle the setting of the work folder :
 
 if ($WorkDir) {
 

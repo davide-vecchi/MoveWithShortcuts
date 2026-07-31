@@ -104,8 +104,8 @@ public class MoveWithShortcutsTest {
   private int nextTempDirCounter;
   
   /**
-   * Function to use to read a shortcut's target and working folder from this test class.<br><br>The {@link
-   * TwoObjects} it returns has the shortcut's target in {@link TwoObjects#o1 o1} and the shortcut's working folder
+   * Function to use to read a shortcut's target and work folder from this test class.<br><br>The {@link
+   * TwoObjects} it returns has the shortcut's target in {@link TwoObjects#o1 o1} and the shortcut's work folder
    * in {@link TwoObjects#o2 o2}.
    */
   private final Function<@NotNull File, @NotNull TwoObjects<@NotNull String, @NotNull String>> targetReader =
@@ -1033,7 +1033,7 @@ public class MoveWithShortcutsTest {
     Assert.assertEquals(workingDir, assertNonBlankUnlessEmpty(expectedWorkingDir)
                                            , prefixMsgTargetNotMatching + " : The shortcut file "
                                                       + dq(shortcut.toAbsolutePath().toString()) + NL
-                                                      + "does not have the expected working folder.");
+                                                      + "does not have the expected work folder.");
   }
   
   /**
