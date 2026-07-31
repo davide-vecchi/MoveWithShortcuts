@@ -10,15 +10,17 @@
 - **Breaking:**
   Program renamed to MoveWithShortcuts. The old name RenameWithLinks must not appear anywhere anymore.<br><br>
 
-- Improved several user messages and prompts.<br><br>
+- Improve several user messages and prompts.<br><br>
 
-- Update DFile dependency to 2.2.0-SNAPSHOT .
+- Update DFile dependency to 2.2.0-SNAPSHOT .<br><br>
 
-- Update DApplication dependency to 2.2.0-SNAPSHOT .
+- Update DApplication dependency to 2.2.0-SNAPSHOT .<br><br>
 
-- Update DUtil dependency to 2.2.0-SNAPSHOT .
+- Update DUtil dependency to 2.2.0-SNAPSHOT .<br><br>
 
-- Update DLog dependency to 2.2.0-SNAPSHOT .
+- Update DLog dependency to 2.2.0-SNAPSHOT .<br><br>
+
+- Update DUserInputOutput dependency to 2.2.0-SNAPSHOT .<br><br>
 
 ### Added
 
