@@ -8,7 +8,7 @@
 - Bump version to 3.0.0-SNAPSHOT .<br><br>
 
 - **Breaking:**
-  Program renamed to MoveWithShortcuts. The old name RenameWithLinks must not appear anywhere anymore.<br><br>
+  Rename program to MoveWithShortcuts. The old name RenameWithLinks must not appear anywhere anymore.<br><br>
 
 - Improve several user messages and prompts.<br><br>
 
