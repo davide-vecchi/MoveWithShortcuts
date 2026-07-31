@@ -25,3 +25,12 @@ DEL /S /Q "*.LOG"
 DEL /S /Q "*.TMP"
 
 PAUSE
+
+
+CD /D "H:\Users\Davide\Davide\LOG\"
+
+DEL /S /Q "*.LOG"
+
+DEL /S /Q "*.TMP"
+
+PAUSE
