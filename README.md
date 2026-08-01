@@ -95,9 +95,6 @@ mvn clean install
   The content of those 2 scripts must be adjusted if the jar has not been renamed to `MoveWithShortcuts.jar` or has not
   been deployed to a `C:\MoveWithShortcuts\` folder.<br><br>
   
-- The files `Build List MoveWithShortcuts *.TXT` found in the root folder are _Build List_ files used by another program,
-  _BuildOrchestrator_, which is currently not published. So these files can currently be ignored.
-  
 ## Indentation of Java code
 
 The indentation of the Java code is tuned to IntelliJ and it works if the inlay hints are shown, with the setting "Use
