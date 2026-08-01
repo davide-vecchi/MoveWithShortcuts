@@ -527,7 +527,7 @@ public class MoveWithShortcutsTest {
       runApp(app, u);
       
       Assert.assertTrue(destinationFileOrFolder.exists(), amp(u) + "New file should exist");
-  
+      
       final ShellLink updatedLnk = new ShellLink(lnkFile);
   
       Assert.assertEquals(updatedLnk.resolveTarget(), getCanonicalPath(destinationFileOrFolder), amp(u));

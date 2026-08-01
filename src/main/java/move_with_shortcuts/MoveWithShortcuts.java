@@ -223,7 +223,7 @@ public class MoveWithShortcuts {
     final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
                                          resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
 
-    final File searchFolder =            resolveSearchFolder(        argSearchPath);
+    final File searchFolder =            resolveSearchFolder(           argSearchPath);
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
       
