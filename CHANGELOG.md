@@ -2,27 +2,27 @@
 
 # Changelog
 
-## [3.0.0-SNAPSHOT]
+## [3.0.0]
 
 
 ### Changed
 
-- Bump version to 3.0.0-SNAPSHOT .<br><br>
+- Bump version to 3.0.0 .<br><br>
 
 - **Breaking:**
   Rename program to MoveWithShortcuts. The old name RenameWithLinks must not appear anywhere anymore.<br><br>
 
 - Improve several user messages and prompts.<br><br>
 
-- Update DFile dependency to 2.2.0-SNAPSHOT .<br><br>
+- Update DFile dependency to 2.2.0 .<br><br>
 
-- Update DApplication dependency to 2.2.0-SNAPSHOT .<br><br>
+- Update DApplication dependency to 2.2.0 .<br><br>
 
-- Update DUtil dependency to 2.2.0-SNAPSHOT .<br><br>
+- Update DUtil dependency to 2.2.0 .<br><br>
 
-- Update DLog dependency to 2.2.0-SNAPSHOT .<br><br>
+- Update DLog dependency to 2.2.0 .<br><br>
 
-- Update DUserInputOutput dependency to 2.2.0-SNAPSHOT .<br><br>
+- Update DUserInputOutput dependency to 2.2.0 .<br><br>
 
 ### Added
 
