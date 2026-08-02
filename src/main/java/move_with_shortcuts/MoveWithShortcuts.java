@@ -370,15 +370,18 @@ public class MoveWithShortcuts {
                                           , getCanonicalPath(destinationFileOrFolder.o1.getParentFile()));
     
     final String msgDoRenameMove = destinationFileOrFolder.o2.booleanValue() ?
-                                   (isRenameOnly ? "renaming " : "renaming / moving ")
-                                               + (         originalFileOrFolder.isFile() ? "file" : "folder")     + NL2T
-                                               + dq(originalFileOrFolder.getPath()) + NL2T + "to *become*" + NL2T
+                                   (isRenameOnly ? "renaming " :
+                                                   originalFileOrFolder.getName().equals(
+                                                                                 destinationFileOrFolder.o1.getName()) ?
+                                                     "moving " : "renaming / moving ")
+                                               + (         originalFileOrFolder.isFile() ? "file" : "folder")     + NL2T2
+                                               + dq(originalFileOrFolder.getPath()) + NL2T + "to *become*" + NL2T2
                                                + dq((isRenameOnly ? destinationFileOrFolder.o1.getName()
                                                                          : destinationFileOrFolder.o1.getPath())) + NL2T
                                    + "and "                                  : EMPTY;
     
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm " + msgDoRenameMove
-                                                          + "updating the targets and/or the work folders of the shortcuts that are found under" + NL2T
+                                                          + "updating the targets and/or the work folders of the shortcuts that are found under" + NL2T2
                                                           + dq(getCanonicalPath(searchFolder)) + NL2T
                                                           + "from pointing to the original location under" + NL2T2 + dq(getCanonicalPath(originalFileOrFolder)) + NL2T
                                                           + "to pointing to the moved location under" + NL2T2 + dq(getCanonicalPath(destinationFileOrFolder.o1)) + NL2T
