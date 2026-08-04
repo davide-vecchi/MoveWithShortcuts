@@ -17,7 +17,7 @@ In detail :
      the program terminates. It is a prerequisite that one exists and the other one does not.<br><br>
 
 2. Updates all the shortcuts found under a given search path if their target and/or working directory are pointing to
-   the moved element, so that they point to the updated location instead of becoming broken.
+   a location under the moved element, so that they point to the updated location instead of becoming broken.
 
 
 ## Usage
@@ -79,20 +79,20 @@ mvn clean install
 
 ## Build and deployment
 
-- Building with Maven (e.g. `mvn clean install`) produces an Uber jar which is executable and contains all the needed
+- Building with Maven (e.g. `mvn clean install`) produces an Uber JAR which is executable and contains all the needed
   dependencies. No other files are needed to run the program.<br><br>
   
-  This jar is created in the project's root folder and is called `MoveWithShortcuts-<VERSION>-jar-with-dependencies.jar`
+  This JAR is created in the project's root folder and is called `MoveWithShortcuts-<VERSION>-jar-with-dependencies.jar`
   (e.g. `MoveWithShortcuts-2.1.0-jar-with-dependencies.jar`). It's recommended to rename it to `MoveWithShortcuts.jar` and
   to move it to a `C:\MoveWithShortcuts\` folder (but it's not required).<br><br>
   
-  The jar can be executed normally with e.g. `java -jar MoveWithShortcuts.jar`, but the recommended way is to use the
+  The JAR can be executed normally with e.g. `java -jar MoveWithShortcuts.jar`, but the recommended way is to use the
   script `MoveWithShortcuts.BAT` which in turn calls the PowerShell script `MoveWithShortcuts.ps1` which starts the program
   in Windows Terminal, which is the recommended environment because it provides the best Unicode support.
   Running the program in PowerShell or Command Prompt outside of Windows Terminal may result in poor handling of certain
   Unicode characters.<br><br>
   
-  The content of those 2 scripts must be adjusted if the jar has not been renamed to `MoveWithShortcuts.jar` or has not
+  The content of those 2 scripts must be adjusted if the JAR has not been renamed to `MoveWithShortcuts.jar` or has not
   been deployed to a `C:\MoveWithShortcuts\` folder.<br><br>
   
 ## Indentation of Java code
