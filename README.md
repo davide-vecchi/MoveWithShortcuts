@@ -11,7 +11,8 @@ In detail :
      destination.<br><br>
      
    - If the given original path does not exist and the given destination path exists, the moving / renaming from the
-     original to the destination will be considered as having already happened outside of the program.<br><br>
+     original to the destination will be considered as having already happened outside of the program, and only the
+     corresponding shortcut-adjustment operation will take place.<br><br>
 
    - If both the given original path and the given destination path exist, or neither one exists, an error is shown and
      the program terminates. It is a prerequisite that one exists and the other one does not.<br><br>
