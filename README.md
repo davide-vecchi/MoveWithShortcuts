@@ -45,7 +45,7 @@ In alternative, it can be started with 3 or 4 arguments :<br>
    shown.
 
 ## Prerequisites
-NOTE : THIS SECTION IS INVALID, WILL BE REPLACED, DON'T FOLLOW THESE INSTRUCTIONS.
+<b>NOTE : THIS SECTION IS INVALID, WILL BE REPLACED, DON'T FOLLOW THESE INSTRUCTIONS.</b><br><br>
 To build this Maven project, you need several custom dependencies (`DJavaLibraries`), which will be downloaded during
 the build if you have a GitHub Personal Access Token (PAT) with at least `read:packages` scope configured in your
 `~/.m2/settings.xml`; if you don't already have that, you can follow these 2 steps :
