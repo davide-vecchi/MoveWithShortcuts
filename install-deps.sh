@@ -17,6 +17,12 @@
 
 set -e
 
+# =============================================================================
+# Configuration
+# =============================================================================
+DLIBS_DIR="dlibs"
+LJ_REPO_URL="https://github.com/davide-vecchi/Libs-JARs.git"
+
 # Color definitions
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -25,19 +31,16 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # List of DLibs required by MoveWithShortcuts (direct + transitive)
+# Format: groupId/artifactId/version
 declare -a DEPS=(
-    "dapplication"
-    "dutil"
-    "dfile"
-    "dlog"
-    "duserinputoutput"
-    "dtestng"
-    "dtest"
+    "djavalibraries/dapplication/2.2.0"
+    "djavalibraries/dutil/2.2.0"
+    "djavalibraries/dfile/2.2.0"
+    "djavalibraries/dlog/2.2.0"
+    "djavalibraries/duserinputoutput/2.2.0"
+    "djavalibraries/dtestng/2.1.0"
+    "djavalibraries/dtest/2.2.0"
 )
-
-VERSION="2.2.0"
-TESTNG_VERSION="2.1.0"
-GROUP_ID="djavalibraries"
 
 echo ""
 echo "========================================"
@@ -50,7 +53,7 @@ LJ_PATH="../Libs-JARs"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Check if LJ exists at the default location
-if [ -d "$SCRIPT_DIR/$LJ_PATH/dlibs" ]; then
+if [ -d "$SCRIPT_DIR/$LJ_PATH/$DLIBS_DIR" ]; then
     LJ_ABSOLUTE_PATH="$(cd "$SCRIPT_DIR/$LJ_PATH" && pwd)"
     echo -e "${GREEN}Found Libs-JARs at: $LJ_ABSOLUTE_PATH${NC}"
 else
@@ -61,17 +64,17 @@ else
     echo "  2. Enter the path to an existing Libs-JARs folder"
     echo "  3. Enter / to terminate"
     echo ""
-    read -p "Your choice: " user_input
-    
+    read -r -p "Your choice: " user_input
+
     if [[ "$user_input" == "/" ]]; then
         echo "Aborted."
         exit 0
     fi
-    
+
     if [[ -z "$user_input" ]]; then
         # Clone the repository
         echo "Cloning Libs-JARs into $LJ_PATH..."
-        git clone https://github.com/davide-vecchi/Libs-JARs.git "$SCRIPT_DIR/$LJ_PATH"
+        git clone "$LJ_REPO_URL" "$SCRIPT_DIR/$LJ_PATH"
         if [ $? -ne 0 ]; then
             echo -e "${RED}Failed to clone Libs-JARs.${NC}"
             exit 1
@@ -85,9 +88,9 @@ else
         else
             LJ_PATH="$SCRIPT_DIR/$user_input"
         fi
-        
-        if [ ! -d "$LJ_PATH/dlibs" ]; then
-            echo -e "${RED}Error: $LJ_PATH/dlibs does not exist.${NC}"
+
+        if [ ! -d "$LJ_PATH/$DLIBS_DIR" ]; then
+            echo -e "${RED}Error: $LJ_PATH/$DLIBS_DIR does not exist.${NC}"
             echo "Please ensure the path points to the root of the Libs-JARs repository."
             exit 1
         fi
@@ -100,30 +103,24 @@ echo ""
 echo "Installing dependencies..."
 
 for dep in "${DEPS[@]}"; do
-    # Determine version (dtestng is 2.1.0, others are 2.2.0)
-    if [[ "$dep" == "dtestng" ]]; then
-        ver="$TESTNG_VERSION"
-    else
-        ver="$VERSION"
-    fi
-    
-    jar_file="$LJ_ABSOLUTE_PATH/dlibs/$GROUP_ID/$dep/$ver/$dep-$ver.jar"
-    pom_file="$LJ_ABSOLUTE_PATH/dlibs/$GROUP_ID/$dep/$ver/$dep-$ver.pom"
-    
+    # Split the entry into groupId, artifactId, version
+    IFS='/' read -r group_id artifact_id version <<< "$dep"
+
+    jar_file="$LJ_ABSOLUTE_PATH/$DLIBS_DIR/$dep/$artifact_id-$version.jar"
+    pom_file="$LJ_ABSOLUTE_PATH/$DLIBS_DIR/$dep/$artifact_id-$version.pom"
+
     if [ ! -f "$jar_file" ]; then
-        echo -e "${YELLOW}WARNING: JAR not found for $dep:$ver. Skipping.${NC}"
+        echo -e "${YELLOW}WARNING: JAR not found for $dep. Skipping.${NC}"
         continue
     fi
-    
+
     if [ ! -f "$pom_file" ]; then
-        echo -e "${YELLOW}WARNING: POM not found for $dep:$ver. Skipping.${NC}"
+        echo -e "${YELLOW}WARNING: POM not found for $dep. Skipping.${NC}"
         continue
     fi
-    
-    echo -e "Installing ${CYAN}$dep${NC} ($ver)..."
-    mvn install:install-file -Dfile="$jar_file" -DpomFile="$pom_file"
-    
-    if [ $? -eq 0 ]; then
+
+    echo -e "Installing ${CYAN}$artifact_id${NC} ($version)..."
+    if mvn install:install-file -Dfile="$jar_file" -DpomFile="$pom_file"; then
         echo -e "${GREEN}  Success${NC}"
     else
         echo -e "${RED}  Failed${NC}"
