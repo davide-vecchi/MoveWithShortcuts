@@ -45,30 +45,37 @@ In alternative, it can be started with 3 or 4 arguments :<br>
    shown.
 
 ## Prerequisites
-<b>NOTE : THIS SECTION IS INVALID, WILL BE REPLACED, DON'T FOLLOW THESE INSTRUCTIONS.</b><br><br>
-To build this Maven project, you need several custom dependencies (`DJavaLibraries`), which will be downloaded during
-the build if you have a GitHub Personal Access Token (PAT) with at least `read:packages` scope configured in your
-`~/.m2/settings.xml`; if you don't already have that, you can follow these 2 steps :
 
-1. Create a token at: https://github.com/settings/tokens
-   <br><br>
-    - Select `read:packages` scope.<br><br>
-    - Copy the token value.<br><br>
+- Java 21 or higher installed and configured.
+- Maven 3.9 or higher installed and configured.
+- Git (to clone the required repositories).
 
-2. Add the token to your Maven `settings.xml` file (located at `~/.m2/settings.xml`) :
+## Installing the required libraries (DLibs)
 
-```xml
-<settings>
-    <servers>
-        <server>
-            <id>github</id>
-            <username>YOUR_GITHUB_USERNAME</username>
-            <password>YOUR_TOKEN</password>
-        </server>
-    </servers>
-</settings>
+MoveWithShortcuts depends on several libraries (DLibs) that are distributed as pre-compiled JARs in
+the [Libs-JARs](https://github.com/davide-vecchi/Libs-JARs) repository.
+
+**Step 1: Clone the `Libs-JARs` repository**
+
+```bash
+git clone https://github.com/davide-vecchi/Libs-JARs.git ../Libs-JARs
 ```
-Of course if the `<servers>` section already exists in your `settings.xml`, just add the `<server>` section inside it. 
+
+**Step 2: Install the libraries**
+
+From the `Libs-JARs` folder, run the installation script:
+
+```bash
+cd ../Libs-JARs
+./install-all.sh        # On Linux/macOS (Git Bash)
+# or
+install-all.bat         # On Windows
+```
+
+Alternatively, if you are inside the `MoveWithShortcuts` folder, you can use the provided `install-deps.sh` script to
+install only the libraries needed by this project.
+
+The installation will copy the JARs to your local Maven repository (`~/.m2/repository`).
 
 When you build the project, e.g. using
 
@@ -76,7 +83,8 @@ When you build the project, e.g. using
 mvn clean install
 ```
 
-, Maven will download the required `DJavaLibraries` dependencies from GitHub Packages using your token.
+, Maven will resolve these dependencies from your local repository.
+
 
 ## Build and deployment
 
@@ -96,11 +104,13 @@ mvn clean install
   The content of those 2 scripts must be adjusted if the JAR has not been renamed to `MoveWithShortcuts.jar` or has not
   been deployed to a `C:\MoveWithShortcuts\` folder.<br><br>
   
+
 ## Indentation of Java code
 
 The indentation of the Java code is tuned to IntelliJ and it works if the inlay hints are shown, with the setting "Use
 editor font for inlay hints" true (Settings / Editor / General / Appearance) and the editor font "JetBrains Mono" size
 13.0 (Settings / Editor / Font).
+
 
 ## Requires
 
@@ -108,10 +118,17 @@ editor font for inlay hints" true (Settings / Editor / General / Appearance) and
 - TestNG to run the tests.
 - See dependencies in pom.xml .
 
+
 ## Project Status
 
 - Active and in use.
 
+
 ## Contacts
 
 - ciustea@lorettastan.eu
+
+
+## License
+
+This project is licensed under the MIT License.
