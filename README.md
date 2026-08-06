@@ -46,13 +46,13 @@ In alternative, it can be started with 3 or 4 arguments :<br>
 
 ## Prerequisites
 
-- Java 21 or higher installed and configured.
-- Maven 3.9 or higher installed and configured.
+- Java 21 or higher installed and configured.<br><br>
+- Maven 3.9 or higher installed and configured.<br><br>
 - Git (to clone the required repositories).
 
 ## Installing the required libraries (DLibs)
 
-MoveWithShortcuts depends on several libraries (DLibs) that are distributed as pre-compiled JARs in
+`MoveWithShortcuts` depends on several libraries (`DLibs`) that are distributed as pre-compiled JARs in
 the [Libs-JARs](https://github.com/davide-vecchi/Libs-JARs) repository.
 
 **Step 1: Clone the `Libs-JARs` repository**
@@ -72,19 +72,17 @@ cd ../Libs-JARs
 install-all.bat         # On Windows
 ```
 
-Alternatively, if you are inside the `MoveWithShortcuts` folder, you can use the provided `install-deps.sh` script to
+Alternatively, you can move inside the `MoveWithShortcuts` folder and run the provided `install-deps.sh` script to
 install only the libraries needed by this project.
 
-The installation will copy the JARs to your local Maven repository (`~/.m2/repository`).
+Either way, the script will install the JARs into your local Maven repository (`~/.m2/repository`).
 
 When you build the project, e.g. using
 
 ```bash
 mvn clean install
 ```
-
 , Maven will resolve these dependencies from your local repository.
-
 
 ## Build and deployment
 
@@ -102,32 +100,37 @@ mvn clean install
   Unicode characters.<br><br>
   
   The content of those 2 scripts must be adjusted if the JAR has not been renamed to `MoveWithShortcuts.jar` or has not
-  been deployed to a `C:\MoveWithShortcuts\` folder.<br><br>
+  been deployed to a `C:\MoveWithShortcuts\` folder.
   
-
 ## Indentation of Java code
 
 The indentation of the Java code is tuned to IntelliJ and it works if the inlay hints are shown, with the setting "Use
 editor font for inlay hints" true (Settings / Editor / General / Appearance) and the editor font "JetBrains Mono" size
 13.0 (Settings / Editor / Font).
 
-
 ## Requires
 
-- At least Java 21.
-- TestNG to run the tests.
-- See dependencies in pom.xml .
-
+- At least Java 21.<br><br>
+ 
+- TestNG to run the tests.<br><br>
+  
+- See dependencies in `pom.xml`.
 
 ## Project Status
 
 - Active and in use.
 
+## Contacts
 
 ## Contacts
 
-- ciustea@lorettastan.eu
+You can reach me in two ways:
 
+- **Open an issue:** For bug reports, feature requests, or general questions,
+  please [open a new issue](https://github.com/davide-vecchi/MoveWithShortcuts/issues/new) on GitHub.<br><br>
+  
+- **Mention me:** If you need to communicate with me, mention my username (`@davide-vecchi`) in a comment.
+  I will be notified.
 
 ## License
 
