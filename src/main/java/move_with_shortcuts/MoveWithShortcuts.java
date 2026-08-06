@@ -383,8 +383,10 @@ public class MoveWithShortcuts {
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm " + msgDoRenameMove
                                                           + "updating the targets and/or the work folders of the shortcuts that are found under" + NL2T2
                                                           + dq(getCanonicalPath(searchFolder)) + NL2T
-                                                          + "from pointing to the original location under" + NL2T2 + dq(getCanonicalPath(originalFileOrFolder)) + NL2T
-                                                          + "to pointing to the moved location under" + NL2T2 + dq(getCanonicalPath(destinationFileOrFolder.o1)) + NL2T
+                                                          + "from pointing to the original location under"         + NL2T2
+                                                               + dq(getCanonicalPath(originalFileOrFolder)) + NL2T
+                                                          + "to pointing to the new location under"                + NL2T2
+                                                               + dq(getCanonicalPath(destinationFileOrFolder.o1)) + NL2T
                                                           + ", or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS) != null;
     return confirmed;
