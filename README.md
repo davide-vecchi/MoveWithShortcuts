@@ -122,8 +122,6 @@ editor font for inlay hints" true (Settings / Editor / General / Appearance) and
 
 ## Contacts
 
-## Contacts
-
 You can reach me in two ways:
 
 - **Open an issue:** For bug reports, feature requests, or general questions,
