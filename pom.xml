@@ -7,7 +7,8 @@
 	<groupId>DFileTools</groupId>
 	<artifactId>MoveWithShortcuts</artifactId>
 	<version>3.0.0</version>
-	
+    <name>Move With Shortcuts</name>
+    
 	<properties>
 		<maven.compiler.release>21</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
