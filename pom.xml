@@ -154,7 +154,6 @@
                             <archive>
                                 <manifest>
                                     <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                                    <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                                     <mainClass>move_with_shortcuts.MoveWithShortcutsMain</mainClass>
                                 </manifest>
                                 <manifestEntries>
