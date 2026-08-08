@@ -36,6 +36,7 @@ $DEPS = @(
     "djavalibraries/duserinputoutput/2.2.0",
     "djavalibraries/dtestng/2.1.0",
     "djavalibraries/dtest/2.2.0"
+    "djavalibraries/dtestng/2.2.0",
 )
 
 Write-Normal ""
