@@ -46,7 +46,29 @@ In alternative, it can be started with 3 or 4 arguments :<br>
 4. (Optional) Verbosity level, from 0 to 3. A value of 0 means that only possible error or warning messages will be
    shown.
 
-## Prerequisites
+## Quick Start (using the executable JAR)
+
+If you just want to use MoveWithShortcuts without building from source:
+
+1. Download the latest `MoveWithShortcuts.jar` from the
+   [Releases](https://github.com/davide-vecchi/MoveWithShortcuts/releases) page.<br><br>
+
+2. (Optional) Place it in a convenient folder, e.g. `C:\MoveWithShortcuts\`.<br><br>
+
+3. Either run it directly:
+   ```bash
+   java -jar MoveWithShortcuts.jar
+   ```
+   or, for the best experience, use the provided
+
+   ```bash
+   MoveWithShortcuts.BAT
+   ```
+   script (which launches the program in Windows Terminal for better Unicode support, see details under
+   _Build and deployment_ below).<br><br>
+
+4. Note: Java 21 or higher is required to run the JAR. No other dependencies are needed.
+
 ## Prerequisites (for building from source)
 
 - Java 21 or higher installed and configured.<br><br>
