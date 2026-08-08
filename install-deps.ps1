@@ -34,9 +34,9 @@ $DEPS = @(
     "djavalibraries/dfile/2.2.0",
     "djavalibraries/dlog/2.2.0",
     "djavalibraries/duserinputoutput/2.2.0",
-    "djavalibraries/dtestng/2.1.0",
-    "djavalibraries/dtest/2.2.0"
     "djavalibraries/dtestng/2.2.0",
+    "djavalibraries/dtest/2.2.0",
+    "javalibraries3rdparty/threadsafenumberformat/2.2.0"
 )
 
 Write-Normal ""
