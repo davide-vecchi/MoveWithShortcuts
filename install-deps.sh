@@ -9,10 +9,12 @@
 # This script checks for Libs-JARs in ../Libs-JARs/ by default. If not found,
 # it prompts the user to either clone it, provide a different path, or abort.
 #
-# Usage (from Git Bash):
+# This script is the Unix counterpart to install-deps.ps1. It contains the
+# installation logic directly, without needing a launcher, because Unix-like
+# systems do not have a PowerShell execution policy.
 #
-#   ./install-deps.sh
-#
+# Usage (from any terminal):
+#   - Linux / macOS / Git Bash on Windows: ./install-deps.sh
 # =============================================================================
 
 set -e

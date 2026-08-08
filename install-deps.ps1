@@ -7,10 +7,21 @@
 # This script checks for Libs-JARs in ../Libs-JARs/ by default. If not found,
 # it prompts the user to either clone it, provide a different path, or abort.
 #
+# IMPORTANT: If you are on Windows and your PowerShell execution policy is set
+# to Restricted (the default on many systems), this script cannot be run
+# directly. Use the launcher script install-deps.bat instead, which automatically
+# bypasses the execution policy for this script.
+#
+# If you run this script directly on Windows and your PowerShell execution policy
+# is set to Restricted, you must either:
+#   - Run it with: powershell -ExecutionPolicy Bypass -File install-deps.ps1
+#   - Change your execution policy (not recommended for security reasons)
+#
 # Usage:
-#   Right-click this file and select "Run with PowerShell", or
-#   run from PowerShell: .\install-deps.ps1
-#   Or double-click install-deps.bat
+#   - From Windows GUI (recommended): double-click install-deps.bat
+#   - From Windows PowerShell (if policy allows): .\install-deps.ps1
+#   - From Windows GUI (if policy allows): right-click install-deps.ps1 and
+#     choose "Run with PowerShell".
 # =============================================================================
 
 # =============================================================================
