@@ -1,97 +1,17 @@
 
-## Commits
-
-If you want to contribute, you can follow these commit conventions but that's not required, you are welcome not to.
-
-Commit message format :
-
-`<type>(<Scope>) : <subject>`
-
-Example :
-
-_refactor(exceptions) : Remove spurious 'throws' clauses._
-
-- `<type>` is required and must be one of the types listed below.
-- `<Scope>` is optional and should describe the part of the codebase affected (e.g., `core`, `api`, `config`, `ui`, `logging`).
-- `<subject>` is a short, imperative description of the change (e.g., "Add validation for user input", "Fix null pointer in parser").
-
-### Valid Types (closed set, must use one of these) :
-
-| Type        | Description (from Techor specification with variations)                                                                                                |
-|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `feat`      | Introducing a new feature.                                                                                                                             |
-| `fix`       | Patching a bug.                                                                                                                                        |
-| `perf`      | A code change that improves performance.                                                                                                               |
-| `add`       | Adding new content or options (e.g. _Add(CSS): Option '.preference' for default theme)._                                                               |
-| `update`    | Static content updates such as articles, news, about, profile, etc.                                                                                    |
-| `improve`   | Improving existing functionality (e.g. _Improve(Home): Swap the order of Feature and Pricing)._                                                        |
-| `deprecate` | Deprecating features, options, parameters, units, pages, etc.                                                                                          |
-| `upgrade`   | Upgrading environment, system, etc.                                                                                                                    |
-| `revert`    | Reverting a previous commit.                                                                                                                           |
-| `docs`      | Documentation only changes (also comments except TODO/FIXME (see `chore`)).                                                                            |
-| `style`     | Code formatting (e.g. white-space), etc.                                                                                                               |
-|             | Also for adding or improving user messages and help text.                                                                                              |
-| `example`   | Adding or updating usage examples.                                                                                                                     |
-| `test`      | Adding missing tests or correcting existing tests.                                                                                                     |
-| `refactor`  | Code change that neither fixes a bug nor adds a feature, yet improves its internal structure. This includes :                                          |
-|             | - Internal consistency checks that throw on failure (Scope : `consistency-checks`).                                                                    |
-|             | - Moving logic into new interfaces' implementations (Scope : `interfaces`).                                                                            |
-|             | - Removing dead code.                                                                                                                                  |
-|             | - Adding logging.                                                                                                                                      |
-| `chore`     | Other changes that don't modify source (or are just TODO/FIXME comments), test files (filesystem), notes on things to do. E.g. .gitignore, file links. |
-| `build`     | Changes to build system. F.ex. modifying dependencies (Scope: `dependencies`).                                                                         |
-| `bump`      | For manually triggering a version bump (_bump(patch)_, _bump(minor)_, _bump(major)_).                                                                  |
-
-### Known Scopes (open set, more may be added) :
-
-| Scope                | Description                                                                                |
-|----------------------|--------------------------------------------------------------------------------------------|
-| `comments`           | JavaDoc or regular comments (except TODO / FIXME). Type always `docs`.                     | 
-| `debug`              | Code to facilitate debugging (except logging which is a Scope in itself).                  |
-| `exceptions`         |                                                                                            |
-| `filesystem`         |                                                                                            |
-| `future-changes`     | F.ex. TODO / FIXME (Type `chore`), notes for possible new implementations (Type `update`). |
-| `interfaces`         | Type is always `refactor`.                                                                 |
-| `logging`            | Adding / removing / modifying logging code and logged text.                                |
-| `dependencies`       | Adding / removing / modifying dependencies.                                                |
-| `consistency-checks` | F.ex. assertions.                                                                          |
-| `validation`         | On user input, on read or anyway received values.                                          |
-| `userIO`             | User messages, colors, anything about the style (not behavior) of the UI.                  |
-
-
-### Common examples of Type + Scope + possibly Subject
-
-docs(comments) : Improve JavaDoc.
-
-refactor(logging)
-
-refactor(exceptions) : Remove spurious 'throws' clauses.
-
-refactor(debug) : Add field to possibly keep temp files.
-
-style(userIO) : Improve user messages.
-
-style(format) : Whitespace.
-
-
-### Breaking Changes
-
-If your change introduces a breaking change, add `!` after the Type/Scope:
-
-Feat(api)!: change response format from XML to JSON
-
-The `!` indicates a breaking change and will trigger a major version bump.
-
----
+If you want to contribute, thank you, and here are some notes.
 
 ## Development Workflow
 
+1. Create an issue [in the issue tracker](https://github.com/davide-vecchi/MoveWithShortcuts/issues) describing the
+   change you are going to make.
 1. Create a feature branch.
-2. Make your changes.
-3. Write or update tests as needed.
-4. Ensure all tests pass.
-5. Commit your changes, possibly using the commit message convention above.
-6. Push your branch and open a pull request.
+1. Make your changes.
+1. Write or update tests as needed.
+1. Ensure all tests pass.
+1. Commit your changes.
+1. Push your branch and open a pull request.
+1. Update the issue in the issue tracker informing that the pull request is made.
 
 ---
 
@@ -100,9 +20,18 @@ The `!` indicates a breaking change and will trigger a major version bump.
 It is encouraged but not required to follow the existing code style of the project. If you are unsure, you are welcome
 to ask.
 
+The original Java code is tuned to IntelliJ with the following settings. It is welcome if you use these settings in the
+code you contribute to this project, but it's not expected. By all means feel free to use any settings in your new code.
+
+- "Editor / Code style / Java / Tab and Indents / Use tab character" off
+   
+  - "Tab size", "Indent" and "Continuation indent" all set to 2
+     
+  - "Keep indents on empty lines" on.
+
 ### IMPORTANT
 
-The indentation of the current Java code is tuned to IntelliJ and it works if the inlay hints are shown, with the
+The indentation of the original Java code is tuned to IntelliJ and it works if the inlay hints are shown, with the
 setting "Use editor font for inlay hints" true (Settings / Editor / General / Appearance) and the editor font "JetBrains
 Mono" size 13.0 (Settings / Editor / Font).
 
