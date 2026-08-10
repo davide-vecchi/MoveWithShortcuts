@@ -55,6 +55,7 @@ _refactor(exceptions) : Remove spurious 'throws' clauses._
 | `logging`            | Adding / removing / modifying logging code and logged text.                                |
 | `dependencies`       | Adding / removing / modifying dependencies.                                                |
 | `consistency-checks` | F.ex. assertions.                                                                          |
+| `validation`         | On user input, on read or anyway received values.                                          |
 | `userIO`             | User messages, colors, anything about the style (not behavior) of the UI.                  |
 
 
@@ -85,13 +86,12 @@ The `!` indicates a breaking change and will trigger a major version bump.
 
 ## Development Workflow
 
-1. Fork the repository.
-2. Create a feature branch.
-3. Make your changes.
-4. Write or update tests as needed.
-5. Ensure all tests pass.
-6. Commit your changes, possibly using the commit message convention above.
-7. Push your branch and open a pull request.
+1. Create a feature branch.
+2. Make your changes.
+3. Write or update tests as needed.
+4. Ensure all tests pass.
+5. Commit your changes, possibly using the commit message convention above.
+6. Push your branch and open a pull request.
 
 ---
 
