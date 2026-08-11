@@ -47,7 +47,7 @@ import static dfile.file.FileUtilities.checkIsExistingFile;
 import static dfile.file.FileUtilities.checkIsExistingFolder;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dlog.log.Log.writeLogsHeaders;
-import static dutil.exception.ExceptionUtilities.getExceptionSupplier;
+import static dutil.exception.exceptions.ExceptionSupplier.getExceptionSupplier;
 import static dutil.list.ListUtilities.asList;
 import static dutil.list.ListUtilities.assertContains;
 import static dutil.list.text.TextListUtilities.listToString;
