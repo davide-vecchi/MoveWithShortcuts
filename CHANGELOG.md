@@ -2,12 +2,12 @@
 
 # Changelog
 
-## [3.0.1-SNAPSHOT] @@@@@@@@@@@@@@@@@@@@@@@@@
+## [3.0.1]
 
 
 ### Changed
 
-- Bump version to 3.0.1-SNAPSHOT .<br><br> @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 3.0.1
+- Bump version to 3.0.1 .<br><br>
 
 
 ### Added
