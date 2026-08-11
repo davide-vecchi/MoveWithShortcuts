@@ -1188,7 +1188,8 @@ public class MoveWithShortcutsTest {
     }
     catch (RuntimeException re) {
       
-      throw getExceptionSupplier(re.getClass(), re, amp(updater) + re.getMessage()).get();
+      throw getExceptionSupplier(re.getClass(), re, amp(updater) + re.getMessage()
+                  , m -> app.getAppContext().outUserLog(m)).get();
     }
   }
   
@@ -1223,7 +1224,8 @@ public class MoveWithShortcutsTest {
     }
     catch (RuntimeException re) {
       
-      throw getExceptionSupplier(re.getClass(), re, amp(updater) + re.getMessage()).get();
+      throw getExceptionSupplier(re.getClass(), re, amp(updater) + re.getMessage()
+                  , m -> app.getAppContext().outUserLog(m)).get();
     }
   }
   
