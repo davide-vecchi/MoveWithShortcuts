@@ -25,7 +25,7 @@
   shortcuts.<br><br>
 
 - Use new version `2.2.1` of `DUtil` dependency to fix `NoSuchMethodException` when a Supplier for Throwable-s that
-  don't have the required constructor (f.ex. `org.apache.commons.lang3.exception.UncheckedException`) are requested.<br><br>
+  don't have the required constructor (f.ex. `org.apache.commons.lang3.exception.UncheckedException`) is requested.<br><br>
 
 
 ### Internal changes
