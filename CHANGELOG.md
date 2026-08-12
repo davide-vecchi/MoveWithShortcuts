@@ -9,6 +9,8 @@
 
 - Bump version to 3.0.1 .<br><br>
 
+- Update all DLibs dependencies to their latest versions.<br><br>
+
 
 ### Added
 
