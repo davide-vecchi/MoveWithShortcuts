@@ -997,7 +997,7 @@ public class MoveWithShortcutsTest {
    *                                   shortcut} must have for the assertion to not fail. Its {@link Path#toAbsolutePath()
    *                                   absolute form} will be used.<br>
    *
-   * @param expectedWorkingDir         String representing the {@link IShortcutUpdater#readWorkingFolder} working folder}
+   * @param expectedWorkFolder         String representing the {@link IShortcutUpdater#readWorkingFolder} working folder}
    *                                   that the given {@code shortcut} must have for the assertion not to fail. May be {@link StringUtils#EMPTY
    *                                   empty}.<br>
    *
@@ -1010,7 +1010,7 @@ public class MoveWithShortcutsTest {
    */
   private void assertShortcutToPathExists(@NotNull Path   shortcut
                                         , @NotNull Path   expectedTarget
-                                        , @NotNull String expectedWorkingDir
+                                        , @NotNull String expectedWorkFolder
                                                  , String prefixMsgShortcutNotFound
                                                  , String prefixMsgTargetNotMatching) {
     
@@ -1030,7 +1030,7 @@ public class MoveWithShortcutsTest {
                                                       + dq(shortcut.toAbsolutePath().toString()) + NL
                                                       + "does not have the expected target.");
     
-    Assert.assertEquals(workingDir, assertNonBlankUnlessEmpty(expectedWorkingDir)
+    Assert.assertEquals(workingDir, assertNonBlankUnlessEmpty(expectedWorkFolder)
                                            , prefixMsgTargetNotMatching + " : The shortcut file "
                                                       + dq(shortcut.toAbsolutePath().toString()) + NL
                                                       + "does not have the expected work folder.");
