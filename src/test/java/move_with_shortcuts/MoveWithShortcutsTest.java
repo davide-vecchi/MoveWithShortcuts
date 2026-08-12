@@ -997,9 +997,9 @@ public class MoveWithShortcutsTest {
    *                                   shortcut} must have for the assertion to not fail. Its {@link Path#toAbsolutePath()
    *                                   absolute form} will be used.<br>
    *
-   * @param expectedWorkingDir         String representing the {@link IShortcutUpdater#readWorkingDir working
-   *                                   folder} that the given {@code shortcut} must have for the assertion not to
-   *                                   fail. May be {@link StringUtils#EMPTY empty}.<br>
+   * @param expectedWorkingDir         String representing the {@link IShortcutUpdater#readWorkingFolder} working folder}
+   *                                   that the given {@code shortcut} must have for the assertion not to fail. May be {@link StringUtils#EMPTY
+   *                                   empty}.<br>
    *
    * @param prefixMsgShortcutNotFound  The prefix for the message to show if the assertion that the given {@code
    *                                   shortcut} exists fails. May be {@code null} or {@link StringUtils#isEmpty empty}.<br>
