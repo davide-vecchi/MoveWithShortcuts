@@ -20,6 +20,8 @@ import dutil.exception.exceptions.MissingValueException;
 import dutil.value_holder.TwoObjects;
 import jakarta.validation.constraints.NotNull;
 import mslinks.ShellLink;
+import mslinks.ShellLinkException;
+import mslinks.ShellLinkHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mockito.Mock;
@@ -48,6 +50,7 @@ import static dfile.file.FileUtilities.checkIsExistingFolder;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCurrentFolderAsFile;
 import static dlog.log.Log.writeLogsHeaders;
+import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.exception.exceptions.ExceptionSupplier.getExceptionSupplier;
 import static dutil.list.ListUtilities.asList;
 import static dutil.list.ListUtilities.assertContains;
@@ -57,6 +60,7 @@ import static dutil.number.NumberUtilities.TWO_I;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.number.NumberUtilities.assertNonNegative;
 import static dutil.string.TextUtilities.NL;
+import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.NLT2;
 import static dutil.string.TextUtilities.S;
@@ -789,7 +793,7 @@ public class MoveWithShortcutsTest {
       
       final Path pointedToAndToStay = Files.createFile(pointedToAndToStayFile);
       
-      // 3 : Verify the 5 test prerequisites that :
+      // 3 : Create the 5 shortcuts to satisfy the 5 test prerequisites that :
       //
       //   3.1 : A shortcut named "PointedToAndToMove.txt.lnk" exists in "testExecute01\" having file
       //         "PointedToAndToMove.txt" as target :
@@ -797,8 +801,11 @@ public class MoveWithShortcutsTest {
       
       final Path shortcutToFileToMove = Path.of(testExecute01.toString(), "PointedToAndToMove.txt.lnk");
       
+      Assert.assertNull(createShortcut(shortcutToFileToMove,       pointedToAndToMove
+                                               , sub3WithFile.toString(), "Step 3.1"));
+      
       assertShortcutToPathExists(shortcutToFileToMove, pointedToAndToMove
-                                                  , sub3WithFile.toString()
+             , sub3WithFile.toString()
       , "Step 3.1a : Test prerequisite not satisfied"
       ,"Step 3.1b : Test prerequisite not satisfied");
       
@@ -810,8 +817,11 @@ public class MoveWithShortcutsTest {
       
       final String pointedToAndToStayWorkingDir = EMPTY;
       
-      assertShortcutToPathExists(shortcutToFileToStay
-                , pointedToAndToStay, pointedToAndToStayWorkingDir
+      Assert.assertNull(createShortcut(shortcutToFileToStay,            pointedToAndToStay
+                                               , pointedToAndToStayWorkingDir, "Step 3.2"));
+      
+      assertShortcutToPathExists(shortcutToFileToStay, pointedToAndToStay
+             , pointedToAndToStayWorkingDir
       , "Step 3.2a : Test prerequisite not satisfied"
       ,"Step 3.2b : Test prerequisite not satisfied");
       
@@ -819,6 +829,9 @@ public class MoveWithShortcutsTest {
       //         "tmpTestExecute01\sub1\sub2-to-move" as target and empty working dir. :
       
       final Path shortcutTo_sub2ToMove = Path.of(testExecute01.toString(), "sub2-to-move.lnk");
+      
+      Assert.assertNull(createShortcut(shortcutTo_sub2ToMove, sub2ToMove
+                                               , EMPTY,              "Step 3.3"));
       
       assertShortcutToPathExists(shortcutTo_sub2ToMove, sub2ToMove, EMPTY
       , "Step 3.3a : Test prerequisite not satisfied"
@@ -831,21 +844,27 @@ public class MoveWithShortcutsTest {
       
       final Path shortcutTo_sub3WithFile = Path.of(testExecute01.toString(), "sub3-with-file.lnk");
       
+      Assert.assertNull(createShortcut(shortcutTo_sub3WithFile, sub3WithFile
+                                               , EMPTY,                "Step 3.4"));
+      
       assertShortcutToPathExists(shortcutTo_sub3WithFile, sub3WithFile, EMPTY
       , "Step 3.4a : Test prerequisite not satisfied"
       ,"Step 3.4b : Test prerequisite not satisfied: the shortcut file "
-                                + dq(shortcutTo_sub3WithFile.toAbsolutePath().toString()) + NL
-                                + "does not have the expected target.");
+                                 + dq(shortcutTo_sub3WithFile.toAbsolutePath().toString()) + NL
+                                 + "does not have the expected target.");
       
       //   3.5 : A shortcut named "sub4.lnk" exists in "testExecute01" having folder "sub4" as target and as working dir. :
       
       final Path shortcutTo_sub4 = Path.of(testExecute01.toString(), "sub4.lnk");
       
+      Assert.assertNull(createShortcut(shortcutTo_sub4,    sub4
+                                               , sub4.toString(), "Step 3.5."));
+      
       assertShortcutToPathExists(shortcutTo_sub4, sub4, sub4.toString()
       , "Step 3.5a : Test prerequisite not satisfied"
       ,"Step 3.5b : Test prerequisite not satisfied: the shortcut file "
-                                + dq(shortcutTo_sub4.toAbsolutePath().toString()) + NL
-                                + "does not have the expected target.");
+                                 + dq(shortcutTo_sub4.toAbsolutePath().toString()) + NL
+                                 + "does not have the expected target.");
       
       // 4 : Invoke the tested method, to make it :
       //
@@ -989,6 +1008,48 @@ public class MoveWithShortcutsTest {
   }
   
   /**
+   * Creates a shortcut on the filesystem.
+   *
+   * @param shortcutFile    The filepath for the shortcut to create. Must not exist.<br>
+   *
+   * @param target          The target to set into the created shortcut.<br>
+   *
+   * @param workFolder      The work folder ("Start in") to set into the created shortcut. May be {@code null}.<br>
+   *
+   * @param stepDescr       A description of the current step in the test's sequence, to be included in a failure
+   *                        message. May be {@code null}.
+   *
+   * @return {@code null} if the creation of the shortcut succeeds, otherwise failure info.
+   */
+  private String createShortcut(@NotNull Path shortcutFile, @NotNull Path target, String workFolder, String stepDescr) {
+    
+    Assert.assertFalse(shortcutFile.toFile().exists(), stepDescr + " : " + shortcutFile + " already exists.");
+    
+    String fail = null;
+    
+    try {
+      
+      final ShellLinkHelper shortcut = ShellLinkHelper.createLink(getCanonicalPath(target.toFile())
+                                                              , shortcutFile.toString());
+      if (workFolder != null) {
+        
+        shortcut.getLink().setWorkingDir(workFolder);
+        
+        shortcut.saveTo(shortcutFile.toString());
+      }
+    }
+    catch (IOException | ShellLinkException e) {
+      
+      e.printStackTrace();
+      
+      fail = stepDescr + " : " + e.getMessage() + NL2 + getFullDescriptionWithRootCause(e) + NL2;
+      
+      this.devLog.log(NL2 + fail);
+    }
+    return fail;
+  }
+  
+  /**
    * Assert that the given {@code shortcut} exists on the filesystem and has the given {@code expectedTarget} and {@code
    * expectedWorkingDir}.
    *
@@ -1092,13 +1153,15 @@ public class MoveWithShortcutsTest {
     
     final Path destPath = deleteTmpTestExecute01Path();
     
-    FileUtils.copyDirectory(getTestExecute01Path().toFile(), destPath.toFile(), false);
+    Assert.assertTrue(destPath.toFile().mkdirs(), "Failed to create folder " + dq(getCanonicalPath(destPath.toFile())) + ".");
     
     return destPath;
   }
   
   /**
    * Deletes the {@link #getTmpTestExecute01Path() tmpTestExecute01} folder if it exists.
+   *
+   * @return The deleted folder.
    */
   private static Path deleteTmpTestExecute01Path() throws IOException {
     
