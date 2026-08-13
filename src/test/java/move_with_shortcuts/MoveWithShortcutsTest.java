@@ -135,13 +135,11 @@ public class MoveWithShortcutsTest {
     
     this.nextTempDirCounter = ZERO_i;
     
-    final Path logDir = Path.of("LOG");
-
-    this.screenLog = new Log(APP_NAME + " - screen log",    logDir.resolve(APP_NAME + "_screen-log.LOG").toString(), true);
-
-    this.userLog =   new Log(APP_NAME + " - user log",      logDir.resolve(APP_NAME + "_user-log.LOG").toString(),   true);
-
-    this.devLog =    new Log(APP_NAME + " - developer log", logDir.resolve(APP_NAME + "_dev-log.LOG").toString(), true);
+    this.screenLog = new Log(APP_NAME + " - screen log",    APP_NAME + "_screen-log.LOG", true);
+    
+    this.userLog =   new Log(APP_NAME + " - user log",      APP_NAME + "_user-log.LOG",   true);
+    
+    this.devLog =    new Log(APP_NAME + " - developer log", APP_NAME + "_dev-log.LOG", true);
     
     writeLogsHeaders(this.screenLog, this.userLog, this.devLog, APP_NAME, APP_DESCR);
   }
