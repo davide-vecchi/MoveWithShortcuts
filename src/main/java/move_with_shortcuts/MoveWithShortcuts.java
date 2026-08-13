@@ -661,7 +661,7 @@ public class MoveWithShortcuts {
     final List<File> shortcuts = FileUtilities.listFiles(
                         Paths.get(searchFolderPath)
                        , new String[] { removeStart(WIN_SHORTCUT_EXTENSION, EXTENSION_SEPARATOR) }
-                 , true);
+                 , true, this.appContext::warnUser);
     
     this.numTotalShortcuts =   shortcuts.size();
     
