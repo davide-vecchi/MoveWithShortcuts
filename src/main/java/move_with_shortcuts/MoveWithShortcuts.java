@@ -59,6 +59,7 @@ import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.NL2T2;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.S;
+import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
@@ -661,7 +662,8 @@ public class MoveWithShortcuts {
     final List<File> shortcuts = FileUtilities.listFiles(
                         Paths.get(searchFolderPath)
                        , new String[] { removeStart(WIN_SHORTCUT_EXTENSION, EXTENSION_SEPARATOR) }
-                 , true, this.appContext::warnUser);
+                 , true
+                 , msg -> this.appContext.warnUser(TAB + "Cannot access : " + dq(msg) + "."));
     
     this.numTotalShortcuts =   shortcuts.size();
     
