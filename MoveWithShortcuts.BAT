@@ -23,5 +23,3 @@ wt powershell -NoExit -File "%~dp0MoveWithShortcuts.ps1" -WorkDir "%CD%"
 REM powershell -ExecutionPolicy Bypass -NoExit -File "%~dp0MoveWithShortcuts.ps1" -WorkDir "%CD%"
 
 REM java -jar MoveWithShortcuts.jar
-
-PAUSE
