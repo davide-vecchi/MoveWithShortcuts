@@ -647,10 +647,11 @@ public class MoveWithShortcuts {
    * Retrieves all files under the given {@code searchFolder} tree that have the {@link OSUtilities#WIN_SHORTCUT_EXTENSION
    * extension} of Windows shortcut files.
    *
-   * @param searchFolder
-   * @return
+   * @param searchFolder The base path under which to search for Windows shortcut files.
+   *
+   * @return List of the files found.
    */
-  @NotNull List<File> retrieveShortcutFiles(@NotNull File searchFolder) {
+  @NotNull List<@NotNull File> retrieveShortcutFiles(@NotNull File searchFolder) {
     
     final String searchFolderPath = getCanonicalPath(searchFolder);
     
