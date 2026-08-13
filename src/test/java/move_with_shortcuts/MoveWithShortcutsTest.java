@@ -46,6 +46,7 @@ import static dfile.file.FileUtilities.calcPath;
 import static dfile.file.FileUtilities.checkIsExistingFile;
 import static dfile.file.FileUtilities.checkIsExistingFolder;
 import static dfile.file.FileUtilities.getCanonicalPath;
+import static dfile.file.FileUtilities.getCurrentFolderAsFile;
 import static dlog.log.Log.writeLogsHeaders;
 import static dutil.exception.exceptions.ExceptionSupplier.getExceptionSupplier;
 import static dutil.list.ListUtilities.asList;
@@ -54,13 +55,15 @@ import static dutil.list.text.TextListUtilities.listToString;
 import static dutil.number.NumberUtilities.I;
 import static dutil.number.NumberUtilities.TWO_I;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.number.NumberUtilities.assertNonNegative;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.NLT2;
 import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.TAB;
-import static dutil.string.TextUtilities.assertNonBlankUnlessEmpty;
+import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.dq;
+import static dutil.string.TextUtilities.surround;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static java.lang.Boolean.TRUE;
@@ -1023,17 +1026,42 @@ public class MoveWithShortcutsTest {
     
     final TwoObjects<@NotNull String, @NotNull String> actualFields = this.targetReader.apply(shortcut.toFile());
     
-    final String target = actualFields.o1, workingDir = actualFields.o2;
+    final String target = actualFields.o1, workFolder = actualFields.o2;
     
-    Assert.assertEquals(target,     expectedTarget.toAbsolutePath().toString()
-                                           , prefixMsgTargetNotMatching + " : The shortcut file "
-                                                      + dq(shortcut.toAbsolutePath().toString()) + NL
-                                                      + "does not have the expected target.");
+    Assert.assertEquals(calcRelativePath(target)
+                    , calcRelativePath(expectedTarget.toAbsolutePath().toString())
+                     , prefixMsgTargetNotMatching + " : The shortcut file " + dq(shortcut.toAbsolutePath().toString()) + NL + "does not have the expected target.");
     
-    Assert.assertEquals(workingDir, assertNonBlankUnlessEmpty(expectedWorkFolder)
-                                           , prefixMsgTargetNotMatching + " : The shortcut file "
-                                                      + dq(shortcut.toAbsolutePath().toString()) + NL
-                                                      + "does not have the expected work folder.");
+    Assert.assertEquals(calcRelativePath(workFolder)
+                    , calcRelativePath(expectedWorkFolder)
+                     , prefixMsgTargetNotMatching + " : The shortcut file " + dq(shortcut.toAbsolutePath().toString()) + NL + "does not have the expected work folder.");
+  }
+  
+  /**
+   * @param path
+   *
+   * @return The final part of the given {@code path}, starting from the first occurrence of the {@link File#getName()
+   *         name} of the {@link FileUtilities#getCurrentFolderAsFile() current folder}.<br>If the given {@code path} is
+   *         {@link StringUtils#EMPTY empty}, returns that.
+   */
+  private static @NotNull String calcRelativePath(@NotNull String path) {
+    
+    final String result;
+    
+    if (! path.isEmpty()) {
+      
+      assertNonBlankNorTrimmable(path);
+      
+      final String rootFolderName = getCurrentFolderAsFile().getName();
+      
+      result = path.substring(assertNonNegative(path.indexOf(surround(rootFolderName
+                                                                                      , File.separator)), "The path", NLT, dq(path), NL, "must contain", NLT, dq(rootFolderName), NL, "instead it is :", NLT, dq(path), NL, ".")); //NODIR-1305
+    }
+    else {
+      
+      result = EMPTY;
+    }
+    return result;
   }
   
   /**
