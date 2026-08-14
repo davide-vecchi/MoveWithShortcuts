@@ -2,37 +2,17 @@
 
 # Changelog
 
-## [3.0.0]
+## [3.0.1]
 
 
 ### Changed
 
-- Bump version to 3.0.0 .<br><br>
+- Bump version to 3.0.1 .<br><br>
 
-- **Breaking:**
-  Rename program to MoveWithShortcuts. The old name RenameWithLinks must not appear anywhere anymore.<br><br>
-
-- Improve several user messages and prompts.<br><br>
-
-- Update DFile dependency to 2.2.0 .<br><br>
-
-- Update DApplication dependency to 2.2.0 .<br><br>
-
-- Update DUtil dependency to 2.2.0 .<br><br>
-
-- Update DLog dependency to 2.2.0 .<br><br>
-
-- Update DUserInputOutput dependency to 2.2.0 .<br><br>
-
-- Update all the 3rd party dependencies that have new stable versions.<br><br>
+- Update all DLibs dependencies to their latest versions.<br><br>
 
 
 ### Added
-
-- Support "posthumous" execution :<br>
-  if the given original path does not exist and the given destination path exists, assume that the renaming / moving has
-  already happened before the program started, and it is being used only to adjust the shortcuts, so proceed normally as
-  if the renaming / moving from that original to that destination had been performed by the program.
 
 
 ### Removed
@@ -40,5 +20,18 @@
 
 ### Fixed
 
+- Use new version `2.3.0` of `DFile` dependency to bypass Windows' Execution Policy when launching PowerShell scripts.<br>
+
+  This prevents the failure, on systems with PowerShell execution policy set to `Restricted`, of the PowerShell scripts
+  that the `WinShortcutsUpdater_PSScriptsMulti` implementation of `IShortcutsUpdater` in DFile uses to read and write
+  shortcuts.<br><br>
+
+- Use new version `2.2.1` of `DUtil` dependency to fix `NoSuchMethodException` when a Supplier for Throwable-s that
+  don't have the required constructor (f.ex. `org.apache.commons.lang3.exception.UncheckedException`) is requested.<br><br>
+
 
 ### Internal changes
+
+- Fix tests that assert on absolute paths; must assert on paths relative to the project folder.
+
+- Fix tests that expect an existing LOG folder.

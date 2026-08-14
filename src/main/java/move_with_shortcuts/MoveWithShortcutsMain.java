@@ -54,7 +54,7 @@ public class MoveWithShortcutsMain {
   /**
    * The name of this program. Short name, no description (see #APP_DESCR).
    */
-  public static final String APP_NAME = "Move With Shortcuts";
+  public static final String APP_NAME = "MoveWithShortcuts";
   
   /**
    * The description of this program. Description, not a Short name (see #APP_NAME).

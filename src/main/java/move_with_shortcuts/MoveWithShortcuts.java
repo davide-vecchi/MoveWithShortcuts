@@ -59,6 +59,7 @@ import static dutil.string.TextUtilities.NL2T;
 import static dutil.string.TextUtilities.NL2T2;
 import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.S;
+import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
 import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
@@ -647,10 +648,11 @@ public class MoveWithShortcuts {
    * Retrieves all files under the given {@code searchFolder} tree that have the {@link OSUtilities#WIN_SHORTCUT_EXTENSION
    * extension} of Windows shortcut files.
    *
-   * @param searchFolder
-   * @return
+   * @param searchFolder The base path under which to search for Windows shortcut files.
+   *
+   * @return List of the files found.
    */
-  @NotNull List<File> retrieveShortcutFiles(@NotNull File searchFolder) {
+  @NotNull List<@NotNull File> retrieveShortcutFiles(@NotNull File searchFolder) {
     
     final String searchFolderPath = getCanonicalPath(searchFolder);
     
@@ -660,7 +662,8 @@ public class MoveWithShortcuts {
     final List<File> shortcuts = FileUtilities.listFiles(
                         Paths.get(searchFolderPath)
                        , new String[] { removeStart(WIN_SHORTCUT_EXTENSION, EXTENSION_SEPARATOR) }
-                 , true);
+                 , true
+                 , msg -> this.appContext.warnUser(TAB + "Cannot access : " + dq(msg) + "."));
     
     this.numTotalShortcuts =   shortcuts.size();
     
