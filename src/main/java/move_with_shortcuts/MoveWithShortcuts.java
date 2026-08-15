@@ -236,7 +236,7 @@ public class MoveWithShortcuts {
   
   /**
    * Asks for confirmation to the user to start the execution, and if granted executes the program logic: {@link #renameFileOrFolder
-   * renames / moves} the given {@code originalFileOrFolder} to the given {@code destinationFileOrFolder} and {@link #updateShortcuts
+   * renames / moves} the given {@code originalFileOrFolder} to the given {@code destinationFileOrFolder} and {@link IShortcutsUpdater#updateShortcuts
    * updates} accordingly all the given {@code shortcuts}, using the given {@code shortcutsTargetUpdater}.
    *
    * @param originalFileOrFolder    The file or folder to rename / move.<br>
@@ -257,7 +257,7 @@ public class MoveWithShortcuts {
    * @param searchFolder            The folder under which, <b>after</b> {@link #renameFileOrFolder performing} the
    *                                rename / move, the existing shortcuts must be possibly have their targets updated.<br>
    *
-   * @param shortcutsProcessor      The {@link IShortcutsUpdater shortcuts processor} to use to perform the updates of
+   * @param shortcutsTargetUpdater  The {@link IShortcutsUpdater shortcuts processor} to use to perform the updates of
    *                                the shortcuts' targets that need it.
    */
   void execute(@NotNull File                      originalFileOrFolder
@@ -482,12 +482,17 @@ public class MoveWithShortcuts {
   }
   
   /**
-   * TODO @@@@@@ COMMENT
+   * @param argVerbosity Text from which to calculate a {@link AAppContext#currentVerbosity verbosity} value. This text
+   *                     can be the string arg passed to the program at launch. May be {@code null}, in which case the
+   *                     given {@code defaultVerbosity} is returned.<br>
    *
-   * @param verbosity
-   * @param maxVerbosity
-   * @param defaultVerbosity
-   * @return
+   * @param maxVerbosity The max allowed verbosity. May not be negative.<br>
+   *
+   * @param defaultVerbosity The value to return if the given {@code argVerbosity} is {@code null}. May not be negative
+   *                         or greater than the given {@code defaultVerbosity}.
+   *
+   * @return The verbosity value to {@link AAppContext#currentVerbosity use}, calculated based on the given {@code
+   *         argVerbosity} text.
    */
   static int resolveVerbosity(final String argVerbosity, int maxVerbosity, int defaultVerbosity) {
     
