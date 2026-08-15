@@ -6,7 +6,7 @@
 	
 	<groupId>DFileTools</groupId>
 	<artifactId>MoveWithShortcuts</artifactId>
-	<version>3.0.1</version>
+	<version>3.0.1</version>    <!--  @@@@@@@@@@@@@@@@@@@@@ AFTER 3.0.1 @@@@@@@@@@@@@@@@@@@@@ -->
     <name>Move With Shortcuts</name>
     
 	<properties>
