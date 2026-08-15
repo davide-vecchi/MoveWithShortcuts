@@ -26,6 +26,17 @@
 	</repositories>
 	
 	<dependencies>
+        
+        <!-- Beginning of Java Libraries 3rd Party -->
+        
+        <!-- https://github.com/hypoport/ThreadSafeNumberFormat -->
+        <dependency>
+            <groupId>javalibraries3rdparty</groupId>
+            <artifactId>threadsafenumberformat</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        
+        <!-- End of Java Libraries 3rd Party -->
 		
         <!-- Beginning of DJavaLibraries -->
 		

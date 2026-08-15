@@ -23,3 +23,5 @@
 ### Internal changes
 
 - Fixed some comments.
+
+- Explicitly added transitive dependency javalibraries3rdparty:threadsafenumberformat .
