@@ -22,6 +22,4 @@
 
 ### Internal changes
 
-- Fix tests that assert on absolute paths; must assert on paths relative to the project folder.
-
-- Fix tests that expect an existing LOG folder.
+- Fixed some comments.
