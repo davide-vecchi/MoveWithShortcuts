@@ -519,7 +519,7 @@ public class MoveWithShortcuts {
   /**
    * Asks the user for the path of the file or folder to rename / move.
    *
-   * @throws UserRequestedTermination If the user responds to the question with one of the {@#link #CANCEL_CHARS}.
+   * @throws UserRequestedTermination If the user responds to the question with one of the {@link #CANCEL_CHARS}.<br>
    *
    * @throws MissingExternalValueException If the path entered by the user does not exist.
    */
@@ -553,9 +553,9 @@ public class MoveWithShortcuts {
    *         Whether the renaming / moving needs to be performed or not must be determined exclusively from the value
    *         returned here, not by re-checking - after this method returned - which path exists and which doesn't.</li></ul>
    *
-   * @throws UserRequestedTermination If the user responds to the question with one of the {@#link #CANCEL_CHARS}.
+   * @throws UserRequestedTermination If the user responds to the question with one of the {@link #CANCEL_CHARS}.<br>
    *
-   * @throws NonUniqueExternalValueException If the specified destination is the same as the given {@code original}.
+   * @throws NonUniqueExternalValueException If the specified destination is the same as the given {@code original}.<br>
    *
    * @throws InvalidPathException If the specified destination is a folder but the given {@code original} is a file, or
    *                              viceversa.
