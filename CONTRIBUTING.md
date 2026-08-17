@@ -5,7 +5,7 @@ If you want to contribute, thank you, and here are some notes.
 
 1. Create an issue [in the issue tracker](https://github.com/davide-vecchi/MoveWithShortcuts/issues) describing the
    change you are going to make.
-1. Create a feature branch.
+1. Create a feature branch from the latest release branch.
 1. Make your changes.
 1. Write or update tests as needed.
 1. Ensure all tests pass.
