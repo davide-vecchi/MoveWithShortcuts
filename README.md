@@ -144,9 +144,7 @@ editor font for inlay hints" true (Settings / Editor / General / Appearance) and
 
 - At least Java 21.<br><br>
  
-- TestNG to run the tests.<br><br>
-  
-- See dependencies in `pom.xml`.
+- TestNG to run the tests.
 
 ## Project Status
 
