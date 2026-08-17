@@ -47,9 +47,13 @@ import static org.fusesource.jansi.Ansi.Color.YELLOW;
 /**
  * The startup class of the {@code MoveWithShortcuts} application.
  */
-@SuppressWarnings("PublicConstructor")
-public class MoveWithShortcutsMain {
-
+public final class MoveWithShortcutsMain {
+  
+  
+  /**
+   * Private constructor to prevent instantiation.
+   */
+  private MoveWithShortcutsMain() {}
 
   /**
    * The name of this program. Short name, no description (see #APP_DESCR).
