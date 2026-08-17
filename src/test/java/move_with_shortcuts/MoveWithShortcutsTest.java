@@ -81,6 +81,9 @@ import static org.mockito.Mockito.lenient;
 // @formatter:off
 
 
+/**
+* Tests for {@link MoveWithShortcutsTest}.
+*/
 @SuppressWarnings("PublicConstructor")
 @Listeners(MockitoTestNGListener.class)
 public class MoveWithShortcutsTest {
@@ -625,7 +628,7 @@ public class MoveWithShortcutsTest {
   /** TODO @@@ ADD a shortcut in "sub2-to-move\", which also points to PointedToAndToMove.txt, and verify its target after it has been moved because it was in "sub2-to-move\".<br><br>
    *
    *
-   * Tests {@link MoveWithShortcuts#execute(File, File, List, IShortcutsUpdater )} as follows :<ul>
+   * Tests {@link MoveWithShortcuts#execute(File, TwoObjects, File, IShortcutsUpdater)} as follows :<ul>
    *
    * <li> 1) Under {@code src\test\resources\} creates subfolders :<ol>
    *         <li>{@code testExecute01\sub1\sub2-to-move\sub3-with-file\sub4\}.</li>
@@ -670,7 +673,8 @@ public class MoveWithShortcutsTest {
    *         <li>5) A shortcut named {@code sub4.lnk} exists in {@code testExecute01\} having folder {@code sub4} as
    *                target.</li></ul></li>
    *
-   * <li> 4) Invokes {@link MoveWithShortcuts#execute(File, File, List, IShortcutsUpdater ) the tested method} passing :<ul>
+   * <li> 4) Invokes {@link MoveWithShortcuts#execute(File, TwoObjects, File, IShortcutsUpdater) the tested method},
+   *         passing to it :<ul>
    *
    *         <li>1) Folder {@code testExecute01\sub1\sub2-to-move\} as the file / folder to rename / move ({@code
    *                originalFileOrFolder} param).</li>
@@ -1181,7 +1185,7 @@ public class MoveWithShortcutsTest {
   }
   
   /**
-   * @param createIfMissing Whether the returned temp path must be created if it does not exist.
+   * @param create Whether the returned temp path must be created if it does not exist.
    *
    * @return The path of a subfolder of {@link #tempDir} that did not exist when the method was called. Its name is the
    *         next value of {@link #nextTempDirCounter}.
