@@ -213,6 +213,7 @@ public class MoveWithShortcutsTest {
     Assert.assertNotNull(MoveWithShortcuts.newInstance(this.mockAppContext));
   }
 
+  @SuppressWarnings("DataFlowIssue")
   @Test
   void factoryThrowsOnNullContext() {
     
