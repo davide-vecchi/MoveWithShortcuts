@@ -1186,7 +1186,7 @@ public class MoveWithShortcutsTest {
    * @return The path of a subfolder of {@link #tempDir} that did not exist when the method was called. Its name is the
    *         next value of {@link #nextTempDirCounter}.
    */
-  private @NotNull Path newTempSubfolder(boolean create)throws IOException {
+  private @NotNull Path newTempSubfolder(boolean create) throws IOException {
     
     final Path result = Path.of(this.tempDir.toString(), S(++this.nextTempDirCounter));
     
