@@ -18,8 +18,8 @@ REM In alternative, MoveWithShortcuts can also be executed with the normal
 REM "java -jar MoveWithShortcuts.jar"
 REM but that provides the least good Unicode support.
 
-wt powershell -NoExit -File "%~dp0MoveWithShortcuts.ps1" -WorkDir "%CD%"
+wt pwsh -ExecutionPolicy Bypass -NoExit -File "%~dp0MoveWithShortcuts.ps1" -WorkDir "%CD%"
 
-REM powershell -ExecutionPolicy Bypass -NoExit -File "%~dp0MoveWithShortcuts.ps1" -WorkDir "%CD%"
+REM pwsh -ExecutionPolicy Bypass -NoExit -File "%~dp0MoveWithShortcuts.ps1" -WorkDir "%CD%"
 
 REM java -jar MoveWithShortcuts.jar
