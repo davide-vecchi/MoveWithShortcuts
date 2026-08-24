@@ -229,7 +229,7 @@ public final class MoveWithShortcutsMain {
     
     System.out.println();
     
-    System.out.println("Usage: MoveWithShortcutsMain [ <originalPath> <destinationPath> <searchPath> [verbosity] ]");
+    System.out.println("Usage: " + MoveWithShortcutsMain.class.getSimpleName() + " [ <originalPath> <destinationPath> <searchPath> [verbosity] ]");
     
     System.out.println();
     
