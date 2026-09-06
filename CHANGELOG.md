@@ -2,13 +2,12 @@
 
 # Changelog
 
-## [@@@@@@@@@@@@@@@@@@@@@ AFTER 3.0.1 @@@@@@@@@@@@@@@@@@@@@]
+## [3.0.2-SNAPSHOT]
 
 
 ### Changed
 
-- Bump version to @@@@@@@@@@@@@@@@@@@@@ AFTER 3.0.1 @@@@@@@@@@@@@@@@@@@@@ .<br><br>
-
+- Update all DLibs dependencies to their latest versions.
 
 
 ### Added
