@@ -26,3 +26,5 @@
 - Explicitly added transitive dependency javalibraries3rdparty:threadsafenumberformat .
 
 - Infer some values instead of hardcoding.
+
+- Remove DTestNG DLib, use TestNG directly.
