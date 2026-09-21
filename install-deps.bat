@@ -2,7 +2,7 @@
 REM ============================================================================
 REM install-deps.bat
 REM
-REM Launcher for install-deps.ps1
+REM Launcher for install-deps.ps1 of MoveWithShortcuts.
 REM
 REM Usage: Double-click this file, or run from Command Prompt.
 REM ============================================================================
