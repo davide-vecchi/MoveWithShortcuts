@@ -82,6 +82,10 @@ If you just want to use MoveWithShortcuts without building from source:
 `MoveWithShortcuts` depends on several libraries (`DLibs`) that are distributed as pre-compiled JARs in
 the [Libs-JARs](https://github.com/davide-vecchi/Libs-JARs) repository.
 
+Alternatively, if you have access to the GitHub Packages repository declared in `pom.xml` (and to the repositories
+that publish these libraries), you can configure your credentials for it and let `mvn clean install` resolve the DLibs
+directly, skipping the steps below.
+
 **Step 1: Clone the `Libs-JARs` repository**
 
 ```bash
