@@ -92,7 +92,7 @@ directly, skipping the steps below.
 git clone https://github.com/davide-vecchi/Libs-JARs.git ../Libs-JARs
 ```
 
-**Step 2: Install the libraries**
+**Step 2: Install the DLibs libraries**
 
 From the `Libs-JARs` folder, run the installation script:
 
@@ -101,11 +101,11 @@ cd ../Libs-JARs
 ```
 
 ```bash
-./install-all.sh        # Linux, macOS, or Git Bash on Windows
+./install-all-dlibs.sh        # Linux, macOS, or Git Bash on Windows
 ```
 or
 ```bash
-install-all.bat         # Windows Command Prompt or PowerShell
+install-all-dlibs.bat         # Windows Command Prompt or PowerShell
 ```
 
 Alternatively, you can go inside the `MoveWithShortcuts` folder and run the provided `install-deps.sh` or
