@@ -33,18 +33,17 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # MWS version that this script is for
-MWS_VERSION="3.0.1"
+MWS_VERSION="3.0.2-SNAPSHOT"
 
 # List of DLibs required by MoveWithShortcuts (direct + transitive)
 # Format: groupId/artifactId/version
 declare -a DEPS=(
-    "djavalibraries/dapplication/2.2.1"
-    "djavalibraries/dutil/2.2.1"
-    "djavalibraries/dfile/2.3.0"
-    "djavalibraries/dlog/2.2.0"
-    "djavalibraries/duserinputoutput/2.2.1"
-    "djavalibraries/dtest/2.2.1"
-    "javalibraries3rdparty/threadsafenumberformat/2.2.0"
+    "djavalibraries/dapplication/2.3.0"
+    "djavalibraries/dutil/2.3.0-SNAPSHOT"
+    "djavalibraries/dfile/2.4.0-SNAPSHOT"
+    "djavalibraries/dlog/2.3.0-SNAPSHOT"
+    "djavalibraries/duserinputoutput/2.3.0-SNAPSHOT"
+    "javalibraries3rdparty/threadsafenumberformat/2.2.1-SNAPSHOT"
 )
 
 echo ""
