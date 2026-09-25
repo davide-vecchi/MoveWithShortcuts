@@ -10,3 +10,4 @@
 /BuildOrchestrator-MoveWithShortcuts*.BAT
 /Build List*.TXT
 /CleanTestOutputAndLogs*.BAT
+/dependency-updates.tsv
