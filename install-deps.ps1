@@ -45,11 +45,11 @@ $MWS_VERSION = "3.0.2-SNAPSHOT"
 # Format: groupId/artifactId/version
 $DEPS = @(
     "djavalibraries/dapplication/2.3.0",
-    "djavalibraries/dutil/2.3.0-SNAPSHOT",
-    "djavalibraries/dfile/2.4.0-SNAPSHOT",
-    "djavalibraries/dlog/2.3.0-SNAPSHOT",
-    "djavalibraries/duserinputoutput/2.3.0-SNAPSHOT",
-    "javalibraries3rdparty/threadsafenumberformat/2.2.1-SNAPSHOT"
+    "djavalibraries/dutil/2.3.0",
+    "djavalibraries/dfile/2.4.0",
+    "djavalibraries/dlog/2.3.0",
+    "djavalibraries/duserinputoutput/2.3.0",
+    "javalibraries3rdparty/threadsafenumberformat/2.2.1"
 )
 
 Write-Normal ""
