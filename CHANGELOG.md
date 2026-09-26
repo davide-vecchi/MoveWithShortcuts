@@ -7,7 +7,7 @@
 
 ### Changed
 
-- Update all DLibs dependencies to their latest versions.
+- Update all dependencies (DLibs and 3rd party) to their latest versions.
 
 
 ### Added
@@ -21,9 +21,9 @@
 
 ### Internal changes
 
-- Fixed some comments.
+- Fix some comments.
 
-- Explicitly added transitive dependency javalibraries3rdparty:threadsafenumberformat .
+- Explicitly add transitive dependency javalibraries3rdparty:threadsafenumberformat .
 
 - Infer some values instead of hardcoding.
 
