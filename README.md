@@ -7,6 +7,8 @@ Java program, currently for Windows only, that possibly renames and/or moves a f
 shortcuts (`.lnk` files) so that their target and working folder (the "Start in" field) have their value adjusted
 according to the renaming / moving, instead of the shortcut becoming broken.
 
+If you just want to run it without building from source, see the [Quick Start](#quick-start-using-the-executable-jar).
+
 In detail :
 
 1. Optionally renames and/or moves a file or folder.
@@ -74,6 +76,7 @@ If you just want to use MoveWithShortcuts without building from source:
 - Java 21 or higher installed and configured.
 - Maven 3.6 or higher (tested with 3.9).
 - Git (to clone the required repositories).
+- TestNG is used to run the tests (Maven downloads it automatically).
 
 ## Installing the required libraries (DLibs)
 
@@ -147,11 +150,6 @@ The indentation of the Java code is tuned to IntelliJ and it works if the inlay 
 editor font for inlay hints" true (Settings / Editor / General / Appearance) and the editor font "JetBrains Mono" size
 13.0 (Settings / Editor / Font).
 
-## Requires
-
-- At least Java 21.
-- TestNG to run the tests.
-
 ## Project Status
 
 - Active and in use.
@@ -159,6 +157,10 @@ editor font for inlay hints" true (Settings / Editor / General / Appearance) and
 ## Changelog
 
 See the [CHANGELOG](CHANGELOG.md) for the list of changes.
+
+## Contributing
+
+See the [CONTRIBUTING](CONTRIBUTING.md) page.
 
 ## Contacts
 
