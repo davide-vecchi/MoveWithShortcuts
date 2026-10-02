@@ -12,6 +12,8 @@
 
 ### Added
 
+- Add the packaging scripts (`Packaging/Package_MoveWithShortcuts.BAT` / `.sh`) that build the distributable ZIP.
+
 
 ### Removed
 
