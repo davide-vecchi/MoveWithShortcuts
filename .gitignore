@@ -11,3 +11,5 @@
 /Build List*.TXT
 /CleanTestOutputAndLogs*.BAT
 /dependency-updates.tsv
+/Packaging/MoveWithShortcuts*.zip
+/Packaging/MoveWithShortcuts.jar
