@@ -7,7 +7,7 @@ Java program, currently for Windows only, that possibly renames and/or moves a f
 shortcuts (`.lnk` files) so that their target and working folder (the "Start in" field) have their value adjusted
 according to the renaming / moving, instead of the shortcut becoming broken.
 
-If you just want to run it without building from source, see the [Quick Start](#quick-start-using-the-executable-jar).
+If you just want to run it without building from source, see the [Quick Start](#quick-start-using-the-distributable-zip).
 
 In detail :
 
@@ -51,25 +51,18 @@ In alternative, it can be started with 3 or 4 arguments :
 4. (Optional) Verbosity level, from 0 to 3. A value of 0 means that only possible error or warning messages will be
    shown.
 
-## Quick Start (using the executable JAR)
+## Quick Start (using the distributable ZIP)
 
 If you just want to use MoveWithShortcuts without building from source:
 
-1. Download the latest `MoveWithShortcuts.jar` from the
-   [Releases](https://github.com/davide-vecchi/MoveWithShortcuts/releases) page.
+1. Download the distributable ZIP from the
+   [Releases](https://github.com/davide-vecchi/MoveWithShortcuts/releases) page and unzip it into a convenient folder
+   (e.g. `C:\MoveWithShortcuts\`).
 
-2. (Optional) Place it in a convenient folder, e.g. `C:\MoveWithShortcuts\`.
+2. Run `MoveWithShortcuts.BAT`.
 
-3. Either run it directly:
-
-   ```bash
-   java -jar MoveWithShortcuts.jar
-   ```
-
-   or, for the best experience, use the provided `MoveWithShortcuts.BAT` script (which launches the program in Windows
-   Terminal for better Unicode support, see details under _Build and deployment_ below).
-
-4. Note: Java 21 or higher is required to run the JAR. No other dependencies are needed.
+   The ZIP contains the executable jar, the launcher scripts (`MoveWithShortcuts.BAT` / `MoveWithShortcuts.ps1`), the
+   `README.md` and the `LICENSE`. Java 21 or higher is required.
 
 ## Prerequisites (for building from source)
 
@@ -144,6 +137,12 @@ mvn clean install
 
   The content of those 2 `MoveWithShortcuts.*` scripts must be adjusted if the JAR has not been renamed to
   `MoveWithShortcuts.jar` or has not been deployed to a `C:\MoveWithShortcuts\` folder.
+
+- To build a distributable ZIP (the same layout as the one on the Releases page), place the executable JAR (renamed to
+  `MoveWithShortcuts.jar`) in the `Packaging/` folder and run `Packaging/Package_MoveWithShortcuts.BAT` (Windows) or
+  `Packaging/Package_MoveWithShortcuts.sh` (Linux/macOS). The script bundles the JAR, the launcher scripts, the
+  `README.md` and the `LICENSE` into `MoveWithShortcuts.zip` (or `MoveWithShortcuts-<version>.zip` when a version is
+  passed as the second argument).
 
 ## Indentation of Java code
 
