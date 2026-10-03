@@ -38,7 +38,7 @@ function Write-Info { Write-Host $args[0] -ForegroundColor Cyan }
 function Write-Normal { Write-Host $args[0] -ForegroundColor White }
 
 
-# MWS version that this script is for
+# MoveWithShortcuts (MWS) version that this script is for
 $MWS_VERSION = "3.0.3-SNAPSHOT"
 
 # Dependencies required by MoveWithShortcuts (direct + transitive)
