@@ -25,6 +25,9 @@ set -e
 DLIBS_DIR="dlibs"
 LJ_REPO_URL="https://github.com/davide-vecchi/Libs-JARs.git"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+POM_FILE="$SCRIPT_DIR/pom.xml"
+
 # Color definitions
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -32,7 +35,7 @@ RED='\033[0;31m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# MWS version that this script is for
+# MoveWithShortcuts version that this script is for
 MWS_VERSION="3.0.3-SNAPSHOT"
 
 # List of DLibs required by MoveWithShortcuts (direct + transitive)
@@ -52,9 +55,80 @@ echo "  Installing dependencies for MoveWithShortcuts version $MWS_VERSION"
 echo "========================================"
 echo ""
 
+# =============================================================================
+# Drift guard
+#
+# The DEPS list and the MWS_VERSION constant are hand-maintained. Before
+# installing, warn (and wait for a key, so the message does not scroll away) if
+# they no longer match pom.xml :
+#   (a) MWS_VERSION vs. the pom's project.version;
+#   (b) the DLibs declared in the pom vs. the DEPS list.
+# Note that (b) is intentionally partial: the transitive DEPS entries (such as
+# threadsafenumberformat) are not declared in the pom, so they cannot be checked
+# this way. The snapshot guard below has no such limitation: it reads
+# snapshot-ness from the DEPS list itself.
+# =============================================================================
+
+# Pause so that a warning does not scroll away unnoticed :
+pause_for_review() {
+    read -r -p "Press Enter to continue..." _ || true
+}
+
+POM_VERSION="$(mvn -q help:evaluate -f "$POM_FILE" -Dexpression=project.version -DforceStdout 2>/dev/null | tr -d '\r' | grep -v '^$' | tail -n 1 || true)"
+POM_DEPS_RAW="$(mvn -q help:evaluate -f "$POM_FILE" -Dexpression=project.dependencies -DforceStdout 2>/dev/null || true)"
+
+# (a) The validated-for constant vs. the pom version :
+if [ -n "$POM_VERSION" ] && [ "$POM_VERSION" != "$MWS_VERSION" ]; then
+    echo -e "${YELLOW}WARNING: the DEPS list was validated for MoveWithShortcuts $MWS_VERSION, but the project is now $POM_VERSION. Please review the list and update MWS_VERSION.${NC}"
+    pause_for_review
+fi
+
+# (b) The DLibs declared in the pom vs. the DEPS list :
+POM_DLIB_TOKENS=()
+while IFS= read -r line; do
+    POM_DLIB_TOKENS+=("$line")
+done < <(printf '%s\n' "$POM_DEPS_RAW" | grep -oE '<groupId>[^<]+</groupId>|<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' | sed -E 's#</?(groupId|artifactId|version)>##g')
+
+for ((token_index = 0; token_index + 2 < ${#POM_DLIB_TOKENS[@]}; token_index += 3)); do
+    group_id="${POM_DLIB_TOKENS[token_index]}"
+    artifact_id="${POM_DLIB_TOKENS[token_index + 1]}"
+    version="${POM_DLIB_TOKENS[token_index + 2]}"
+
+    if [ "$group_id" != "djavalibraries" ] && [ "$group_id" != "javalibraries3rdparty" ]; then
+        continue
+    fi
+
+    expected_entry="$group_id/$artifact_id/$version"
+    entry_is_listed=0
+    for dep in "${DEPS[@]}"; do
+        if [ "$dep" == "$expected_entry" ]; then
+            entry_is_listed=1
+            break
+        fi
+    done
+
+    if [ "$entry_is_listed" -eq 0 ]; then
+        echo -e "${YELLOW}WARNING: the pom declares $expected_entry, which is missing from (or at a different version in) the DEPS list. Please review the list.${NC}"
+        pause_for_review
+    fi
+done
+
+# (c) Snapshot guard: a snapshot DEPS list requires a snapshot consumer :
+DEPS_HAS_SNAPSHOT=0
+for dep in "${DEPS[@]}"; do
+    if [[ "$dep" == *-SNAPSHOT ]]; then
+        DEPS_HAS_SNAPSHOT=1
+        break
+    fi
+done
+
+if [ "$DEPS_HAS_SNAPSHOT" -eq 1 ] && [[ "$MWS_VERSION" != *-SNAPSHOT ]]; then
+    echo -e "${YELLOW}WARNING: the DEPS list contains snapshots, but MoveWithShortcuts $MWS_VERSION is not a snapshot. A released consumer must not depend on snapshot DLibs.${NC}"
+    pause_for_review
+fi
+
 # Determine the location of Libs-JARs
 LJ_PATH="../Libs-JARs"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Check if LJ exists at the default location
 if [ -d "$SCRIPT_DIR/$LJ_PATH/$DLIBS_DIR" ]; then
