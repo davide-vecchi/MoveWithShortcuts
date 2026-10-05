@@ -127,7 +127,7 @@ public class MoveWithShortcuts {
    *
    * @param appContext {@link #appContext}.
    */
-  private MoveWithShortcuts(@NotNull AAppContext appContext) {
+  protected MoveWithShortcuts(@NotNull AAppContext appContext) {
   
     this.appContext = assertNonNull(appContext);
   }
