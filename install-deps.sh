@@ -42,7 +42,7 @@ MWS_VERSION="3.0.3-SNAPSHOT"
 # Format: groupId/artifactId/version
 declare -a DEPS=(
     "djavalibraries/dapplication/2.3.0"
-    "djavalibraries/dutil/2.3.0"
+    "djavalibraries/dutil/2.4.0-SNAPSHOT"
     "djavalibraries/dfile/2.4.0"
     "djavalibraries/dlog/2.3.0"
     "djavalibraries/duserinputoutput/2.3.0"
