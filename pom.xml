@@ -22,6 +22,10 @@
 		<repository>
 			<id>github</id>
 			<url>https://maven.pkg.github.com/davide-vecchi/*</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
 		</repository>
 	
 	</repositories>
