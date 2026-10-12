@@ -375,11 +375,10 @@ public class MoveWithShortcuts {
                                                    originalFileOrFolder.getName().equals(
                                                                                  destinationFileOrFolder.o1.getName()) ?
                                                      "moving " : "renaming / moving ")
-                                               + (         originalFileOrFolder.isFile() ? "file" : "folder")     + NL2T2
-                                               + dq(originalFileOrFolder.getPath()) + NL2T + "to *become*" + NL2T2
-                                               + dq((isRenameOnly ? destinationFileOrFolder.o1.getName()
-                                                                         : destinationFileOrFolder.o1.getPath())) + NL2T
-                                   + "and "                                  : EMPTY;
+                                               + (         originalFileOrFolder.isFile() ? "file" : "folder")           + NL2T2
+                                               + dq(originalFileOrFolder.      getPath()) + NL2T + "to *become*" + NL2T2
+                                               + dq(destinationFileOrFolder.o1.getPath()) + NL2T + "and "
+                                                                             : EMPTY;
     
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm " + msgDoRenameMove
                                                           + "updating the targets and/or the work folders of the shortcuts that are found under" + NL2T2
@@ -526,7 +525,9 @@ public class MoveWithShortcuts {
   private @NotNull File askOriginalPath() throws UserRequestedTermination {
 
     final String originalPath = this.appContext.userIO.in(
-                                                  "Enter the path of the file or folder to rename / move, either absolute"
+                                                  "Enter the path of the file or folder to rename / move"
+                                                          + " (or, if it has already been renamed / moved, enter the path"
+                                                          + " it had before the renaming / moving), either absolute"
                                                           + " or relative to the current folder (" + dq(getCurrentFolder()) + "),"
                                                           + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS);
@@ -563,7 +564,7 @@ public class MoveWithShortcuts {
   private @NotNull TwoObjects<@NotNull File, @NotNull Boolean> askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination {
 
     final String newName = this.appContext.userIO.in(
-                                      "Enter the new name for the file or folder (may include a path), or type "
+                                      "Enter the new name of the file or folder (may include a path), or type "
                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
                                 , EMPTY, CANCEL_CHARS);
     if (newName == null) {
