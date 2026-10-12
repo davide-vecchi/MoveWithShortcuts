@@ -5,6 +5,7 @@ package move_with_shortcuts;
 
 
 import application.AAppContext;
+import dfile.file.FileSortOrder;
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutUpdater.ShortcutsUpdateOutcome;
 import dfile.shortcut.IShortcutsUpdater;
@@ -669,6 +670,7 @@ public class MoveWithShortcuts {
                         Paths.get(searchFolderPath)
                        , new String[] { removeStart(WIN_SHORTCUT_EXTENSION, EXTENSION_SEPARATOR) }
                  , true
+                 , FileSortOrder.TIMESTAMP_ASCENDING
                  , msg -> this.appContext.warnUser(TAB + "Cannot access : " + dq(msg) + "."));
     
     this.numTotalShortcuts =   shortcuts.size();

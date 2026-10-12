@@ -2,10 +2,14 @@
 
 # Changelog
 
-## [3.0.3-SNAPSHOT]
+## [3.1.0-SNAPSHOT]
 
 
 ### Changed
+
+- Update the DFile dependency to its latest version and use its new overload of listFiles() to always read the shortcuts
+  sorted by timestamp ascending, so the ones that will get modified will be in the same relative order of their
+  timestamp.
 
 - Update the DApplication dependency to 2.4.0-SNAPSHOT .
 
