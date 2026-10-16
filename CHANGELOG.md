@@ -26,6 +26,9 @@
 
 ### Fixed
 
+- The updated `DFile` dependency also fixes MWS setting an empty work folder ("Start in") in the updated shortcuts
+  instead of remapping it to the new target's parent folder, when moving / renaming a file or folder.
+
 
 ### Internal changes
 
