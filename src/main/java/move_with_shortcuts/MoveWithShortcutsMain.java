@@ -98,7 +98,6 @@ public final class MoveWithShortcutsMain {
       
       return;
     }
-    
     // Start the execution :
     
     try (
@@ -244,7 +243,6 @@ public final class MoveWithShortcutsMain {
       System.exit(ONE_i);
       args = null;
     }
-    
     return args;
     
   }

@@ -576,7 +576,6 @@ public class MoveWithShortcuts {
     }
     return resolveSearchFolder(searchPath);
   }
-  
   /**
    * Asks the user for the {@link AAppContext#currentVerbosity verbosity level}.
    */
@@ -593,7 +592,6 @@ public class MoveWithShortcuts {
     }
     return this.appContext.assertValidVerbosity(I(verbosity).intValue());
   }
-  
   /**
    * Renames / moves the file or folder from the existing path to the new path.
    */
@@ -609,7 +607,6 @@ public class MoveWithShortcuts {
     
     this.appContext.outUser(ONE_i, "Done.");
   }
-  
   /**
    * Retrieves all files under the given {@code searchFolder} tree that have the {@link OSUtilities#WIN_SHORTCUT_EXTENSION
    * extension} of Windows shortcut files.
