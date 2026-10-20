@@ -47,6 +47,7 @@ $MWS_VERSION = "3.1.0-SNAPSHOT"
 # Dependencies required by MoveWithShortcuts (direct + transitive)
 # Format: groupId/artifactId/version
 $DEPS = @(
+    "djavalibraries/dcommandlinearg/1.0.0-SNAPSHOT",
     "djavalibraries/dapplication/2.4.0-SNAPSHOT",
     "djavalibraries/dutil/2.4.0-SNAPSHOT",
     "djavalibraries/dfile/2.5.0-SNAPSHOT",

@@ -5,6 +5,10 @@ package move_with_shortcuts;
 
 
 import application.AAppContext;
+import dcommandlinearg.CommandLineArgException;
+import dcommandlinearg.DCommandLineSpec;
+import dcommandlinearg.OptionSpec;
+import dcommandlinearg.ParsedArgs;
 import dfile.shortcut.IShortcutsUpdater;
 import dfile.shortcut.WinShortcutsUpdater_PSScriptsMulti;
 import dlog.log.Log;
@@ -22,7 +26,6 @@ import static dlog.log.Log.writeLogsHeaders;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.list.text.TextListUtilities.listToString;
 import static dutil.number.NumberUtilities.ONE_i;
-import static dutil.number.NumberUtilities.TWO_i;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.string.TextUtilities.CHARSET_UTF_8;
 import static dutil.string.TextUtilities.NL;
@@ -33,7 +36,6 @@ import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static java.util.Arrays.asList;
-import static move_with_shortcuts.MoveWithShortcuts.resolveVerbosity;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.fusesource.jansi.Ansi.Color.BLACK;
 import static org.fusesource.jansi.Ansi.Color.CYAN;
@@ -54,7 +56,7 @@ public final class MoveWithShortcutsMain {
    * Private constructor to prevent instantiation.
    */
   private MoveWithShortcutsMain() {}
-
+  
   /**
    * The name of this program. Short name, no description (see #APP_DESCR).
    */
@@ -70,56 +72,62 @@ public final class MoveWithShortcutsMain {
    */
   public static final int DEFAULT_VERBOSITY = ONE_i;
   
+  private static final String FROM_OPTION_NAME      = "from";
+  private static final String TO_OPTION_NAME        = "to";
+  private static final String SEARCH_OPTION_NAME    = "search";
+  private static final String VERBOSITY_OPTION_NAME = "verbosity";
+  
   
   /**
    * Entry point of the MoveWithShortcuts program.
    *
-   * @param originalArgs The command line args.
+   * @param originalArgs The command line args, as named options :
+   *                     {@code -from <file or folder path> -to <value> -search <folder path>}
+   *                     {@code [-verbosity <int>] [-help]} ; zero args start the interactive mode.
    */
   public static void main(String[] originalArgs) throws Exception {
     
     setSystemEncodingUTF8();
     
-    // If 3 args were given, the 4th (the verbosity) must be the default, so add it as if it had been given :
+    final DCommandLineSpec argsSpec = newArgsSpec();
+    final ParsedArgs        args     = originalArgs.length == ZERO_i ? null : parseArgs(argsSpec, originalArgs);
     
-    String[] args = originalArgs;
+    // In the help / bad-args case parseArgs already printed the usage and set the exit code, and never returns :
     
-    if (args.length == 3) {
+    if (args == null && originalArgs.length > ZERO_i) {
       
-      args = new String[] {args[ZERO_i], args[ONE_i], args[TWO_i], S(DEFAULT_VERBOSITY)};
+      return;
     }
+    
     // Start the execution :
     
-    if (args.length == ZERO_i || args.length == 4) {
-
-      try (
+    try (
+      
+      final Log screenLog = new Log(APP_DESCR + " - screen log",    APP_NAME + "_screen-log.LOG", true);
+      
+      final Log userLog =   new Log(APP_DESCR + " - user log",      APP_NAME + "_user-log.LOG",   true);
+      
+      final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
         
-        final Log screenLog = new Log(APP_DESCR + " - screen log",    APP_NAME + "_screen-log.LOG", true);
-  
-        final Log userLog =   new Log(APP_DESCR + " - user log",      APP_NAME + "_user-log.LOG",   true);
-  
-        final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
-        
-        final ConditionallyCloseablePrintStream out = new ConditionallyCloseablePrintStream(
+      final ConditionallyCloseablePrintStream out = new ConditionallyCloseablePrintStream(
                                                                                           System.out,   true
                                                                                         , CHARSET_UTF_8, false);
-        
-        final ConditionallyCloseablePrintStream err = new ConditionallyCloseablePrintStream(
+                                                                                        
+      final ConditionallyCloseablePrintStream err = new ConditionallyCloseablePrintStream(
                                                                              System.err,   true
                                                                                         , CHARSET_UTF_8, false);
-        final AAppContext ac = AppContext.newAppContext(
-                         ColorConsoleUserIO.newInstance1(System.in,         out,                 err
-                                                             , CYAN,   BLACK,   RED
-                                                             , BLACK, YELLOW, BLACK)
-                                                                        , screenLog,          userLog,            devLog))
+      final AAppContext ac = AppContext.newAppContext(
+                       ColorConsoleUserIO.newInstance1(System.in,         out,                 err
+                                                           , CYAN,   BLACK,   RED
+                                                           , BLACK, YELLOW, BLACK)
+                                                                      , screenLog,          userLog,            devLog))
       {
         
         final MoveWithShortcuts app = MoveWithShortcuts.newInstance(ac);
         
         try {
           
-          ac.currentVerbosity = resolveVerbosity(args.length >= 4 ? args[3] : null
-                                               , MAX_VERBOSITY, DEFAULT_VERBOSITY);
+          ac.currentVerbosity = args != null ? args.getInt(VERBOSITY_OPTION_NAME) : DEFAULT_VERBOSITY;
           
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
@@ -132,7 +140,7 @@ public final class MoveWithShortcutsMain {
           
           final IShortcutsUpdater shortcutsTargetUpdater =
                              WinShortcutsUpdater_PSScriptsMulti.newInstance(null, ac);
-          
+                             
 //          final IShortcutsUpdater shortcutsTargetUpdater = WinShortcutsUpdater_OneByOne.newInstance(
 //                  WinShortcutUpdater_PS_WSH01.newInstance(false, ac.devLog)
 //                         , CANCEL_CHARS , ac);
@@ -140,18 +148,19 @@ public final class MoveWithShortcutsMain {
           // -------------------------------------------------------
           
           
-          showStartupMessages(ac, shortcutsTargetUpdater, args);
+          showStartupMessages(ac, shortcutsTargetUpdater, originalArgs);
           
           // Perform the renaming operation using the chosen updater :
           
-          if (args.length == ZERO_i) {
+          if (args == null) {
             
             app.run(shortcutsTargetUpdater);
           }
           else {
             
-            app.run(shortcutsTargetUpdater, args[ZERO_i], args[ONE_i]
-                                           , args[TWO_i],       args[3]);
+            app.run(shortcutsTargetUpdater, args.getFile(FROM_OPTION_NAME).getPath()
+                                          , args.getString(TO_OPTION_NAME)
+                                          , args.getFile(SEARCH_OPTION_NAME).getPath());
           }
         }
         catch (UserRequestedTermination t) {
@@ -177,13 +186,67 @@ public final class MoveWithShortcutsMain {
           ac.showLogInfo(ONE_i);
         }
       }
-    }
-    else {
+  }
+  
+  /**
+   * Builds the specification of this program's named command-line arguments.
+   *
+   * @return the command-line specification
+   */
+  private static DCommandLineSpec newArgsSpec() {
+    
+    return DCommandLineSpec.newSpec(APP_NAME, APP_DESCR)
+                           .addOption(OptionSpec.option(FROM_OPTION_NAME
+                                                       , "The path of the file or folder to rename / move.")
+                                               .required().existingFileOrFolder())
+                           .addOption(OptionSpec.option(TO_OPTION_NAME
+                                                       , "The new name / path for the file or folder (it must not exist yet).")
+                                               .required())
+                           .addOption(OptionSpec.option(SEARCH_OPTION_NAME
+                                                       , "The folder to scan for " + WIN_SHORTCUT_EXTENSION + " shortcuts to update.")
+                                               .required().existingFolder())
+                           .addOption(OptionSpec.option(VERBOSITY_OPTION_NAME
+                                                       , "The verbosity level (0-" + MAX_VERBOSITY + ")")
+                                               .intRange(ZERO_i, MAX_VERBOSITY).defaultValue(S(DEFAULT_VERBOSITY)));
+                                               
+  }
+  
+  /**
+   * Parses the given (non-empty) command-line arguments against this program's specification ; on a help request or
+   * an argument error, prints the usage text, sets the exit code (0 for help, 1 for an error) and returns {@code
+   * null} — after {@code System.exit}, so nothing follows in practice.
+   *
+   * @param argsSpec      The command-line specification, see {@link #newArgsSpec()}.<br>
+   *
+   * @param originalArgs  The command line args, not empty.
+   *
+   * @return The parsed args, or {@code null} after printing the usage text.
+   */
+  private static ParsedArgs parseArgs(@NotNull DCommandLineSpec argsSpec, @NotNull String[] originalArgs) {
+    
+    ParsedArgs args;
+    
+    try {
       
-      // : Bad launch args, don't run.
+      args = argsSpec.parse(originalArgs);
       
-      showUsage();
+      if (args.helpRequested()) {
+        
+        System.out.println(argsSpec.getUsageText());
+        System.exit(ZERO_i);
+        args = null;
+      }
     }
+    catch (CommandLineArgException e) {
+      
+      System.out.println(e.getMessage());
+      System.out.println(argsSpec.getUsageText());
+      System.exit(ONE_i);
+      args = null;
+    }
+    
+    return args;
+    
   }
   
   /**
@@ -197,7 +260,7 @@ public final class MoveWithShortcutsMain {
    */
   private static void showStartupMessages(@NotNull AAppContext ac,  @NotNull IShortcutsUpdater shortcutsTargetUpdater
                                         , @NotNull String[]    args) {
-  
+                                        
     ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date());
     
     if (args.length > ZERO_i) {
@@ -212,34 +275,10 @@ public final class MoveWithShortcutsMain {
     
     ac.outUser(ONE_i, NL + "Using "    + IShortcutsUpdater.class.getSimpleName() + " implementation "
                                            + dq(shortcutsTargetUpdater.getClass().getSimpleName()) + ".");
-    
+                                           
     ac.outUser(ONE_i, NL + "Current verbosity (0-" + MAX_VERBOSITY + ") : " + ac.currentVerbosity + " .");
     
     ac.outUser(ONE_i, NL);
-  }
-  
-  /**
-   * Displays a description of the launch arguments.
-   */
-  private static void showUsage() {
-
-    System.out.println();
-    
-    System.out.println(APP_DESCR);
-    
-    System.out.println();
-    
-    System.out.println("Usage: " + MoveWithShortcutsMain.class.getSimpleName() + " [ <originalPath> <destinationPath> <searchPath> [verbosity] ]");
-    
-    System.out.println();
-    
-    System.out.println("  When no arguments are provided, the program prompts interactively.");
-    
-    System.out.println("  When 3 arguments are provided, they are used as the paths and the verbosity level (0-" + MAX_VERBOSITY + ") defaults to " + DEFAULT_VERBOSITY + " (no prompts).");
-    
-    System.out.println("  When 4 arguments are provided, the first 3 are used as the paths and the last one is the verbosity level (0-" + MAX_VERBOSITY + ") (no prompts).");
-    
-    System.out.println("  Any other number of arguments prints this message.");
   }
   
 }

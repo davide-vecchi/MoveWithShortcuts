@@ -43,13 +43,11 @@ import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.jar.JARUtilities.getClasspathMsg;
 import static dutil.list.ListUtilities.assertNoneNull;
-import static dutil.list.number.NumberListUtilities.assertNoneNegative;
 import static dutil.list.text.TextListUtilities.assertNoneBlankNorTrimmable;
 import static dutil.number.NumberUtilities.I;
 import static dutil.number.NumberUtilities.MINUS1_i;
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_i;
-import static dutil.number.NumberUtilities.assertNonNegative;
 import static dutil.object.ObjectUtilities.B;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.object.ObjectUtilities.assertTrue;
@@ -62,7 +60,6 @@ import static dutil.string.TextUtilities.NLT;
 import static dutil.string.TextUtilities.S;
 import static dutil.string.TextUtilities.TAB;
 import static dutil.string.TextUtilities.assertNonBlankNorTrimmable;
-import static dutil.string.TextUtilities.assertNonBlankUnlessNull;
 import static dutil.string.TextUtilities.dq;
 import static dutil.string.TextUtilities.getStringsOp;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
@@ -171,7 +168,7 @@ public class MoveWithShortcuts {
     
     final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
                                          askDestinationFileOrFolder(originalFileOrFolder);
-    
+                                         
     final File searchFolder =            askSearchFolder();
     
     this.appContext.currentVerbosity =   askVerbosity();
@@ -183,12 +180,12 @@ public class MoveWithShortcuts {
       execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater);
     }
   }
-
+  
   /**
    * Runs the rename-and-update operation using the specified paths instead of prompting the user.
    *
    * @param shortcutsTargetUpdater The {@link IShortcutsUpdater object} to {@link IShortcutsUpdater#updateShortcuts(List, File, File)}
-   *                               update} the target and work folders of shortcuts.
+   *                               update} the target and work folders of shortcuts.<br>
    *
    * @param argOriginalPath       The argument given for the path of the file or folder to rename / move.<br>
    *
@@ -196,8 +193,6 @@ public class MoveWithShortcuts {
    *                              → move).<br>
    *
    * @param argSearchPath         The argument given for the path to scan for shortcuts to possibly update.
-   *
-   * @param argVerbosity          The argument given for the verbosity level. May be {@code null}, defaults to 0 .
    *
    * @throws IOException                     If the rename / move operation fails.<br>
    *
@@ -209,22 +204,20 @@ public class MoveWithShortcuts {
    *                                         originalPath}.
    */
   public void run(@NotNull IShortcutsUpdater shortcutsTargetUpdater, @NotNull String argOriginalPath
-                , @NotNull String            argDestinationPath,     @NotNull String argSearchPath
-                ,          String            argVerbosity) throws IOException, UserRequestedTermination {
-    
+                , @NotNull String            argDestinationPath,     @NotNull String argSearchPath)
+                throws IOException, UserRequestedTermination {
+                
     assertWindowsOS();
     
     assertNonNull(shortcutsTargetUpdater, shortcutsTargetUpdater.getClass().getSimpleName() + " updater");
     
     assertNoneBlankNorTrimmable(argOriginalPath, argDestinationPath, argSearchPath);
     
-    assertNonBlankUnlessNull(argVerbosity);
-    
     final File originalFileOrFolder =    resolveOriginalPath(           argOriginalPath);
-
+    
     final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
                                          resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
-
+                                         
     final File searchFolder =            resolveSearchFolder(           argSearchPath);
     
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
@@ -253,7 +246,7 @@ public class MoveWithShortcuts {
    *                                renaming / moving does not need to be performed as it's assumed to have been already
    *                                occurred</b>.</li></ul>
    *                                Whether the renaming / moving needs to be performed or not must be determined
-   *                                exclusively from this value, not by re-checking which path exists and which doesn't.</li></ul>
+   *                                exclusively from this value, not by re-checking which path exists and which doesn't.</li></ul><br>
    *
    * @param searchFolder            The folder under which, <b>after</b> {@link #renameFileOrFolder performing} the
    *                                rename / move, the existing shortcuts must be possibly have their targets updated.<br>
@@ -265,7 +258,7 @@ public class MoveWithShortcuts {
              , @NotNull TwoObjects<File, Boolean> destinationFileOrFolder
              , @NotNull File                      searchFolder
              , @NotNull IShortcutsUpdater         shortcutsTargetUpdater) throws IOException, UserRequestedTermination {
-    
+             
     assertNoneNull(destinationFileOrFolder, shortcutsTargetUpdater);
     
     destinationFileOrFolder.assertNeitherNull();
@@ -274,7 +267,7 @@ public class MoveWithShortcuts {
     
     assertExistingPath(mustRenameMove ? originalFileOrFolder : destinationFileOrFolder.o1
                         , null);
-    
+                        
     assertTrue(mustRenameMove != destinationFileOrFolder.o1.exists(), "One of", getCanonicalPath(originalFileOrFolder), "and", getCanonicalPath(destinationFileOrFolder.o1), "must exist and the other one must not, instead they both", originalFileOrFolder.exists() ? "exist."  : "don't exist.");
     
     assertExistingPath(searchFolder, TRUE);
@@ -306,12 +299,12 @@ public class MoveWithShortcuts {
                                                                                  I(shortcuts.size()))
                                                 + " or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                , EMPTY, CANCEL_CHARS) == null;
-      
+                               
       if (! userAborted) {
         
         this.appContext.outUser(NL + "The processing of the " + FMT0DG.format(shortcuts.size()) +
                                              " shortcut file(s) has started, at " + new Date() + " ." + NL);
-        
+                                             
         // Update all the shortcuts that point to the location as it was before the renaming / moving :
         
         final ShortcutsUpdateOutcome outcome = shortcutsTargetUpdater.updateShortcuts(shortcuts
@@ -362,7 +355,7 @@ public class MoveWithShortcuts {
   private boolean askStartConfirmation(@NotNull File                                        originalFileOrFolder
                                      , @NotNull TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder
                                      , @NotNull File                                        searchFolder) {
-    
+                                     
     assertNoneNull(originalFileOrFolder, destinationFileOrFolder, searchFolder);
     
     destinationFileOrFolder.assertNeitherNull();
@@ -370,7 +363,7 @@ public class MoveWithShortcuts {
     final boolean isRenameOnly = getStringsOp(IS_OS_WINDOWS)
                                     .equals(getCanonicalPath(originalFileOrFolder.      getParentFile())
                                           , getCanonicalPath(destinationFileOrFolder.o1.getParentFile()));
-    
+                                          
     final String msgDoRenameMove = destinationFileOrFolder.o2.booleanValue() ?
                                    (isRenameOnly ? "renaming " :
                                                    originalFileOrFolder.getName().equals(
@@ -380,7 +373,7 @@ public class MoveWithShortcuts {
                                                + dq(originalFileOrFolder.      getPath()) + NL2T + "to *become*" + NL2T2
                                                + dq(destinationFileOrFolder.o1.getPath()) + NL2T + "and "
                                                                              : EMPTY;
-    
+                                                                             
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm " + msgDoRenameMove
                                                           + "updating the targets and/or the work folders of the shortcuts that are found under" + NL2T2
                                                           + dq(getCanonicalPath(searchFolder)) + NL2T
@@ -423,6 +416,7 @@ public class MoveWithShortcuts {
   private static @NotNull TwoObjects<@NotNull File, @NotNull Boolean> resolveDestinationFileOrFolder(
                                                                                      @NotBlank String argDestinationPath
                                                                                    , @NotNull  File   original) {
+                                                                                   
     final String effectiveNewName;
     
     if (hasParentInfo(assertNonBlankNorTrimmable(argDestinationPath))) {
@@ -482,41 +476,6 @@ public class MoveWithShortcuts {
   }
   
   /**
-   * @param argVerbosity Text from which to calculate a {@link AAppContext#currentVerbosity verbosity} value. This text
-   *                     can be the string arg passed to the program at launch. May be {@code null}, in which case the
-   *                     given {@code defaultVerbosity} is returned.<br>
-   *
-   * @param maxVerbosity The max allowed verbosity. May not be negative.<br>
-   *
-   * @param defaultVerbosity The value to return if the given {@code argVerbosity} is {@code null}. May not be negative
-   *                         or greater than the given {@code defaultVerbosity}.
-   *
-   * @return The verbosity value to {@link AAppContext#currentVerbosity use}, calculated based on the given {@code
-   *         argVerbosity} text.
-   */
-  static int resolveVerbosity(final String argVerbosity, int maxVerbosity, int defaultVerbosity) {
-    
-    assertNoneNegative(maxVerbosity, defaultVerbosity, maxVerbosity - defaultVerbosity);
-    
-    final int verbosity;
-    
-    if (argVerbosity != null) {
-      
-      verbosity = I(assertNonBlankNorTrimmable(argVerbosity)).intValue();
-      
-      if (verbosity > maxVerbosity) {
-        
-        throw new InvalidExternalValueException("Invalid verbosity value " + verbosity + ", max is " + maxVerbosity + " .");
-      }
-    }
-    else {
-      
-      verbosity = defaultVerbosity;
-    }
-    return assertNonNegative(verbosity);
-  }
-
-  /**
    * Asks the user for the path of the file or folder to rename / move.
    *
    * @throws UserRequestedTermination If the user responds to the question with one of the {@link #CANCEL_CHARS}.<br>
@@ -524,7 +483,7 @@ public class MoveWithShortcuts {
    * @throws MissingExternalValueException If the path entered by the user does not exist.
    */
   private @NotNull File askOriginalPath() throws UserRequestedTermination {
-
+  
     final String originalPath = this.appContext.userIO.in(
                                                   "Enter the path of the file or folder to rename / move"
                                                           + " (or, if it has already been renamed / moved, enter the path"
@@ -538,7 +497,7 @@ public class MoveWithShortcuts {
     }
     return resolveOriginalPath(originalPath);
   }
-
+  
   /**
    * Asks the user for the destination (file or folder) to which the given {@code original} is requested to be renamed /
    * moved. Must be of the same type (that is, file or folder) as the given {@code original}.<br>May include a different
@@ -563,7 +522,7 @@ public class MoveWithShortcuts {
    *                              viceversa.
    */
   private @NotNull TwoObjects<@NotNull File, @NotNull Boolean> askDestinationFileOrFolder(@NotNull File original) throws UserRequestedTermination {
-
+  
     final String newName = this.appContext.userIO.in(
                                       "Enter the new name of the file or folder (may include a path), or type "
                                                 + calcCancelCharsPrompt(CANCEL_CHARS)
@@ -600,7 +559,7 @@ public class MoveWithShortcuts {
     }
     return resolveDestinationFileOrFolder(effectiveNewName, original);
   }
-
+  
   /**
    * Asks the user for the path to scan for {@code .lnk} shortcuts to update.
    */
@@ -612,7 +571,7 @@ public class MoveWithShortcuts {
                                                         + " or press Enter for the default, or type " + calcCancelCharsPrompt(CANCEL_CHARS)
                                          , getCurrentFolder(), CANCEL_CHARS);
     if (searchPath == null) {
-
+    
       throw new UserRequestedTermination();
     }
     return resolveSearchFolder(searchPath);
@@ -634,16 +593,16 @@ public class MoveWithShortcuts {
     }
     return this.appContext.assertValidVerbosity(I(verbosity).intValue());
   }
-
+  
   /**
    * Renames / moves the file or folder from the existing path to the new path.
    */
   private void renameFileOrFolder(File originalFileOrFolder, File destinationFileOrFolder) throws IOException {
     
     this.appContext.outUser(ONE_i, NL + "Renaming / moving" + NL2T + dq(getCanonicalPath(originalFileOrFolder)) + NL2T + "to" + NL2T + dq(getCanonicalPath(destinationFileOrFolder)) + NL2T + "...");
-
+    
     if (! destinationFileOrFolder.getParentFile().exists()) {
-
+    
       FileUtils.forceMkdir(destinationFileOrFolder.getParentFile());
     }
     Files.move(originalFileOrFolder.toPath(), destinationFileOrFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -665,19 +624,19 @@ public class MoveWithShortcuts {
     
     this.appContext.outUser(ONE_i, NL   + "Retrieving shortcuts to check for needed update, under folder"
                                                    + NL2T + dq(searchFolderPath) + " ...");
-    
+                                                   
     final List<File> shortcuts = FileUtilities.listFiles(
                         Paths.get(searchFolderPath)
                        , new String[] { removeStart(WIN_SHORTCUT_EXTENSION, EXTENSION_SEPARATOR) }
                  , true
                  , FileSortOrder.TIMESTAMP_ASCENDING
                  , msg -> this.appContext.warnUser(TAB + "Cannot access : " + dq(msg) + "."));
-    
+                 
     this.numTotalShortcuts =   shortcuts.size();
     
     this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
                                                    + NL2T + dq(searchFolderPath) + ".");
     return shortcuts;
   }
-
+  
 }
