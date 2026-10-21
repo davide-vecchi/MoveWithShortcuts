@@ -229,7 +229,7 @@ public final class MoveWithShortcutsMain {
       
       args = argsSpec.parse(originalArgs);
       
-      if (args.helpRequested()) {
+      if (args.isHelpRequested()) {
         
         System.out.println(argsSpec.getUsageText());
         System.exit(ZERO_i);
