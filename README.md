@@ -28,28 +28,44 @@ In detail :
 
 ## Usage
 
-The program can be started without arguments, in which case it will prompt on the console for the 4 needed values.
+The program can be started without arguments, in which case it will prompt on the console for the needed values.
 
-In alternative, it can be started with 3 or 4 arguments :
+In alternative, it can be started with named options :
 
-1. Original : The path to the file or folder to rename / move or that has already been renamed / moved.
+```
+MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder path> [-verbosity <0-2>] [-help]
+```
 
-2. Destination : The file or folder to which the original is requested to be renamed / moved or already was. If it does
-   not include a parent path, it is assumed to be in the same folder where the original is.
+1. `-from` : The path of the file or folder to rename / move or that has already been renamed / moved.
+
+2. `-to` : The new name or path for the file or folder to which the original is requested to be renamed / moved or
+   already was. If it does not include a parent path, it is assumed to be in the same folder where the original is.
 
    Must be of the same type (that is, file or folder) as the original.
 
    May include a different path, which means the original is requested to be - or it already has been - moved there
    (and possibly renamed) rather than just renamed.
 
-3. Search path : The path inside which to recursively search for the shortcut files to possibly update. If the renaming
+3. `-search` : The path inside which to recursively search for the shortcut files to possibly update. If the renaming
    / moving will be performed by the program (i.e. the original path did exist and the destination did not), and it will
    result in changes to the folder structure (f.ex. because the destination path does not exist so it will be created,
    or because the element to rename is a folder and not a file), then the path specified here must obviously refer to
    the folder structure as it will be after the renaming / moving, not as it is before it.
 
-4. (Optional) Verbosity level, from 0 to 3. A value of 0 means that only possible error or warning messages will be
-   shown.
+4. `-verbosity` (optional) : Verbosity level, from 0 to 2, default 1. A value of 0 means that only possible error or
+   warning messages will be shown.
+
+5. `-help` : Prints the usage text and exits.
+
+Wrap paths that contain spaces in double quotes. A value that is itself an option name (e.g. a file literally named
+`-from`) must be attached to its option with `=`, as in `-to=-from`.
+
+Examples :
+
+```
+MoveWithShortcuts.BAT -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide"
+java -jar MoveWithShortcuts.jar -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide"
+```
 
 ## Quick Start (using the distributable ZIP)
 

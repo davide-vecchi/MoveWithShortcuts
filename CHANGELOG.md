@@ -34,6 +34,9 @@
 
 ### Fixed
 
+- The `MoveWithShortcuts.BAT` and `MoveWithShortcuts.ps1` launchers now forward their command-line arguments to the
+  program instead of ignoring them.
+
 - The updated `DFile` dependency also fixes MWS setting an empty work folder ("Start in") in the updated shortcuts
   instead of remapping it to the new target's parent folder, when moving / renaming a file or folder.
 
