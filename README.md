@@ -36,10 +36,14 @@ In alternative, it can be started with named options :
 MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder path> [-verbosity <0-2>] [-help]
 ```
 
-1. `-from` : The path of the file or folder to rename / move or that has already been renamed / moved.
+1. `-from` : The path of the file or folder to rename / move, or the path it had before if the operation was already
+   done elsewhere, in which case no rename / move will be done and only the shortcuts adjustment will be done.
 
-2. `-to` : The new name or path for the file or folder to which the original is requested to be renamed / moved or
-   already was. If it does not include a parent path, it is assumed to be in the same folder where the original is.
+2. `-to` : The new name or path for the file or folder, or the path it has now if the operation was already done
+   elsewhere, in which case no rename / move will be done and only the shortcuts adjustment will be done. If it does
+   not include a parent path, it is assumed to be in the same folder where the original is.
+
+   Exactly one of `-from` and `-to` must exist; the other must not.
 
    Must be of the same type (that is, file or folder) as the original.
 

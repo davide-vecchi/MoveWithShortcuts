@@ -34,6 +34,9 @@
 
 ### Fixed
 
+- The `-from` / `-to` help text now describes both accepted situations : either the move / rename must be
+  performed, or it was already done elsewhere and only the shortcut adjustment is performed.
+
 - The `MoveWithShortcuts.BAT` and `MoveWithShortcuts.ps1` launchers now forward their command-line arguments to the
   program instead of ignoring them.
 
