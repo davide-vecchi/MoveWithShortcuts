@@ -33,7 +33,7 @@ The program can be started without arguments, in which case it will prompt on th
 In alternative, it can be started with named options :
 
 ```
-MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder path> [-verbosity <0-2>] [-help]
+MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder path> [-verbosity <0-2>] [-shortcut-file-name <never|exact|descendant>] [-help]
 ```
 
 1. `-from` : The path of the file or folder to rename / move, or the path it had before if the operation was already
@@ -59,7 +59,17 @@ MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder pat
 4. `-verbosity` (optional) : Verbosity level, from 0 to 2, default 1. A value of 0 means that only possible error or
    warning messages will be shown.
 
-5. `-help` : Prints the usage text and exits.
+5. `-shortcut-file-name` (optional) : What to do with the shortcut files' own names :
+
+   - `never` (default) : only the target and work folder fields are updated.
+   - `exact` : additionally rename a shortcut file whose name (minus `.lnk`) equals the old leaf's full name and whose
+     target is exactly the renamed / moved leaf.
+   - `descendant` : like `exact`, and also when the shortcut's target is inside the renamed / moved folder.
+
+   The Windows default `" - Shortcut"` part (localized) is accepted and preserved when present, and pure moves (same
+   leaf name) never rename.
+
+6. `-help` : Prints the usage text and exits.
 
 Wrap paths that contain spaces in double quotes. A value that is itself an option name (e.g. a file literally named
 `-from`) must be attached to its option with `=`, as in `-to=-from`.
@@ -68,7 +78,7 @@ Examples :
 
 ```
 MoveWithShortcuts.BAT -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide"
-java -jar MoveWithShortcuts.jar -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide"
+java -jar MoveWithShortcuts.jar -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide" -shortcut-file-name exact
 ```
 
 ## Quick Start (using the distributable ZIP)

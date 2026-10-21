@@ -10,6 +10,7 @@ import dcommandlinearg.DCommandLineSpec;
 import dcommandlinearg.OptionSpec;
 import dcommandlinearg.ParsedArgs;
 import dfile.shortcut.IShortcutsUpdater;
+import dfile.shortcut.ShortcutFileNamePolicy;
 import dfile.shortcut.WinShortcutsUpdater_PSScriptsMulti;
 import dlog.log.Log;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
@@ -50,8 +51,8 @@ import static org.fusesource.jansi.Ansi.Color.YELLOW;
  * The startup class of the {@code MoveWithShortcuts} application.
  */
 public final class MoveWithShortcutsMain {
-  
-  
+
+
   /**
    * Private constructor to prevent instantiation.
    */
@@ -76,6 +77,7 @@ public final class MoveWithShortcutsMain {
   private static final String TO_OPTION_NAME        = "to";
   private static final String SEARCH_OPTION_NAME    = "search";
   private static final String VERBOSITY_OPTION_NAME = "verbosity";
+  private static final String SHORTCUT_FILE_NAME_OPTION_NAME = "shortcut-file-name";
   
   
   /**
@@ -83,10 +85,11 @@ public final class MoveWithShortcutsMain {
    *
    * @param originalArgs The command line args, as named options :
    *                     {@code -from <file or folder path> -to <value> -search <folder path>}
-   *                     {@code [-verbosity <int>] [-help]} ; zero args start the interactive mode.
+   *                     {@code [-verbosity <int>] [-shortcut-file-name <never|exact|descendant>] [-help]} ; zero args
+   *                     start the interactive mode.
    */
   public static void main(String[] originalArgs) throws Exception {
-    
+  
     setSystemEncodingUTF8();
     
     final DCommandLineSpec argsSpec = newArgsSpec();
@@ -95,19 +98,19 @@ public final class MoveWithShortcutsMain {
     // In the help / bad-args case parseArgs already printed the usage and set the exit code, and never returns :
     
     if (args == null && originalArgs.length > ZERO_i) {
-      
+    
       return;
     }
     // Start the execution :
     
     try (
-      
+    
       final Log screenLog = new Log(APP_DESCR + " - screen log",    APP_NAME + "_screen-log.LOG", true);
       
       final Log userLog =   new Log(APP_DESCR + " - user log",      APP_NAME + "_user-log.LOG",   true);
       
       final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
-        
+      
       final ConditionallyCloseablePrintStream out = new ConditionallyCloseablePrintStream(
                                                                                           System.out,   true
                                                                                         , CHARSET_UTF_8, false);
@@ -121,13 +124,18 @@ public final class MoveWithShortcutsMain {
                                                            , BLACK, YELLOW, BLACK)
                                                                       , screenLog,          userLog,            devLog))
       {
-        
+      
         final MoveWithShortcuts app = MoveWithShortcuts.newInstance(ac);
         
         try {
-          
+        
           ac.currentVerbosity = args != null ? args.getInt(VERBOSITY_OPTION_NAME) : DEFAULT_VERBOSITY;
           
+          final ShortcutFileNamePolicy shortcutFileNamePolicy = args != null
+                                                    ? ShortcutFileNamePolicy.parse(
+                                                              args.getString(SHORTCUT_FILE_NAME_OPTION_NAME))
+                                                    : ShortcutFileNamePolicy.NEVER;
+                                                    
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
           
@@ -136,30 +144,31 @@ public final class MoveWithShortcutsMain {
           
 //          final IShortcutsUpdater shortcutsTargetUpdater =
 //                                                            WinShortcutsUpdater_PSScriptsMulti.newInstance(ac);
-          
+
           final IShortcutsUpdater shortcutsTargetUpdater =
                              WinShortcutsUpdater_PSScriptsMulti.newInstance(null, ac);
                              
 //          final IShortcutsUpdater shortcutsTargetUpdater = WinShortcutsUpdater_OneByOne.newInstance(
 //                  WinShortcutUpdater_PS_WSH01.newInstance(false, ac.devLog)
 //                         , CANCEL_CHARS , ac);
-          
+
           // -------------------------------------------------------
           
           
-          showStartupMessages(ac, shortcutsTargetUpdater, originalArgs);
+          showStartupMessages(ac, shortcutsTargetUpdater, originalArgs, shortcutFileNamePolicy);
           
           // Perform the renaming operation using the chosen updater :
           
           if (args == null) {
-            
-            app.run(shortcutsTargetUpdater);
+          
+            app.run(shortcutsTargetUpdater, shortcutFileNamePolicy);
           }
           else {
-            
+          
             app.run(shortcutsTargetUpdater, args.getFile(FROM_OPTION_NAME).getPath()
                                           , args.getString(TO_OPTION_NAME)
-                                          , args.getFile(SEARCH_OPTION_NAME).getPath());
+                                          , args.getFile(SEARCH_OPTION_NAME).getPath()
+                                          , shortcutFileNamePolicy);
           }
         }
         catch (UserRequestedTermination t) {
@@ -173,12 +182,16 @@ public final class MoveWithShortcutsMain {
           ac.outUserLog(getFullDescriptionWithRootCause(e));
         }
         finally {
-          
+        
           ac.outUser(NL + "Total shortcuts to process :     " + app.numTotalShortcuts     + " .");
           
           ac.outUser(NL + "Total shortcuts needing update : " + app.numProcessedShortcuts + " .");
           
           ac.outUser(NL + "Total shortcuts updated :        " + app.numUpdatedShortcuts   + " .");
+          
+          ac.outUser(NL + "Total shortcut files renamed :   " + app.numRenamedShortcuts + " .");
+          
+          ac.outUser(NL + "Total shortcut-file renames skipped : " + app.numRenameSkippedShortcuts + " .");
           
           ac.outUser(NL + "Total shortcuts skipped :        " + app.numSkippedShortcuts   + " .");
           
@@ -193,7 +206,7 @@ public final class MoveWithShortcutsMain {
    * @return the command-line specification
    */
   private static DCommandLineSpec newArgsSpec() {
-    
+  
     return DCommandLineSpec.newSpec(APP_NAME, APP_DESCR)
                            .addOption(OptionSpec.option(FROM_OPTION_NAME
                                                        , "The path of the file or folder to rename / move, or the path it"
@@ -211,6 +224,13 @@ public final class MoveWithShortcutsMain {
                            .addOption(OptionSpec.option(SEARCH_OPTION_NAME
                                                        , "The folder to scan for " + WIN_SHORTCUT_EXTENSION + " shortcuts to update.")
                                                .required().existingFolder())
+                           .addOption(OptionSpec.option(SHORTCUT_FILE_NAME_OPTION_NAME
+                                                       , "The shortcut file name policy : never, exact or descendant"
+                                                       + " (default never). exact / descendant rename a shortcut file"
+                                                       + " named after the old leaf, preserving the Windows default"
+                                                       + " \" - Shortcut\" part.")
+                                               .allowedValues("never", "exact", "descendant")
+                                               .defaultValue("never"))
                            .addOption(OptionSpec.option(VERBOSITY_OPTION_NAME
                                                        , "The verbosity level (0-" + MAX_VERBOSITY + ")")
                                                .intRange(ZERO_i, MAX_VERBOSITY).defaultValue(S(DEFAULT_VERBOSITY)));
@@ -229,22 +249,22 @@ public final class MoveWithShortcutsMain {
    * @return The parsed args, or {@code null} after printing the usage text.
    */
   private static ParsedArgs parseArgs(@NotNull DCommandLineSpec argsSpec, @NotNull String[] originalArgs) {
-    
+  
     ParsedArgs args;
     
     try {
-      
+    
       args = argsSpec.parse(originalArgs);
       
       if (args.isHelpRequested()) {
-        
+      
         System.out.println(argsSpec.getUsageText());
         System.exit(ZERO_i);
         args = null;
       }
     }
     catch (CommandLineArgException e) {
-      
+    
       System.out.println(e.getMessage());
       System.out.println(argsSpec.getUsageText());
       System.exit(ONE_i);
@@ -261,15 +281,18 @@ public final class MoveWithShortcutsMain {
    *
    * @param shortcutsTargetUpdater The {@link IShortcutsUpdater} instance that this execution will use.<br>
    *
-   * @param args                   The command line arguments with which this execution has been started.
+   * @param args                   The command line arguments with which this execution has been started.<br>
+   *
+   * @param shortcutFileNamePolicy The {@link ShortcutFileNamePolicy} selected for this execution.
    */
   private static void showStartupMessages(@NotNull AAppContext ac,  @NotNull IShortcutsUpdater shortcutsTargetUpdater
-                                        , @NotNull String[]    args) {
+                                        , @NotNull String[]    args
+                                        , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy) {
                                         
     ac.outUser(ONE_i, NL +"Starting " + dq(APP_DESCR) + " on " + new Date());
     
     if (args.length > ZERO_i) {
-      
+    
       ac.outUser(ONE_i, NL + listToString(asList(args), "Program arguments", EMPTY, EMPTY, NL));
     }
     ac.outUser(ONE_i, NL + "Current folder : " + dq(getCurrentFolder()) + ".");
@@ -282,6 +305,8 @@ public final class MoveWithShortcutsMain {
                                            + dq(shortcutsTargetUpdater.getClass().getSimpleName()) + ".");
                                            
     ac.outUser(ONE_i, NL + "Current verbosity (0-" + MAX_VERBOSITY + ") : " + ac.currentVerbosity + " .");
+    
+    ac.outUser(ONE_i, NL + "Shortcut file name policy : " + shortcutFileNamePolicy + " .");
     
     ac.outUser(ONE_i, NL);
   }
