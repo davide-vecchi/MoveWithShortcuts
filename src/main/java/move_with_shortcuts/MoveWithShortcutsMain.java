@@ -196,10 +196,17 @@ public final class MoveWithShortcutsMain {
     
     return DCommandLineSpec.newSpec(APP_NAME, APP_DESCR)
                            .addOption(OptionSpec.option(FROM_OPTION_NAME
-                                                       , "The path of the file or folder to rename / move.")
+                                                       , "The path of the file or folder to rename / move, or the path it"
+                                                       + " had before if the operation was already done elsewhere, in"
+                                                       + " which case no rename / move will be done and only the shortcuts"
+                                                       + " adjustment will be done.")
                                                .required().existingFileOrFolder())
                            .addOption(OptionSpec.option(TO_OPTION_NAME
-                                                       , "The new name / path for the file or folder (it must not exist yet).")
+                                                       , "The new name or path for the file or folder, or the path it has"
+                                                       + " now if the operation was already done elsewhere, in which case no"
+                                                       + " rename / move will be done and only the shortcuts adjustment will"
+                                                       + " be done. Exactly one of -from and -to must exist, the other must"
+                                                       + " not.")
                                                .required())
                            .addOption(OptionSpec.option(SEARCH_OPTION_NAME
                                                        , "The folder to scan for " + WIN_SHORTCUT_EXTENSION + " shortcuts to update.")
