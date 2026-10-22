@@ -295,7 +295,7 @@ public final class MoveWithShortcutsMain {
     
     if (args.length > ZERO_i) {
     
-      ac.outUser(ONE_i, NL + listToString(asList(args), "Program arguments", EMPTY, EMPTY, NL));
+      ac.outUser(ONE_i, NL + listToString(asList(args), "Program arguments", EMPTY, EMPTY, NL2));
     }
     ac.outUser(ONE_i, NL + "Current folder : " + dq(getCurrentFolder()) + ".");
     
