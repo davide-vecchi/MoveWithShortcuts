@@ -191,6 +191,8 @@ public final class MoveWithShortcutsMain {
           
           ac.outUser(NL + "Total shortcut files renamed :   " + app.numRenamedShortcuts + " .");
           
+          ac.outUser(NL + "Total shortcut-file rename collisions : " + app.numRenameCollisions + " .");
+          
           ac.outUser(NL + "Total shortcut-file renames skipped : " + app.numRenameSkippedShortcuts + " .");
           
           ac.outUser(NL + "Total shortcuts skipped :        " + app.numSkippedShortcuts   + " .");

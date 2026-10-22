@@ -7,6 +7,10 @@
 
 ### Changed
 
+- `-shortcut-file-name` collisions now use the next free numbered variant of the new name (e.g. `Finance2.xlsx.lnk`),
+  preserving the Windows default suffix and never replacing the existing file ; the collision is shown in the final
+  summary.
+
 - Update the DFile dependency to its latest version and use its new overload of listFiles() to always read the shortcuts
   sorted by timestamp ascending, so the ones that will get modified will be in the same relative order of their
   timestamp.
@@ -22,7 +26,7 @@
 
 - The optional `-shortcut-file-name <never|exact|descendant>` argument (default `never`) : `exact` / `descendant` also
   rename the shortcut files named after the renamed / moved leaf, preserving the Windows default `" - <suffix>"` part
-  when present. The final summary now also shows the renamed and rename-skipped counts.
+  when present. The final summary now also shows the renamed, collision and rename-skipped counts.
 
 - Named command-line arguments, replacing the positional ones : `-from <file or folder path> -to <value> -search
   <folder path> [-verbosity <int>] [-help]`, handled through the new `DCommandLineArg` DLib (all-lowercase option

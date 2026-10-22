@@ -122,7 +122,12 @@ public class MoveWithShortcuts {
   int numRenamedShortcuts = MINUS1_i;
   
   /**
-   * The total number of shortcut file renames that were skipped.
+   * The total number of shortcut-file renames that used a numbered fallback because the destination already existed.
+   */
+  int numRenameCollisions = MINUS1_i;
+  
+  /**
+   * The total number of shortcut-file renames that were skipped.
    */
   int numRenameSkippedShortcuts = MINUS1_i;
   
@@ -359,6 +364,8 @@ public class MoveWithShortcuts {
     
     this.numRenamedShortcuts =   ZERO_i;
     
+    this.numRenameCollisions =   ZERO_i;
+    
     this.numRenameSkippedShortcuts = ZERO_i;
     
     try {
@@ -405,6 +412,8 @@ public class MoveWithShortcuts {
         this.numSkippedShortcuts =   outcome.numSkippedShortcuts();
         
         this.numRenamedShortcuts =   outcome.numRenamedShortcuts();
+        
+        this.numRenameCollisions =   outcome.numRenameCollisions();
         
         this.numRenameSkippedShortcuts = outcome.numRenameSkippedShortcuts();
       }
