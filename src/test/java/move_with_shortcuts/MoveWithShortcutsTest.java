@@ -1198,6 +1198,42 @@ public class MoveWithShortcutsTest {
   }
   
   @Test
+  void commandLineAllowsNonExistingFromInAlreadyDoneMode() throws Throwable {
+    
+    final Path base = newTempSubfolder(true);
+    
+    final Path oldParent = Files.createDirectory(base.resolve("old"));
+    
+    final File oldFile = oldParent.resolve("Old file.txt").toFile();
+    
+    final Path newParent = Files.createDirectory(base.resolve("new"));
+    
+    final File newFile = Files.createFile(newParent.resolve("New file.txt")).toFile();
+    
+    final File searchFolder = Files.createDirectory(base.resolve("search")).toFile();
+    
+    final File shortcut = new File(searchFolder, "Old file.txt" + WIN_SHORTCUT_EXTENSION);
+    
+    ShellLink.createLink(getCanonicalPath(oldFile)).saveTo(getCanonicalPath(shortcut));
+    
+    final ParsedArgs args = newMixedArgsSpec()
+            .parsePartial(new String[] {"-from", oldFile.getPath(), "-to", newFile.getPath()
+                                      , "-search", searchFolder.getPath()
+                                      , "-shortcut-file-name", "exact"});
+                                      
+    final List<String> prompts = runMixedAndCaptureInputPrompts(args, ShortcutFileNamePolicy.EXACT
+            , EMPTY, EMPTY);
+            
+    final File renamedShortcut = new File(searchFolder, "New file.txt" + WIN_SHORTCUT_EXTENSION);
+    
+    Assert.assertEquals(countContaining(prompts, "Enter the path of the file or folder to rename / move"), 0);
+    Assert.assertFalse(oldFile.exists(), "The old path should not have been recreated.");
+    Assert.assertTrue(newFile.exists(),   "The new path should have been left untouched.");
+    Assert.assertTrue(renamedShortcut.exists(), "The shortcut should have been renamed.");
+    Assert.assertEquals(new ShellLink(renamedShortcut).resolveTarget(), getCanonicalPath(newFile));
+  }
+  
+  @Test
   void mixedRunPromptsOnlyMissingRequiredOptions() throws Throwable {
   
     final File sourceFile = Files.createTempFile(newTempSubfolder(true), "mixedSource_"
@@ -1395,7 +1431,7 @@ public class MoveWithShortcutsTest {
   
     return DCommandLineSpec.newSpec(APP_NAME, APP_DESCR)
                            .addOption(OptionSpec.option(MoveWithShortcutsMain.FROM_OPTION_NAME, "from")
-                                                .required().existingFileOrFolder())
+                                                .required().fileOrFolderPath())
                            .addOption(OptionSpec.option(MoveWithShortcutsMain.TO_OPTION_NAME, "to").required())
                            .addOption(OptionSpec.option(MoveWithShortcutsMain.SEARCH_OPTION_NAME, "search")
                                                 .required().existingFolder())

@@ -50,6 +50,9 @@
 
 ### Fixed
 
+- The command-line `-from` option now accepts an old path that no longer exists, restoring the documented
+  “operation already done” mode when the old path is passed as an argument.
+
 - The `-from` / `-to` help text now describes both accepted situations : either the move / rename must be
   performed, or it was already done elsewhere and only the shortcut adjustment is performed.
 

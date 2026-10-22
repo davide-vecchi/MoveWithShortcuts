@@ -212,7 +212,7 @@ public final class MoveWithShortcutsMain {
                                                        + " had before if the operation was already done elsewhere, in"
                                                        + " which case no rename / move will be done and only the shortcuts"
                                                        + " adjustment will be done.")
-                                               .required().existingFileOrFolder())
+                                               .required().fileOrFolderPath())
                            .addOption(OptionSpec.option(TO_OPTION_NAME
                                                        , "The new name or path for the file or folder, or the path it has"
                                                        + " now if the operation was already done elsewhere, in which case no"
