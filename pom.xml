@@ -84,6 +84,12 @@
 		
 		<dependency>
 			<groupId>djavalibraries</groupId>
+			<artifactId>dparam</artifactId>
+			<version>2.2.3-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>djavalibraries</groupId>
 			<artifactId>dlog</artifactId>
             <version>2.3.0</version>
 		</dependency>

@@ -1,0 +1,10 @@
+# MoveWithShortcuts configuration file.
+#
+# ShortcutsUpdater : the IShortcutsUpdater implementation to use.
+# Accepted values : ps-scripts-multi.
+# If this file or this parameter is missing, the default implementation is used.
+#
+# When running from the IDE, this file is read from src/main/resources.
+# For the deployed JAR, place a copy of this file next to MoveWithShortcuts.jar.
+
+ShortcutsUpdater = ps-scripts-multi

@@ -11,7 +11,6 @@ import dcommandlinearg.OptionSpec;
 import dcommandlinearg.ParsedArgs;
 import dfile.shortcut.IShortcutsUpdater;
 import dfile.shortcut.ShortcutFileNamePolicy;
-import dfile.shortcut.WinShortcutsUpdater_PSScriptsMulti;
 import dlog.log.Log;
 import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
@@ -24,6 +23,7 @@ import java.util.Date;
 import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dlog.log.Log.writeLogsHeaders;
+import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.list.text.TextListUtilities.listToString;
 import static dutil.number.NumberUtilities.ONE_i;
@@ -37,6 +37,7 @@ import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.WIN_SHORTCUT_EXTENSION;
 import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static java.util.Arrays.asList;
+import static move_with_shortcuts.MoveWithShortcuts.CANCEL_CHARS;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.fusesource.jansi.Ansi.Color.BLACK;
 import static org.fusesource.jansi.Ansi.Color.CYAN;
@@ -78,6 +79,7 @@ public final class MoveWithShortcutsMain {
   static final String SEARCH_OPTION_NAME    = "search";
   private static final String VERBOSITY_OPTION_NAME = "verbosity";
   private static final String SHORTCUT_FILE_NAME_OPTION_NAME = "shortcut-file-name";
+  static final String SHORTCUTS_UPDATER_OPTION_NAME = "shortcuts-updater";
   
   
   /**
@@ -85,7 +87,8 @@ public final class MoveWithShortcutsMain {
    *
    * @param originalArgs The command line args, as named options :
    *                     {@code -from <file or folder path> -to <value> -search <folder path>}
-   *                     {@code [-verbosity <int>] [-shortcut-file-name <never|exact|descendant>] [-help]} ; zero args
+   *                     {@code [-verbosity <int>] [-shortcut-file-name <never|exact|descendant>]}
+   *                     {@code [-shortcuts-updater <id>] [-help]} ; zero args
    *                     start the interactive mode.
    */
   public static void main(String[] originalArgs) throws Exception {
@@ -140,18 +143,12 @@ public final class MoveWithShortcutsMain {
           
           
           // -------------------------------------------------------
-          // Create the desired type of shortcuts updater instance :
+          // Create the selected type of shortcuts updater instance :
           
-//          final IShortcutsUpdater shortcutsTargetUpdater =
-//                                                            WinShortcutsUpdater_PSScriptsMulti.newInstance(ac);
-
-          final IShortcutsUpdater shortcutsTargetUpdater =
-                             WinShortcutsUpdater_PSScriptsMulti.newInstance(null, ac);
-                             
-//          final IShortcutsUpdater shortcutsTargetUpdater = WinShortcutsUpdater_OneByOne.newInstance(
-//                  WinShortcutUpdater_PS_WSH01.newInstance(false, ac.devLog)
-//                         , CANCEL_CHARS , ac);
-
+          final ShortcutsUpdaterKind shortcutsUpdaterKind = selectShortcutsUpdater(args, ac);
+          
+          final IShortcutsUpdater shortcutsTargetUpdater = shortcutsUpdaterKind.newUpdater(ac);
+          
           // -------------------------------------------------------
           
           
@@ -230,6 +227,10 @@ public final class MoveWithShortcutsMain {
                                                        + " \" - Shortcut\" part.")
                                                .allowedValues("never", "exact", "descendant")
                                                .defaultValue("never"))
+                           .addOption(OptionSpec.option(SHORTCUTS_UPDATER_OPTION_NAME
+                                                       , "The shortcuts updater implementation to use. Default: "
+                                                       + ShortcutsUpdaterKind.defaultKind().getId() + ".")
+                                               .allowedValues(ShortcutsUpdaterKind.ids()))
                            .addOption(OptionSpec.option(VERBOSITY_OPTION_NAME
                                                        , "The verbosity level (0-" + MAX_VERBOSITY + ")")
                                                .intRange(ZERO_i, MAX_VERBOSITY).defaultValue(S(DEFAULT_VERBOSITY)));
@@ -301,13 +302,101 @@ public final class MoveWithShortcutsMain {
     ac.outUser(ONE_i, NL + OSUtilities.getDescription());
     
     ac.outUser(ONE_i, NL + "Using "    + IShortcutsUpdater.class.getSimpleName() + " implementation "
-                                           + dq(shortcutsTargetUpdater.getClass().getSimpleName()) + ".");
+                                           + dq(shortcutsTargetUpdater.getDescription()) + ".");
                                            
     ac.outUser(ONE_i, NL + "Current verbosity (0-" + MAX_VERBOSITY + ") : " + ac.currentVerbosity + " .");
     
     ac.outUser(ONE_i, NL + "Shortcut file name policy : " + shortcutFileNamePolicy + " .");
     
     ac.outUser(ONE_i, NL);
+  }
+  
+  /**
+   * Selects the shortcuts updater implementation : command line, then configuration file, then an interactive prompt
+   * (zero-arg mode only), then the default.
+   *
+   * @param args The parsed arguments, or {@code null} in zero-arg mode.<br>
+   *
+   * @param appContext The application context to use for configuration and warnings.
+   *
+   * @return The selected kind.
+   */
+  static ShortcutsUpdaterKind selectShortcutsUpdater(ParsedArgs args, @NotNull AAppContext appContext)
+                                                          throws UserRequestedTermination {
+                                                          
+    if (args != null && args.wasGiven(SHORTCUTS_UPDATER_OPTION_NAME)) {
+    
+      return ShortcutsUpdaterKind.parse(args.getString(SHORTCUTS_UPDATER_OPTION_NAME));
+    }
+    final String configuredId = ShortcutsUpdaterConfig.readConfiguredUpdaterId(appContext);
+    
+    if (configuredId != null && ! configuredId.isBlank()) {
+    
+      try {
+      
+        return ShortcutsUpdaterKind.parse(configuredId);
+      }
+      catch (IllegalArgumentException e) {
+      
+        appContext.warnUser(NL + e.getLocalizedMessage() + NL2T + "Using the default shortcuts updater.");
+      }
+    }
+    if (args == null && ShortcutsUpdaterKind.ids().length > ONE_i) {
+    
+      return askShortcutsUpdater(appContext);
+    }
+    return ShortcutsUpdaterKind.defaultKind();
+  }
+  
+  /**
+   * Asks the user which shortcuts updater implementation to use.
+   *
+   * @param appContext The application context to use for the prompt and warnings.
+   *
+   * @return The selected kind.
+   *
+   * @throws UserRequestedTermination If the user cancels.
+   */
+  private static ShortcutsUpdaterKind askShortcutsUpdater(@NotNull AAppContext appContext)
+                                                          throws UserRequestedTermination {
+                                                          
+    final StringBuilder prompt = new StringBuilder("Choose the shortcuts updater implementation, or type ")
+                                          .append(calcCancelCharsPrompt(CANCEL_CHARS))
+                                          .append(" :");
+                                          
+    for (final ShortcutsUpdaterKind kind : ShortcutsUpdaterKind.values()) {
+    
+      prompt.append(NL2T).append(kind.getId()).append(" : ").append(kind.getDescription(appContext));
+    }
+    prompt.append(NL2T).append("Press Enter to use ").append(ShortcutsUpdaterKind.defaultKind().getId()).append(".");
+    
+    ShortcutsUpdaterKind result = null;
+    
+    while (result == null) {
+    
+      final String answer = appContext.userIO.in(prompt.toString(), EMPTY, CANCEL_CHARS);
+      
+      if (answer == null) {
+      
+        throw new UserRequestedTermination();
+      }
+      if (answer.isBlank()) {
+      
+        result = ShortcutsUpdaterKind.defaultKind();
+      }
+      else {
+      
+        try {
+        
+          result = ShortcutsUpdaterKind.parse(answer);
+        }
+        catch (IllegalArgumentException e) {
+        
+          appContext.warnUser(NL + e.getLocalizedMessage());
+        }
+      }
+    }
+    return result;
   }
   
 }

@@ -51,6 +51,7 @@ $DEPS = @(
     "djavalibraries/dutil/2.4.0-SNAPSHOT",
     "djavalibraries/dcommandlinearg/1.0.0-SNAPSHOT",
     "djavalibraries/dfile/2.5.0-SNAPSHOT",
+    "djavalibraries/dparam/2.2.3-SNAPSHOT",
     "djavalibraries/dlog/2.3.0",
     "djavalibraries/duserinputoutput/2.4.0-SNAPSHOT",
     "javalibraries3rdparty/threadsafenumberformat/2.2.1"

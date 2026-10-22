@@ -15,17 +15,17 @@ In detail :
 
    - If the original path exists and the destination path does not, the original will be renamed and/or moved to the
      destination.
-
+     
    - If the original path does not exist and the destination path exists, the moving / renaming from the original to the
      destination will be considered as having already happened outside of the program, and only the corresponding
      shortcut-adjustment operation will take place.
-
+     
    - If both the original path and the destination path exist, or neither one exists, an error is shown and the program
      terminates. It is a prerequisite that one path exists and the other one does not.
-
+     
 2. Updates all the shortcuts found under a given search path if their target and/or working folder are pointing to a
    location under the moved element, so that they point to the updated location instead of the shortcut becoming broken.
-
+   
 ## Usage
 
 The program can be started without arguments, in which case it will prompt on the console for the needed values.
@@ -36,43 +36,47 @@ optional options use their defaults. Zero arguments keep the fully interactive f
 In alternative, it can be started with named options :
 
 ```
-MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder path> [-verbosity <0-2>] [-shortcut-file-name <never|exact|descendant>] [-help]
+MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder path> [-verbosity <0-2>] [-shortcut-file-name <never|exact|descendant>] [-shortcuts-updater <id>] [-help]
 ```
 
 1. `-from` : The path of the file or folder to rename / move, or the path it had before if the operation was already
    done elsewhere, in which case no rename / move will be done and only the shortcuts adjustment will be done.
-
+   
 2. `-to` : The new name or path for the file or folder, or the path it has now if the operation was already done
    elsewhere, in which case no rename / move will be done and only the shortcuts adjustment will be done. If it does
    not include a parent path, it is assumed to be in the same folder where the original is.
-
+   
    Exactly one of `-from` and `-to` must exist; the other must not.
-
+   
    Must be of the same type (that is, file or folder) as the original.
-
+   
    May include a different path, which means the original is requested to be - or it already has been - moved there
    (and possibly renamed) rather than just renamed.
-
+   
 3. `-search` : The path inside which to recursively search for the shortcut files to possibly update. If the renaming
    / moving will be performed by the program (i.e. the original path did exist and the destination did not), and it will
    result in changes to the folder structure (f.ex. because the destination path does not exist so it will be created,
    or because the element to rename is a folder and not a file), then the path specified here must obviously refer to
    the folder structure as it will be after the renaming / moving, not as it is before it.
-
+   
 4. `-verbosity` (optional) : Verbosity level, from 0 to 2, default 1. A value of 0 means that only possible error or
    warning messages will be shown.
-
+   
 5. `-shortcut-file-name` (optional) : What to do with the shortcut files' own names :
 
    - `never` (default) : only the target and work folder fields are updated.
    - `exact` : additionally rename a shortcut file whose name (minus `.lnk`) equals the old leaf's full name and whose
      target is exactly the renamed / moved leaf.
    - `descendant` : like `exact`, and also when the shortcut's target is inside the renamed / moved folder.
-
+   
    The Windows default `" - Shortcut"` part (localized) is accepted and preserved when present, and pure moves (same
    leaf name) never rename.
-
-6. `-help` : Prints the usage text and exits.
+   
+6. `-shortcuts-updater` (optional) : The `IShortcutsUpdater` implementation to use. Currently only
+   `ps-scripts-multi` is available; it is the default. A configuration file can set it too, and the command line
+   overrides the configuration file.
+   
+7. `-help` : Prints the usage text and exits.
 
 Wrap paths that contain spaces in double quotes. A value that is itself an option name (e.g. a file literally named
 `-from`) must be attached to its option with `=`, as in `-to=-from`.
@@ -84,6 +88,18 @@ MoveWithShortcuts.BAT -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\
 java -jar MoveWithShortcuts.jar -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide" -shortcut-file-name exact
 ```
 
+### Configuration file
+
+MWS reads an optional `MoveWithShortcuts-Config.TXT` through DParam. The only parameter is :
+
+```
+ShortcutsUpdater = ps-scripts-multi
+```
+
+When running from the IDE, the file is read from `src/main/resources`. For the deployed JAR, place it next to
+`MoveWithShortcuts.jar` (in `C:\MoveWithShortcuts\`). If the file or the parameter is missing, the default is used;
+an invalid value is reported and the default is used. The command-line option wins over the configuration file.
+
 ## Quick Start (using the distributable ZIP)
 
 If you just want to use MoveWithShortcuts without building from source:
@@ -91,12 +107,12 @@ If you just want to use MoveWithShortcuts without building from source:
 1. Download the distributable ZIP from the
    [Releases](https://github.com/davide-vecchi/MoveWithShortcuts/releases) page and unzip it into a convenient folder
    (e.g. `C:\MoveWithShortcuts\`).
-
+   
 2. Run `MoveWithShortcuts.BAT`.
 
    The ZIP contains the executable jar, the launcher scripts (`MoveWithShortcuts.BAT` / `MoveWithShortcuts.ps1`), the
    `README.md` and the `LICENSE`. Java 21 or higher is required.
-
+   
 ## Prerequisites (for building from source)
 
 - Java 21 or higher installed and configured.
@@ -157,26 +173,26 @@ mvn clean install
 
 - Building with Maven (e.g. `mvn clean install`) produces an Uber JAR which is executable and contains all the needed
   dependencies. No other files are needed to run the program.
-
+  
   This JAR is created in the project's root folder and is called `MoveWithShortcuts-<VERSION>-jar-with-dependencies.jar`
   (e.g. `MoveWithShortcuts-2.1.0-jar-with-dependencies.jar`). It's recommended to rename it to `MoveWithShortcuts.jar`
   and to move it to a `C:\MoveWithShortcuts\` folder (but it's not required).
-
+  
   The JAR can be executed normally with e.g. `java -jar MoveWithShortcuts.jar`, but the recommended way is to use the
   script `MoveWithShortcuts.BAT` which in turn calls the PowerShell script `MoveWithShortcuts.ps1` which starts the
   program in Windows Terminal, which is the recommended environment because it provides the best Unicode support.
   Running the program in PowerShell or Command Prompt outside of Windows Terminal may result in poor handling of certain
   Unicode characters.
-
+  
   The content of those 2 `MoveWithShortcuts.*` scripts must be adjusted if the JAR has not been renamed to
   `MoveWithShortcuts.jar` or has not been deployed to a `C:\MoveWithShortcuts\` folder.
-
+  
 - To build a distributable ZIP (the same layout as the one on the Releases page), place the executable JAR (renamed to
   `MoveWithShortcuts.jar`) in the `Packaging/` folder and run `Packaging/Package_MoveWithShortcuts.BAT` (Windows) or
   `Packaging/Package_MoveWithShortcuts.sh` (Linux/macOS). The script bundles the JAR, the launcher scripts, the
   `README.md` and the `LICENSE` into `MoveWithShortcuts.zip` (or `MoveWithShortcuts-<version>.zip` when a version is
   passed as the second argument).
-
+  
 ## Indentation of Java code
 
 The indentation of the Java code is tuned to IntelliJ and it works if the inlay hints are shown, with the setting "Use
@@ -203,7 +219,7 @@ You can reach me in two ways:
   please [open a new issue](https://github.com/davide-vecchi/MoveWithShortcuts/issues/new) on GitHub.
 - **Mention me:** If you need to communicate with me, mention my username (`@davide-vecchi`) in a comment.
   I will be notified.
-
+  
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

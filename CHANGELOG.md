@@ -28,6 +28,9 @@
 
 ### Added
 
+- Add the optional `-shortcuts-updater <id>` argument and the `MoveWithShortcuts-Config.TXT` DParam configuration
+  file; the startup message now shows the selected implementation description.
+
 - When started with some named options, MWS now asks interactively only for the missing required options (`-from`,
   `-to`, `-search`); optional options use their defaults. Zero arguments keep the fully interactive flow, including
   the verbosity prompt.

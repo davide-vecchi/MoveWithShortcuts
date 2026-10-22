@@ -47,6 +47,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.function.Function;
 
 import static application.AAppContext.MAX_VERBOSITY;
@@ -1199,7 +1200,7 @@ public class MoveWithShortcutsTest {
   
   @Test
   void commandLineAllowsNonExistingFromInAlreadyDoneMode() throws Throwable {
-    
+  
     final Path base = newTempSubfolder(true);
     
     final Path oldParent = Files.createDirectory(base.resolve("old"));
@@ -1422,6 +1423,55 @@ public class MoveWithShortcutsTest {
     assertNoEffectWarning();
   }
   
+  @Test
+  void shortcutsUpdaterKindIdsAndDescriptions() {
+  
+    Assert.assertTrue(asList(ShortcutsUpdaterKind.ids()).contains("ps-scripts-multi"));
+    
+    Assert.assertEquals(ShortcutsUpdaterKind.parse("PS-SCRIPTS-MULTI"), ShortcutsUpdaterKind.PS_SCRIPTS_MULTI);
+    
+    Assert.assertEquals(ShortcutsUpdaterKind.defaultKind(), ShortcutsUpdaterKind.PS_SCRIPTS_MULTI);
+    
+    Assert.assertFalse(ShortcutsUpdaterKind.PS_SCRIPTS_MULTI.getDescription(this.mockAppContext).isBlank());
+    
+    Assert.expectThrows(IllegalArgumentException.class, () -> ShortcutsUpdaterKind.parse("bogus"));
+  }
+  
+  @Test
+  void configParamsLoadSelectedUpdater() {
+  
+    final MoveWithShortcutsParams params = new MoveWithShortcutsParams(
+            Map.of("ShortcutsUpdater", "ps-scripts-multi"), "test configuration", this.devLog);
+            
+    params.populate();
+    params.validate();
+    
+    Assert.assertEquals(params.getShortcutsUpdaterId(), "ps-scripts-multi");
+    
+    final MoveWithShortcutsParams defaults = new MoveWithShortcutsParams(
+            Map.of("Other", "value"), "test configuration", this.devLog);
+            
+    defaults.populate();
+    defaults.validate();
+    
+    Assert.assertEquals(defaults.getShortcutsUpdaterId(), ShortcutsUpdaterKind.defaultKind().getId());
+  }
+  
+  @Test
+  void configFileAndCliSelectionWork() throws Throwable {
+  
+    Assert.assertEquals(ShortcutsUpdaterConfig.readConfiguredUpdaterId(this.mockAppContext), "ps-scripts-multi");
+    
+    final ParsedArgs args = newMixedArgsSpec()
+            .parsePartial(new String[] {"-shortcuts-updater", "ps-scripts-multi"});
+            
+    Assert.assertEquals(MoveWithShortcutsMain.selectShortcutsUpdater(args, this.mockAppContext)
+                      , ShortcutsUpdaterKind.PS_SCRIPTS_MULTI);
+                      
+    Assert.assertEquals(MoveWithShortcutsMain.selectShortcutsUpdater(null, this.mockAppContext)
+                      , ShortcutsUpdaterKind.PS_SCRIPTS_MULTI);
+  }
+  
   /**
    * Returns an MWS-like command-line specification for the mixed-mode tests.
    *
@@ -1435,6 +1485,8 @@ public class MoveWithShortcutsTest {
                            .addOption(OptionSpec.option(MoveWithShortcutsMain.TO_OPTION_NAME, "to").required())
                            .addOption(OptionSpec.option(MoveWithShortcutsMain.SEARCH_OPTION_NAME, "search")
                                                 .required().existingFolder())
+                           .addOption(OptionSpec.option(MoveWithShortcutsMain.SHORTCUTS_UPDATER_OPTION_NAME, "updater")
+                                                .allowedValues("ps-scripts-multi"))
                            .addOption(OptionSpec.option("verbosity", "verbosity")
                                                 .intRange(ZERO_i, MAX_VERBOSITY)
                                                 .defaultValue(S(MAX_VERBOSITY)))
