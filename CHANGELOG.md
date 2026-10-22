@@ -28,6 +28,10 @@
 
 ### Added
 
+- When started with some named options, MWS now asks interactively only for the missing required options (`-from`,
+  `-to`, `-search`); optional options use their defaults. Zero arguments keep the fully interactive flow, including
+  the verbosity prompt.
+
 - The optional `-shortcut-file-name <never|exact|descendant>` argument (default `never`) : `exact` / `descendant` also
   rename the shortcut files named after the renamed / moved leaf, preserving the Windows default `" - <suffix>"` part
   when present. The final summary now also shows the renamed, collision and rename-skipped counts.

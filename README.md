@@ -30,6 +30,9 @@ In detail :
 
 The program can be started without arguments, in which case it will prompt on the console for the needed values.
 
+When started with some named options, only the missing required options (`-from`, `-to`, `-search`) are asked for;
+optional options use their defaults. Zero arguments keep the fully interactive flow, including the verbosity prompt.
+
 In alternative, it can be started with named options :
 
 ```

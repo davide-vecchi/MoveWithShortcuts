@@ -73,9 +73,9 @@ public final class MoveWithShortcutsMain {
    */
   public static final int DEFAULT_VERBOSITY = ONE_i;
   
-  private static final String FROM_OPTION_NAME      = "from";
-  private static final String TO_OPTION_NAME        = "to";
-  private static final String SEARCH_OPTION_NAME    = "search";
+  static final String FROM_OPTION_NAME      = "from";
+  static final String TO_OPTION_NAME        = "to";
+  static final String SEARCH_OPTION_NAME    = "search";
   private static final String VERBOSITY_OPTION_NAME = "verbosity";
   private static final String SHORTCUT_FILE_NAME_OPTION_NAME = "shortcut-file-name";
   
@@ -165,10 +165,7 @@ public final class MoveWithShortcutsMain {
           }
           else {
           
-            app.run(shortcutsTargetUpdater, args.getFile(FROM_OPTION_NAME).getPath()
-                                          , args.getString(TO_OPTION_NAME)
-                                          , args.getFile(SEARCH_OPTION_NAME).getPath()
-                                          , shortcutFileNamePolicy);
+            app.run(shortcutsTargetUpdater, args, shortcutFileNamePolicy);
           }
         }
         catch (UserRequestedTermination t) {
@@ -256,7 +253,7 @@ public final class MoveWithShortcutsMain {
     
     try {
     
-      args = argsSpec.parse(originalArgs);
+      args = argsSpec.parsePartial(originalArgs);
       
       if (args.isHelpRequested()) {
       

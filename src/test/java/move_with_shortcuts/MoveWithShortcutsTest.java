@@ -4,6 +4,9 @@
 package move_with_shortcuts;
 
 import application.AAppContext;
+import dcommandlinearg.DCommandLineSpec;
+import dcommandlinearg.OptionSpec;
+import dcommandlinearg.ParsedArgs;
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutUpdater;
 import dfile.shortcut.IShortcutsUpdater;
@@ -38,6 +41,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -58,6 +62,7 @@ import static dutil.list.ListUtilities.asList;
 import static dutil.list.ListUtilities.assertContains;
 import static dutil.list.text.TextListUtilities.listToString;
 import static dutil.number.NumberUtilities.I;
+import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.TWO_I;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.number.NumberUtilities.assertNonNegative;
@@ -1193,6 +1198,106 @@ public class MoveWithShortcutsTest {
   }
   
   @Test
+  void mixedRunPromptsOnlyMissingRequiredOptions() throws Throwable {
+  
+    final File sourceFile = Files.createTempFile(newTempSubfolder(true), "mixedSource_"
+                                                , EXTENSION_SEPARATOR + "txt").toFile();
+                                                
+    final File destinationFile = new File(sourceFile.getParentFile(), "mixedDestination" + EXTENSION_SEPARATOR + "txt");
+    
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "mixedSearch_").toFile();
+    
+    final ParsedArgs args = newMixedArgsSpec()
+            .parsePartial(new String[] {"-shortcut-file-name", "exact"});
+            
+    final List<String> prompts = runMixedAndCaptureInputPrompts(args, ShortcutFileNamePolicy.EXACT
+            , sourceFile.getPath(), destinationFile.getPath(), searchFolder.getPath(), EMPTY, EMPTY);
+            
+    Assert.assertEquals(countContaining(prompts, "Enter the path of the file or folder to rename / move"), 1);
+    Assert.assertEquals(countContaining(prompts, "Enter the new name of the file or folder"), 1);
+    Assert.assertEquals(countContaining(prompts, "Enter the path of the folder to scan"), 1);
+    Assert.assertEquals(countContaining(prompts, "Enter the verbosity level"), 0);
+    Assert.assertTrue(destinationFile.exists(), "The file should have been renamed.");
+  }
+  
+  @Test
+  void mixedRunPromptsOnlyTheOptionsMissingAfterFrom() throws Throwable {
+  
+    final File sourceFile = Files.createTempFile(newTempSubfolder(true), "mixedFromSource_"
+                                                , EXTENSION_SEPARATOR + "txt").toFile();
+                                                
+    final File destinationFile = new File(sourceFile.getParentFile(), "mixedFromDestination" + EXTENSION_SEPARATOR
+                                                                         + "txt");
+                                                                         
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "mixedFromSearch_").toFile();
+    
+    final ParsedArgs args = newMixedArgsSpec()
+            .parsePartial(new String[] {"-from", sourceFile.getPath()});
+            
+    final List<String> prompts = runMixedAndCaptureInputPrompts(args, ShortcutFileNamePolicy.NEVER
+            , destinationFile.getPath(), searchFolder.getPath(), EMPTY, EMPTY);
+            
+    Assert.assertEquals(countContaining(prompts, "Enter the path of the file or folder to rename / move"), 0);
+    Assert.assertEquals(countContaining(prompts, "Enter the new name of the file or folder"), 1);
+    Assert.assertEquals(countContaining(prompts, "Enter the path of the folder to scan"), 1);
+  }
+  
+  @Test
+  void mixedRunPromptsNothingWhenAllRequiredOptionsAreGiven() throws Throwable {
+  
+    final File sourceFile = Files.createTempFile(newTempSubfolder(true), "mixedAllSource_"
+                                                , EXTENSION_SEPARATOR + "txt").toFile();
+                                                
+    final File destinationFile = new File(sourceFile.getParentFile(), "mixedAllDestination" + EXTENSION_SEPARATOR
+                                                                         + "txt");
+                                                                         
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "mixedAllSearch_").toFile();
+    
+    final ParsedArgs args = newMixedArgsSpec()
+            .parsePartial(new String[] {"-from", sourceFile.getPath(), "-to", destinationFile.getPath()
+                                      , "-search", searchFolder.getPath()});
+                                      
+    final List<String> prompts = runMixedAndCaptureInputPrompts(args, ShortcutFileNamePolicy.NEVER
+            , EMPTY, EMPTY);
+            
+    Assert.assertEquals(countContaining(prompts, "Enter the path of the file or folder to rename / move"), 0);
+    Assert.assertEquals(countContaining(prompts, "Enter the new name of the file or folder"), 0);
+    Assert.assertEquals(countContaining(prompts, "Enter the path of the folder to scan"), 0);
+  }
+  
+  @Test
+  void mixedRunRepeatsInvalidPromptedValues() throws Throwable {
+  
+    final File sourceFile = Files.createTempFile(newTempSubfolder(true), "mixedRepeatSource_"
+                                                , EXTENSION_SEPARATOR + "txt").toFile();
+                                                
+    final File destinationFile = new File(sourceFile.getParentFile(), "mixedRepeatDestination" + EXTENSION_SEPARATOR
+                                                                         + "txt");
+                                                                         
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "mixedRepeatSearch_").toFile();
+    
+    final ParsedArgs args = newMixedArgsSpec()
+            .parsePartial(new String[] {"-shortcut-file-name", "exact"});
+            
+    final ArgumentCaptor<String> warnings = ArgumentCaptor.forClass(String.class);
+    
+    final List<String> prompts = runMixedAndCaptureInputPrompts(args, ShortcutFileNamePolicy.EXACT
+            , sourceFile.getPath()
+            , sourceFile.getPath()
+            , destinationFile.getPath()
+            , searchFolder.getPath()
+            , EMPTY
+            , EMPTY);
+            
+    Assert.assertEquals(countContaining(prompts, "Enter the new name of the file or folder"), 2);
+    
+    verify(this.mockUserIO, atLeastOnce()).warnChars(warnings.capture());
+    Assert.assertTrue(warnings.getAllValues().stream().anyMatch(w -> w.contains("same as the original"))
+                    , warnings.getAllValues().toString());
+    Assert.assertTrue(destinationFile.exists(), "The file should have been renamed after the retry.");
+  }
+  
+  @Test
   void confirmationMentionsShortcutFileRenamingWhenLeafNameChanges() throws Throwable {
   
     final File sourceFile = Files.createTempFile(newTempSubfolder(true), "promptRename_"
@@ -1279,6 +1384,72 @@ public class MoveWithShortcutsTest {
     Assert.assertFalse(prompt.contains("and renaming the shortcut files whose own names match the old name"), prompt);
     
     assertNoEffectWarning();
+  }
+  
+  /**
+   * Returns an MWS-like command-line specification for the mixed-mode tests.
+   *
+   * @return The specification.
+   */
+  private static DCommandLineSpec newMixedArgsSpec() {
+  
+    return DCommandLineSpec.newSpec(APP_NAME, APP_DESCR)
+                           .addOption(OptionSpec.option(MoveWithShortcutsMain.FROM_OPTION_NAME, "from")
+                                                .required().existingFileOrFolder())
+                           .addOption(OptionSpec.option(MoveWithShortcutsMain.TO_OPTION_NAME, "to").required())
+                           .addOption(OptionSpec.option(MoveWithShortcutsMain.SEARCH_OPTION_NAME, "search")
+                                                .required().existingFolder())
+                           .addOption(OptionSpec.option("verbosity", "verbosity")
+                                                .intRange(ZERO_i, MAX_VERBOSITY)
+                                                .defaultValue(S(MAX_VERBOSITY)))
+                           .addOption(OptionSpec.option("shortcut-file-name", "policy")
+                                                .allowedValues("never", "exact", "descendant")
+                                                .defaultValue("never"));
+  }
+  
+  /**
+   * Runs the mixed-mode path with the given answers, and returns all the input prompts.
+   *
+   * @param args The partially parsed arguments.<br>
+   *
+   * @param shortcutFileNamePolicy The shortcut-file name policy.<br>
+   *
+   * @param answers The answers to give to the input prompts.
+   *
+   * @return The prompts shown to the user.
+   */
+  private List<String> runMixedAndCaptureInputPrompts(ParsedArgs args
+                                                    , ShortcutFileNamePolicy shortcutFileNamePolicy
+                                                    , String... answers) throws Throwable {
+                                                    
+    clearInvocations(this.mockUserIO);
+    
+    lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
+             .thenReturn(answers[ZERO_i], Arrays.copyOfRange(answers, ONE_i, answers.length));
+             
+    final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
+    
+    app.run(this.updatersToTest.get(ZERO_i), args, shortcutFileNamePolicy);
+    
+    final ArgumentCaptor<String> prompts = ArgumentCaptor.forClass(String.class);
+    
+    verify(this.mockUserIO, atLeastOnce()).in(prompts.capture(), anyString(), anyString());
+    
+    return prompts.getAllValues();
+  }
+  
+  /**
+   * Counts the prompts containing the given fragment.
+   *
+   * @param prompts The prompts.<br>
+   *
+   * @param fragment The fragment to look for.
+   *
+   * @return The number of matching prompts.
+   */
+  private static int countContaining(List<String> prompts, String fragment) {
+  
+    return (int) prompts.stream().filter(prompt -> prompt.contains(fragment)).count();
   }
   
   /**

@@ -5,6 +5,7 @@ package move_with_shortcuts;
 
 
 import application.AAppContext;
+import dcommandlinearg.ParsedArgs;
 import dfile.file.FileSortOrder;
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutUpdater.ShortcutsUpdateOutcome;
@@ -308,6 +309,141 @@ public class MoveWithShortcuts {
                 
     run(shortcutsTargetUpdater, argOriginalPath, argDestinationPath, argSearchPath
       , ShortcutFileNamePolicy.NEVER);
+  }
+  
+  /**
+   * Runs the program using the given partially parsed arguments : resolves the given required options and asks the user
+   * only for the missing ones, then asks for confirmation and executes.
+   *
+   * @param shortcutsTargetUpdater The updater to use.<br>
+   *
+   * @param args The partially parsed command-line arguments.<br>
+   *
+   * @param shortcutFileNamePolicy The selected shortcut-file name policy.
+   *
+   * @throws UserRequestedTermination If the user cancels.<br>
+   *
+   * @throws IOException If the rename / move operation fails.
+   */
+  public void run(@NotNull IShortcutsUpdater shortcutsTargetUpdater, @NotNull ParsedArgs args
+                , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy) throws UserRequestedTermination, IOException {
+                
+    assertWindowsOS();
+    
+    assertNoneNull(shortcutsTargetUpdater, args, shortcutFileNamePolicy);
+    
+    final File originalFileOrFolder = args.wasGiven(MoveWithShortcutsMain.FROM_OPTION_NAME)
+                                      ? resolveOriginalPath(args.getFile(MoveWithShortcutsMain.FROM_OPTION_NAME)
+                                                                 .getPath())
+                                      : askOriginalPathRepeatedly();
+                                      
+    final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
+        args.wasGiven(MoveWithShortcutsMain.TO_OPTION_NAME)
+        ? resolveDestinationFileOrFolder(args.getString(MoveWithShortcutsMain.TO_OPTION_NAME), originalFileOrFolder)
+        : askDestinationFileOrFolderRepeatedly(originalFileOrFolder);
+        
+    final File searchFolder = args.wasGiven(MoveWithShortcutsMain.SEARCH_OPTION_NAME)
+                              ? resolveSearchFolder(args.getFile(MoveWithShortcutsMain.SEARCH_OPTION_NAME).getPath())
+                              : askSearchFolderRepeatedly();
+                              
+    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder
+                           , shortcutFileNamePolicy)) {
+                           
+      execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater
+            , shortcutFileNamePolicy);
+    }
+  }
+  
+  /**
+   * Asks for the original path, repeating the question when the entered value is invalid.
+   *
+   * @return The valid original path.
+   *
+   * @throws UserRequestedTermination If the user cancels.
+   */
+  private @NotNull File askOriginalPathRepeatedly() throws UserRequestedTermination {
+  
+    File result = null;
+    
+    boolean done = false;
+    
+    while (! done) {
+    
+      try {
+      
+        result = askOriginalPath();
+        
+        done = true;
+      }
+      catch (MissingExternalValueException | InvalidExternalValueException | InvalidPathException e) {
+      
+        this.appContext.warnUser(ZERO_i, NL + e.getLocalizedMessage());
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Asks for the destination, repeating the question when the entered value is invalid.
+   *
+   * @param original The original file or folder.<br>
+   *
+   * @return The valid destination and whether the rename / move must be performed.
+   *
+   * @throws UserRequestedTermination If the user cancels.
+   */
+  private @NotNull TwoObjects<@NotNull File, @NotNull Boolean> askDestinationFileOrFolderRepeatedly(
+                                                                                              @NotNull File original)
+                                                                                              throws UserRequestedTermination {
+                                                                                              
+    TwoObjects<@NotNull File, @NotNull Boolean> result = null;
+    
+    boolean done = false;
+    
+    while (! done) {
+    
+      try {
+      
+        result = askDestinationFileOrFolder(original);
+        
+        done = true;
+      }
+      catch (MissingExternalValueException | InvalidExternalValueException | NonUniqueExternalValueException
+           | InvalidPathException e) {
+           
+        this.appContext.warnUser(ZERO_i, NL + e.getLocalizedMessage());
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Asks for the search folder, repeating the question when the entered value is invalid.
+   *
+   * @return The valid search folder.
+   *
+   * @throws UserRequestedTermination If the user cancels.
+   */
+  private @NotNull File askSearchFolderRepeatedly() throws UserRequestedTermination {
+  
+    File result = null;
+    
+    boolean done = false;
+    
+    while (! done) {
+    
+      try {
+      
+        result = askSearchFolder();
+        
+        done = true;
+      }
+      catch (MissingExternalValueException | InvalidExternalValueException | InvalidPathException e) {
+      
+        this.appContext.warnUser(ZERO_i, NL + e.getLocalizedMessage());
+      }
+    }
+    return result;
   }
   
   /**
