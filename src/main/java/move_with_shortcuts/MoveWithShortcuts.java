@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static application.AAppContext.MAX_VERBOSITY;
 import static dfile.file.FileUtilities.assertExistingPath;
@@ -194,8 +195,9 @@ public class MoveWithShortcuts {
     
     this.appContext.currentVerbosity =   askVerbosity();
     
-    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
-    
+    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder
+                            , shortcutFileNamePolicy)) {
+                            
       // Perform the renaming / moving and the corresponding shortcuts updating :
       
       execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater
@@ -267,8 +269,9 @@ public class MoveWithShortcuts {
                                          
     final File searchFolder =            resolveSearchFolder(           argSearchPath);
     
-    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder)) {
-    
+    if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder
+                            , shortcutFileNamePolicy)) {
+                            
       // Possibly perform the renaming / moving, and do the corresponding shortcuts updating :
       
       execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater
@@ -456,6 +459,8 @@ public class MoveWithShortcuts {
    * Asks for confirmation to {@link #renameFileOrFolder rename} the given {@code originalFileOrFolder} to the given {@code
    * destinationFileOrFolder} and to update accordingly all the shortcuts found under the given {@code searchFolder}.
    *
+   * @param originalFileOrFolder The file or folder to rename / move.<br>
+   *
    * @param destinationFileOrFolder <ul><li>In {@link TwoObjects#o1 o1} the {@link File} instance representing the
    *                                destination (file or folder) to which the given {@code original} is requested to be
    *                                renamed / moved.</li><li>
@@ -467,17 +472,36 @@ public class MoveWithShortcuts {
    *                                renaming / moving does not need to be performed as it's assumed to have been already
    *                                occurred</b>.</li></ul>
    *                                Whether the renaming / moving needs to be performed or not must be determined
-   *                                exclusively from this value, not by re-checking which path exists and which doesn't.</li></ul>
+   *                                exclusively from this value, not by re-checking which path exists and which doesn't.</li></ul><br>
+   *
+   * @param searchFolder The folder under which to search for the shortcuts to update.<br>
+   *
+   * @param shortcutFileNamePolicy The selected shortcut-file name policy.
    *
    * @return Whether the user confirmed that the processing can start.
    */
   private boolean askStartConfirmation(@NotNull File                                        originalFileOrFolder
                                      , @NotNull TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder
-                                     , @NotNull File                                        searchFolder) {
+                                     , @NotNull File                                        searchFolder
+                                     , @NotNull ShortcutFileNamePolicy                      shortcutFileNamePolicy) {
                                      
-    assertNoneNull(originalFileOrFolder, destinationFileOrFolder, searchFolder);
+    assertNoneNull(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutFileNamePolicy);
     
     destinationFileOrFolder.assertNeitherNull();
+    
+    final boolean leafNameChanges = ! originalFileOrFolder.getName().equals(destinationFileOrFolder.o1.getName());
+    
+    final boolean renamesShortcutFiles = shortcutFileNamePolicy != ShortcutFileNamePolicy.NEVER
+                                      && leafNameChanges;
+                                      
+    if (shortcutFileNamePolicy != ShortcutFileNamePolicy.NEVER && ! leafNameChanges) {
+    
+      this.appContext.warnUser(ZERO_i, NL + "The value "
+                                          + dq(shortcutFileNamePolicy.name().toLowerCase(Locale.ROOT))
+                                          + " for -shortcut-file-name has no effect : the file or folder name is"
+                                          + NL2T + "unchanged (the request only moves it to another folder), so no"
+                                          + NL2T + "shortcut file can be renamed.");
+    }
     
     final boolean isRenameOnly = getStringsOp(IS_OS_WINDOWS)
                                     .equals(getCanonicalPath(originalFileOrFolder.      getParentFile())
@@ -487,20 +511,27 @@ public class MoveWithShortcuts {
                                    (isRenameOnly ? "renaming " :
                                                    originalFileOrFolder.getName().equals(
                                                                                  destinationFileOrFolder.o1.getName()) ?
-                                                     "moving " : "renaming / moving ")
+                                                      "moving " : "renaming / moving ")
                                                + (         originalFileOrFolder.isFile() ? "file" : "folder")           + NL2T2
                                                + dq(originalFileOrFolder.      getPath()) + NL2T + "to *become*" + NL2T2
                                                + dq(destinationFileOrFolder.o1.getPath()) + NL2T + "and "
                                                                              : EMPTY;
                                                                              
+    final String msgRenameShortcutFiles = renamesShortcutFiles
+                                          ? NL2T + "and renaming the shortcut files whose own names match the old name,"
+                                          : EMPTY;
+                                          
+    final String msgCancel = renamesShortcutFiles ? "or type " : ", or type ";
+    
     boolean confirmed = this.appContext.userIO.in("Press Enter to confirm " + msgDoRenameMove
                                                           + "updating the targets and/or the work folders of the shortcuts that are found under" + NL2T2
                                                           + dq(getCanonicalPath(searchFolder)) + NL2T
                                                           + "from pointing to the original location under"         + NL2T2
                                                                + dq(getCanonicalPath(originalFileOrFolder)) + NL2T
                                                           + "to pointing to the new location under"                + NL2T2
-                                                               + dq(getCanonicalPath(destinationFileOrFolder.o1)) + NL2T
-                                                          + ", or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                                               + dq(getCanonicalPath(destinationFileOrFolder.o1))
+                                                               + msgRenameShortcutFiles + NL2T
+                                                          + msgCancel + calcCancelCharsPrompt(CANCEL_CHARS)
                                            , EMPTY, CANCEL_CHARS) != null;
     return confirmed;
   }

@@ -7,6 +7,10 @@
 
 ### Changed
 
+- The confirmation prompt now mentions the shortcut-file renaming when the selected `-shortcut-file-name` policy
+  applies, and warns when a policy other than `never` is given but the file or folder name is unchanged (a pure move),
+  so no shortcut file can be renamed.
+
 - `-shortcut-file-name` collisions now use the next free numbered variant of the new name (e.g. `Finance2.xlsx.lnk`),
   preserving the Windows default suffix and never replacing the existing file ; the collision is shown in the final
   summary.

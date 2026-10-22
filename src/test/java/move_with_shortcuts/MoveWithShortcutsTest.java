@@ -7,6 +7,7 @@ import application.AAppContext;
 import dfile.file.FileUtilities;
 import dfile.shortcut.IShortcutUpdater;
 import dfile.shortcut.IShortcutsUpdater;
+import dfile.shortcut.ShortcutFileNamePolicy;
 import dfile.shortcut.WinShortcutUpdater_DeepSeek_NoLibs01;
 import dfile.shortcut.WinShortcutUpdater_PS_WSH01;
 import dfile.shortcut.WinShortcutUpdater_mslinks;
@@ -24,6 +25,7 @@ import mslinks.ShellLinkException;
 import mslinks.ShellLinkHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.Assert;
@@ -75,7 +77,12 @@ import static move_with_shortcuts.MoveWithShortcuts.CANCEL_CHARS;
 import static org.apache.commons.io.FilenameUtils.EXTENSION_SEPARATOR;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 
 // @formatter:off
@@ -87,8 +94,8 @@ import static org.mockito.Mockito.lenient;
 @SuppressWarnings("PublicConstructor")
 @Listeners(MockitoTestNGListener.class)
 public class MoveWithShortcutsTest {
-  
-  
+
+
   private static final String APP_NAME =  MoveWithShortcutsTest.class.getSimpleName();
   
   private static final String APP_DESCR = MoveWithShortcutsTest.class.getName();
@@ -100,15 +107,15 @@ public class MoveWithShortcutsTest {
   
   @Mock
   private AUserInputOutput mockUserIO;
-
+  
   private Log screenLog;
-
+  
   private Log userLog;
-
+  
   private Log devLog;
-
+  
   private AAppContext mockAppContext;
-
+  
   private Path tempDir;
   
   private int nextTempDirCounter;
@@ -119,14 +126,14 @@ public class MoveWithShortcutsTest {
    * in {@link TwoObjects#o2 o2}.
    */
   private final Function<@NotNull File, @NotNull TwoObjects<@NotNull String, @NotNull String>> targetReader =
-    
+  
     new Function<>() {
-      
+    
       private final @NotNull IShortcutUpdater objThatCanReadShortcuts = WinShortcutUpdater_PS_WSH01.newInstance(
                                                        false, MoveWithShortcutsTest.this.devLog);
       @Override
       public @NotNull TwoObjects<@NotNull String, @NotNull String> apply(@NotNull File file) {
-        
+      
         return new TwoObjects<>(this.objThatCanReadShortcuts.readTarget(       file)
                               , this.objThatCanReadShortcuts.readWorkingFolder(file));
       }
@@ -135,7 +142,7 @@ public class MoveWithShortcutsTest {
   
   @BeforeClass
   void beforeClass() throws IOException {
-    
+  
     setSystemEncodingUTF8();
     
     this.tempDir = Files.createTempDirectory(MoveWithShortcutsTest.class.getSimpleName() + "_");
@@ -150,43 +157,43 @@ public class MoveWithShortcutsTest {
     
     writeLogsHeaders(this.screenLog, this.userLog, this.devLog, APP_NAME, APP_DESCR);
   }
-
+  
   @AfterClass
   void afterClass() throws Exception {
-
+  
     this.mockAppContext.close();
     
     this.tempDir.toFile().deleteOnExit();
     
     FileUtils.deleteDirectory(this.tempDir.toFile());
   }
-
+  
   @BeforeMethod
   void beforeMethod() {
-
+  
     lenient().when(this.mockUserIO.outChars( anyString())).thenAnswer(i -> i.getArgument(0));
-
+    
     lenient().when(this.mockUserIO.warnChars(anyString())).thenAnswer(i -> i.getArgument(0));
-
+    
     this.mockAppContext = AppContext.newAppContext(this.mockUserIO, this.screenLog, this.userLog, this.devLog);
     
     this.mockAppContext.currentVerbosity = MAX_VERBOSITY;
     
     //noinspection deprecation
     this.updatersToTest = asList(
-      
+    
                      WinShortcutsUpdater_PSScriptsMulti.newInstance(this.mockAppContext)
-      
+                     
                                , WinShortcutsUpdater_OneByOne      .newInstance(
                                  WinShortcutUpdater_PS_WSH01.newInstance(
                                                                     false, this.devLog)
                                  , CANCEL_CHARS , this.mockAppContext)
-                                
+                                 
                                , WinShortcutsUpdater_OneByOne      .newInstance(
                                  WinShortcutUpdater_DeepSeek_NoLibs01.newInstance(
                                                                                              false, this.devLog)
                                  , CANCEL_CHARS , this.mockAppContext)
-                                
+                                 
                                , WinShortcutsUpdater_OneByOne      .newInstance(
                                  WinShortcutUpdater_mslinks.newInstance(this.devLog)
                                  , CANCEL_CHARS , this.mockAppContext));
@@ -194,7 +201,7 @@ public class MoveWithShortcutsTest {
   
   @AfterMethod
   void afterMethod() {
-    
+  
     // Commented out because the tmpTestExecute01 folder must be deleted only if the test succeeds, to allow for its
     // inspection if the test fails. So this deletion is done by the test method itself if it completes.
     //
@@ -204,52 +211,52 @@ public class MoveWithShortcutsTest {
   }
   
   // ====== Construction ======
-
+  
   @Test
   void factoryReturnsNonNullInstance() {
-    
+  
     this.devLog.log("factoryReturnsNonNullInstance()" + NL);
     
     Assert.assertNotNull(MoveWithShortcuts.newInstance(this.mockAppContext));
   }
-
+  
   @SuppressWarnings("DataFlowIssue")
   @Test
   void factoryThrowsOnNullContext() {
-    
+  
     this.devLog.log("factoryReturnsNonNullInstance()" + NL);
     
     Assert.expectThrows(MissingValueException.class, () -> MoveWithShortcuts.newInstance(
                                                                                                     null));
   }
-
+  
   // ====== Cancel scenarios (mock userIO only) ======
-
+  
   @Test
   void cancelAtFirstPrompt() {
-    
+  
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("cancelAtFirstPrompt() with " + u + NL);
       
       // 5.1 : Check OS is Windows → passes
       // 5.2 : in() returns null (cancel)
       // → UserRequestedTermination
-  
+      
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn(null);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
-    
+      
       Assert.expectThrows(amp(u), UserRequestedTermination.class, () -> app.run(u));
     }
   }
-
+  
   @Test
   void cancelAtSecondPrompt() throws IOException {
-    
+  
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("cancelAtSecondPrompt() with " + u + NL);
       
       // 5.2 : existing path → temp file exists
@@ -261,18 +268,18 @@ public class MoveWithShortcutsTest {
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn(getCanonicalPath(existingFile))
                .thenReturn(null);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       Assert.expectThrows(amp(u), UserRequestedTermination.class, () -> app.run(u));
     }
   }
-
+  
   @Test
   void cancelAtThirdPrompt() throws IOException {
-    
+  
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("cancelAtThirdPrompt() with " + u + NL);
       
       // 5.2 : existing path → temp file
@@ -286,29 +293,29 @@ public class MoveWithShortcutsTest {
                .thenReturn(getCanonicalPath(existingFile))
                .thenReturn("renamed_file.txt")
                .thenReturn(null);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       Assert.expectThrows(amp(u), UserRequestedTermination.class, () -> app.run(u));
     }
   }
-
+  
   // ====== Invalid input scenarios ======
-
+  
   @Test
   void nonExistentSourceFile() throws IOException {
-    
+  
     // 5.2 : in() returns a non-existent path (parent folder exists but file in it does not) for original and also for
     //       destination → MissingExternalValueException
     
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("nonExistentSourceFile() with " + u + NL);
       
       final String nonExistentOriginal =    getCanonicalPath(new File(
                                                                       newTempSubfolder(true).toFile()
                                                                     , "does_not_exist1.txt"));
-      
+                                                                    
       Assert.assertTrue( new File(nonExistentOriginal).getParentFile().exists(), amp(u) + "Invalid test prerequisite, " + dq(getCanonicalPath(new File(nonExistentOriginal).getParentFile())) + " was not created.");
       
       Assert.assertFalse(new File(nonExistentOriginal).exists(), amp(u) + "Invalid test prerequisite, file " + dq(getCanonicalPath(new File(nonExistentOriginal))) + " exists.");
@@ -316,39 +323,39 @@ public class MoveWithShortcutsTest {
       final String nonExistentDestination = getCanonicalPath(new File(
                                                                                new File(nonExistentOriginal).getParentFile()
                                                                       , "does_not_exist2.txt"));
-      
+                                                                      
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn(nonExistentOriginal, nonExistentDestination);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
-    
+      
       Assert.expectThrows(amp(u), MissingExternalValueException.class, () -> app.run(u));
     }
   }
   
   @Test
   void nonExistentSourceFolder() throws IOException {
-    
+  
     // 5.2 : in() returns a non-existent path (parent folder does not exist)
     // → MissingExternalValueException
     
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("nonExistentSourceFolder() with " + u + NL);
       
       final String nonExistentOriginal =    getCanonicalPath(new File(
                                                                           newTempSubfolder(false).toFile()
                                                                          , "not_even_the_parent_folder_exists.txt"));
-      
+                                                                         
       Assert.assertFalse(new File(nonExistentOriginal).exists(), amp(u) + "Invalid test prerequisite, folder " + dq(getCanonicalPath(new File(nonExistentOriginal))) + " exists.");
       
       final String nonExistentDestination = getCanonicalPath(new File(
                                                                           new File(nonExistentOriginal).getParentFile()
                                                                          , "not_even_the_parent_folder_exists2.txt"));
-      
+                                                                         
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn(nonExistentOriginal, nonExistentDestination);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       Assert.expectThrows(amp(u), MissingExternalValueException.class, () -> app.run(u));
@@ -357,14 +364,14 @@ public class MoveWithShortcutsTest {
   
   @Test
   void searchPathIsFile() throws IOException {
-
+  
     // 5.2 : existing path → temp dir
     // 5.3 : new name → any string
     // 5.4 : search dir → a file, not a folder
     // → InvalidPathException
     
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("searchPathIsFile() with " + u + NL);
       
       final File existingDir = Files.createTempDirectory(newTempSubfolder(true), "searchTest_").toFile();
@@ -375,20 +382,20 @@ public class MoveWithShortcutsTest {
                .thenReturn(getCanonicalPath(existingDir))
                .thenReturn("renamed")
                .thenReturn(getCanonicalPath(aFile));
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       Assert.expectThrows(amp(u), InvalidPathException.class, () -> app.run(u));
     }
   }
-
+  
   // ====== Integration: file system operations ======
-
+  
   @Test
   void renameFile() throws Throwable {
-    
+  
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("renameFile() with " + u + NL);
       
       // Full happy path: rename a real file
@@ -408,7 +415,7 @@ public class MoveWithShortcutsTest {
                .thenReturn(getCanonicalPath(destinationFileOrFolder))
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
@@ -420,12 +427,12 @@ public class MoveWithShortcutsTest {
       Assert.assertEquals(Files.readString(destinationFileOrFolder.toPath()), "test content", amp(u));
     }
   }
-
+  
   @Test
   void renameFolder() throws Throwable {
-    
+  
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("renameFolder() with " + u + NL);
       
       final File srcFolder = Files.createTempDirectory(newTempSubfolder(true), "srcFolder_").toFile();
@@ -445,7 +452,7 @@ public class MoveWithShortcutsTest {
                .thenReturn(getCanonicalPath(newFolder))
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
@@ -459,12 +466,12 @@ public class MoveWithShortcutsTest {
       Assert.assertTrue(new File(newFolder, "inner" + EXTENSION_SEPARATOR + "txt").exists(), amp(u));
     }
   }
-
+  
   @Test
   void createParentDirs() throws Throwable {
-    
+  
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("createParentDirs() with " + u + NL);
       
       // New path has a parent that does not exist yet
@@ -484,7 +491,7 @@ public class MoveWithShortcutsTest {
                .thenReturn(getCanonicalPath(destinationFileOrFolder))
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
@@ -500,13 +507,13 @@ public class MoveWithShortcutsTest {
   @SuppressWarnings("deprecation")
   @Test
   void matchingLinkUpdated() throws Throwable {
-    
+  
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_DeepSeek_NoLibs01.class);
     
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_mslinks.class);
     
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("matchingLinkUpdated() with " + u + NL);
       
       // Create a .lnk that points to the source file, verify it's updated
@@ -530,7 +537,7 @@ public class MoveWithShortcutsTest {
                .thenReturn(getCanonicalPath(destinationFileOrFolder))
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
@@ -538,21 +545,21 @@ public class MoveWithShortcutsTest {
       Assert.assertTrue(destinationFileOrFolder.exists(), amp(u) + "New file should exist");
       
       final ShellLink updatedLnk = new ShellLink(lnkFile);
-  
+      
       Assert.assertEquals(updatedLnk.resolveTarget(), getCanonicalPath(destinationFileOrFolder), amp(u));
     }
   }
-
+  
   @SuppressWarnings("deprecation")
   @Test
   void nonMatchingLinkUntouched() throws Throwable {
-    
+  
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_mslinks.class);
     
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
-      this.devLog.log("nonMatchingLinkUntouched() with " + u + NL);
     
+      this.devLog.log("nonMatchingLinkUntouched() with " + u + NL);
+      
       // Create a .lnk pointing to a different file (not the one being renamed)
       
       final File srcFile = Files.createTempFile(newTempSubfolder(true), "otherSrc_", EXTENSION_SEPARATOR + "txt").toFile();
@@ -576,7 +583,7 @@ public class MoveWithShortcutsTest {
                .thenReturn(getCanonicalPath(destinationFileOrFolder))
                .thenReturn(getCanonicalPath(searchDir))
                .thenReturn(verbosity);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
@@ -588,16 +595,16 @@ public class MoveWithShortcutsTest {
       Assert.assertEquals(unchangedLnk.resolveTarget(), getCanonicalPath(otherFile), amp(u));
     }
   }
-
+  
   @Test
   void corruptedLinkSkipped() throws Throwable {
-    
+  
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("corruptedLinkSkipped() with " + u + NL);
       
       // A corrupted .lnk should be skipped with a warning
-  
+      
       final File originalFile = Files.createTempFile(newTempSubfolder(true), "corruptSrc_", EXTENSION_SEPARATOR + "txt").toFile();
       
       Files.writeString(originalFile.toPath(), "corrupt");
@@ -617,7 +624,7 @@ public class MoveWithShortcutsTest {
                .thenReturn(getCanonicalPath(destinationFile))
                .thenReturn(getCanonicalPath(searchFolder))
                .thenReturn(verbosity);
-      
+               
       final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
       
       runApp(app, u);
@@ -737,18 +744,18 @@ public class MoveWithShortcutsTest {
   @SuppressWarnings("deprecation")
   @Test
   void testExecute01() throws IOException, UserRequestedTermination {
-    
+  
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_DeepSeek_NoLibs01.class);
     
     remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(WinShortcutUpdater_mslinks.class);
     
     for (final IShortcutsUpdater u : this.updatersToTest) {
-      
+    
       this.devLog.log("testExecute01() with " + u + NL);
       
       lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString()))
                .thenReturn("y");
-      
+               
       // 1 : Under "src\test\resources\" create subfolders :
       //
       //     1 : "testExecute01\sub1\sub2-to-move\sub3-with-file\sub4\".
@@ -766,23 +773,23 @@ public class MoveWithShortcutsTest {
                                                + "must exist in folder "
                                                + dq(testExecute01.getParent().toAbsolutePath().toString()) + NL
                                                + "(" + sTmp + ").");
-      
+                                               
       final Path sub1 = Files.createDirectories(Path.of(testExecute01.toString()
                                                          , "sub1"));
-      
+                                                         
       final Path sub2ToMove = Files.createDirectories(Path.of(sub1.toString()
                                                                , "sub2-to-move"));
-      
+                                                               
       Path sub3WithFile = Files.createDirectories(Path.of(sub2ToMove.toString()
                                                            , "sub3-with-file"));
-      
+                                                           
       final Path sub4 = Path.of(sub3WithFile.toString(), "sub4");
       
       Files.createDirectories(sub4);
       
       final Path sub2aToStay = Files.createDirectories(Path.of(sub1.toString()
                                                                 , "sub2a-to-stay"));
-      
+                                                                
       final Path subBToReceiveMoved = Files.createDirectories(Path.of(testExecute01.toString()
                                                                         , "subA", "subB-to-receive-moved"));
       // 2 : Create 2 files as follows :
@@ -793,7 +800,7 @@ public class MoveWithShortcutsTest {
       
       Path pointedToAndToMove = Files.createFile(Path.of(sub3WithFile.toString()
                                                            , "PointedToAndToMove.txt"));
-      
+                                                           
       final Path pointedToAndToStayFile = Path.of(sub2aToStay.toString(), "PointedToAndToStay.txt");
       
       final Path pointedToAndToStay = Files.createFile(pointedToAndToStayFile);
@@ -808,7 +815,7 @@ public class MoveWithShortcutsTest {
       
       Assert.assertNull(createShortcut(shortcutToFileToMove,       pointedToAndToMove
                                                , sub3WithFile.toString(), "Step 3.1"));
-      
+                                               
       assertShortcutToPathExists(shortcutToFileToMove, pointedToAndToMove
              , sub3WithFile.toString()
       , "Step 3.1a : Test prerequisite not satisfied"
@@ -824,7 +831,7 @@ public class MoveWithShortcutsTest {
       
       Assert.assertNull(createShortcut(shortcutToFileToStay,            pointedToAndToStay
                                                , pointedToAndToStayWorkingDir, "Step 3.2"));
-      
+                                               
       assertShortcutToPathExists(shortcutToFileToStay, pointedToAndToStay
              , pointedToAndToStayWorkingDir
       , "Step 3.2a : Test prerequisite not satisfied"
@@ -837,13 +844,13 @@ public class MoveWithShortcutsTest {
       
       Assert.assertNull(createShortcut(shortcutTo_sub2ToMove, sub2ToMove
                                                , EMPTY,              "Step 3.3"));
-      
+                                               
       assertShortcutToPathExists(shortcutTo_sub2ToMove, sub2ToMove, EMPTY
       , "Step 3.3a : Test prerequisite not satisfied"
       ,"Step 3.3b : Test prerequisite not satisfied: the shortcut file "
                                  + dq(shortcutTo_sub2ToMove.toAbsolutePath().toString()) + NL
                                  + "does not have the expected target.");
-      
+                                 
       //   3.4 : A shortcut named "sub3-with-file.lnk" exists in "testExecute01\" having folder
       //         "tmpTestExecute01\sub1\sub2-to-move\sub3-with-file" as target and empty working dir. :
       
@@ -851,26 +858,26 @@ public class MoveWithShortcutsTest {
       
       Assert.assertNull(createShortcut(shortcutTo_sub3WithFile, sub3WithFile
                                                , EMPTY,                "Step 3.4"));
-      
+                                               
       assertShortcutToPathExists(shortcutTo_sub3WithFile, sub3WithFile, EMPTY
       , "Step 3.4a : Test prerequisite not satisfied"
       ,"Step 3.4b : Test prerequisite not satisfied: the shortcut file "
                                  + dq(shortcutTo_sub3WithFile.toAbsolutePath().toString()) + NL
                                  + "does not have the expected target.");
-      
+                                 
       //   3.5 : A shortcut named "sub4.lnk" exists in "testExecute01" having folder "sub4" as target and as working dir. :
       
       final Path shortcutTo_sub4 = Path.of(testExecute01.toString(), "sub4.lnk");
       
       Assert.assertNull(createShortcut(shortcutTo_sub4,    sub4
                                                , sub4.toString(), "Step 3.5."));
-      
+                                               
       assertShortcutToPathExists(shortcutTo_sub4, sub4, sub4.toString()
       , "Step 3.5a : Test prerequisite not satisfied"
       ,"Step 3.5b : Test prerequisite not satisfied: the shortcut file "
                                  + dq(shortcutTo_sub4.toAbsolutePath().toString()) + NL
                                  + "does not have the expected target.");
-      
+                                 
       // 4 : Invoke the tested method, to make it :
       //
       //    - make folder "testExecute01\sub1\sub2-to-move\" become "testExecute01\subA\subBToReceiveMoved\sub2-moved\";
@@ -896,7 +903,7 @@ public class MoveWithShortcutsTest {
       executeApp(app, sub2ToMove.toFile(), new TwoObjects<>(
                                                                                       sub2moved. toFile(), TRUE)
                            , testExecute01.toFile(), u);
-      
+                           
       // 5 : Verify that now the folder "sub2-to-move\" no longer exists under folder "testExecute01\sub1\" and now exists
       //     as "testExecute01\subA\subBToReceiveMoved\sub2-moved\" :
       
@@ -904,41 +911,41 @@ public class MoveWithShortcutsTest {
                          , amp(u) + "Step 5a : The folder to move (" + dq(sub2ToMove.toString())
                                   + ")" + NL + "still exists. That is wrong, it should have been moved to become "
                                   + dq(sub2moved.toString()) + ".");
-      
+                                  
       Assert.assertTrue(sub2moved.toFile().exists()
                         , amp(u) + "Step 5b : The supposedly moved folder (" + dq(sub2moved.toString()) + ") does not exist." + NL
                                  + "That is wrong, folder " + dq(sub2ToMove.toString()) + NL + " should have been moved to become that.");
-      
+                                 
       // 6 : Verify that folder "sub2a-to-stay" still exists under "testExecute01\sub1\" and it still contains file
       //     "PointedToAndToStay.txt" :
       
       Assert.assertTrue(sub2aToStay.toFile().exists()
                         , amp(u) + "Step 6a : The folder " + dq(sub2aToStay.toString()) + NL
                                  + "no longer exists. That is wrong, it should have not been moved or deleted.");
-      
+                                 
       Assert.assertTrue(pointedToAndToStay.toFile().exists()
                         , amp(u) + "Step 6b : The folder " + dq(sub2aToStay.toString()) + NL
                                  + "no longer contains file " + dq(sub2aToStay.toString()) + NL
                                  + ". That is wrong, it should have not been moved or deleted.");
-      
+                                 
       // 7 : Verify that folder {@code sub2-moved\sub3-with-file\} now exists under {@code
       //     testExecute01\subA\subBToReceiveMoved\} and contains file "PointedToAndToMove.txt" :
       
       sub3WithFile = Path.of(subBToReceiveMoved.toString(), sub2moved.getFileName().toString()
                                                             , sub3WithFile.getFileName().toString());
-      
+                                                            
       Assert.assertTrue(sub3WithFile.toFile().exists()
                         , amp(u) + "Step 7a : The folder " + dq(sub3WithFile.toString()) + NL
                                  + "does not exist. That is wrong, the original "
                                  + dq(sub2ToMove.toAbsolutePath().toString()) + " should have become it.");
-      
+                                 
       pointedToAndToMove = Path.of(sub3WithFile.toString(), pointedToAndToMove.getFileName().toString());
       
       Assert.assertTrue(pointedToAndToMove.toFile().exists()
                         , amp(u) + "Step 7b : The file " + dq(pointedToAndToMove.toString()) + NL
                                  + "does not exist. That is wrong, it should have been moved to that folder when the original "
                                  + dq(sub2ToMove.toAbsolutePath().toString()) + " became " + dq(sub2moved.toString()) + ".");
-      
+                                 
       // 8 : Verify that the 4 shortcuts that were originally pointing to moved / renamed files / folders now point to the
       //     new locations :
       
@@ -992,16 +999,16 @@ public class MoveWithShortcutsTest {
       // 10 : Cleanup :
       
       final List<File> deleted = FileUtilities.deleteAllFolders(testExecute01.toFile());
-  
+      
       Assert.assertEquals(I(deleted.size()), TWO_I
                        , amp(u) + "Step 10 : Error during test cleanup : the two folders that must have been created and now deleted are :"
                                   + NLT + dq(sub1.toString()) + NL + "and"
                                   + NLT + dq(subA.toString()) + "."
                                   + NL  + "Instead, the following " + deleted.size() + " folders were deleted :"
                                   + NLT + listToString(deleted, EMPTY, TAB, EMPTY, NLT2));
-  
+                                  
       assertContains(deleted, sub1.toFile(), amp(u) + "Step 10a : " + dq(sub1.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
-  
+      
       assertContains(deleted, subA.toFile(), amp(u) + "Step 10b : " + dq(subA.toString()) + " was not among the " + deleted.size() + " folders deleted during test cleanup.");
       
       // The tmpTestExecute01 folder must be deleted only if the test succeeds, to allow for its inspection if the test
@@ -1027,24 +1034,24 @@ public class MoveWithShortcutsTest {
    * @return {@code null} if the creation of the shortcut succeeds, otherwise failure info.
    */
   private String createShortcut(@NotNull Path shortcutFile, @NotNull Path target, String workFolder, String stepDescr) {
-    
+  
     Assert.assertFalse(shortcutFile.toFile().exists(), stepDescr + " : " + shortcutFile + " already exists.");
     
     String fail = null;
     
     try {
-      
+    
       final ShellLinkHelper shortcut = ShellLinkHelper.createLink(getCanonicalPath(target.toFile())
                                                               , shortcutFile.toString());
       if (workFolder != null) {
-        
+      
         shortcut.getLink().setWorkingDir(workFolder);
         
         shortcut.saveTo(shortcutFile.toString());
       }
     }
     catch (IOException | ShellLinkException e) {
-      
+    
       e.printStackTrace();
       
       fail = stepDescr + " : " + e.getMessage() + NL2 + getFullDescriptionWithRootCause(e) + NL2;
@@ -1080,14 +1087,14 @@ public class MoveWithShortcutsTest {
                                         , @NotNull String expectedWorkFolder
                                                  , String prefixMsgShortcutNotFound
                                                  , String prefixMsgTargetNotMatching) {
-    
+                                                 
     String sTmp = checkIsExistingFile(shortcut.toFile());
     
     Assert.assertNull(sTmp, prefixMsgShortcutNotFound + " : A shortcut file named "
                                              + dq(shortcut.getFileName().toString()) + NL + "must exist in folder "
                                              + dq(shortcut.getParent().toAbsolutePath().toString())
                                              + NL + "(" + sTmp + ").");
-    
+                                             
     final TwoObjects<@NotNull String, @NotNull String> actualFields = this.targetReader.apply(shortcut.toFile());
     
     final String target = actualFields.o1, workFolder = actualFields.o2;
@@ -1095,7 +1102,7 @@ public class MoveWithShortcutsTest {
     Assert.assertEquals(calcRelativePath(target)
                     , calcRelativePath(expectedTarget.toAbsolutePath().toString())
                      , prefixMsgTargetNotMatching + " : The shortcut file " + dq(shortcut.toAbsolutePath().toString()) + NL + "does not have the expected target.");
-    
+                     
     Assert.assertEquals(calcRelativePath(workFolder)
                     , calcRelativePath(expectedWorkFolder)
                      , prefixMsgTargetNotMatching + " : The shortcut file " + dq(shortcut.toAbsolutePath().toString()) + NL + "does not have the expected work folder.");
@@ -1109,11 +1116,11 @@ public class MoveWithShortcutsTest {
    *         {@link StringUtils#EMPTY empty}, returns that.
    */
   private static @NotNull String calcRelativePath(@NotNull String path) {
-    
+  
     final String result;
     
     if (! path.isEmpty()) {
-      
+    
       assertNonBlankNorTrimmable(path);
       
       final String rootFolderName = getCurrentFolderAsFile().getName();
@@ -1122,7 +1129,7 @@ public class MoveWithShortcutsTest {
                                                                                       , File.separator)), "The path", NLT, dq(path), NL, "must contain", NLT, dq(rootFolderName), NL, "instead it is :", NLT, dq(path), NL, ".")); //NODIR-1305
     }
     else {
-      
+    
       result = EMPTY;
     }
     return result;
@@ -1135,7 +1142,7 @@ public class MoveWithShortcutsTest {
    *         deleted} after the test.
    */
   private static Path getTestExecute01Path() {
-    
+  
     return Path.of("src", "test", "resources", "testExecute01").toAbsolutePath();
   }
   
@@ -1144,7 +1151,7 @@ public class MoveWithShortcutsTest {
    * the same folder} as the {@code src\test\resources\testExecute01\} folder.
    */
   private static Path getTmpTestExecute01Path() {
-    
+  
     return Path.of(getTestExecute01Path().getParent().toString(), "tmpTestExecute01");
   }
   
@@ -1155,7 +1162,7 @@ public class MoveWithShortcutsTest {
    * @return The path of the created folder.
    */
   private static Path createTmpTestExecute01Path() throws IOException {
-    
+  
     final Path destPath = deleteTmpTestExecute01Path();
     
     Assert.assertTrue(destPath.toFile().mkdirs(), "Failed to create folder " + dq(getCanonicalPath(destPath.toFile())) + ".");
@@ -1169,20 +1176,160 @@ public class MoveWithShortcutsTest {
    * @return The deleted folder.
    */
   private static Path deleteTmpTestExecute01Path() throws IOException {
-    
+  
     final Path folder = getTmpTestExecute01Path();
     
     try {
-      
+    
       FileUtils.deleteDirectory(folder.toFile());
     }
     catch (IOException e) {
-      
+    
       folder.toFile().deleteOnExit();
       
       throw e;
     }
     return folder;
+  }
+  
+  @Test
+  void confirmationMentionsShortcutFileRenamingWhenLeafNameChanges() throws Throwable {
+  
+    final File sourceFile = Files.createTempFile(newTempSubfolder(true), "promptRename_"
+                                                , EXTENSION_SEPARATOR + "txt").toFile();
+                                                
+    final File destinationFile = new File(sourceFile.getParentFile(), "promptRenamed" + EXTENSION_SEPARATOR + "txt");
+    
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "promptSearchRename_").toFile();
+    
+    final String prompt = runWithArgsAndCaptureConfirmationPrompt(sourceFile, destinationFile, searchFolder
+                                                                , ShortcutFileNamePolicy.EXACT);
+                                                                
+    Assert.assertTrue(prompt.contains("and renaming the shortcut files whose own names match the old name"), prompt);
+    
+    verify(this.mockUserIO, never()).warnChars(contains("has no effect"));
+  }
+  
+  @Test
+  void confirmationWarnsWhenPolicyHasNoEffectOnPureFileMove() throws Throwable {
+  
+    final File sourceFile = Files.createTempFile(newTempSubfolder(true), "promptMoved_"
+                                                , EXTENSION_SEPARATOR + "txt").toFile();
+                                                
+    final File destinationFile = new File(newTempSubfolder(true).toFile(), sourceFile.getName());
+    
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "promptSearchMove_").toFile();
+    
+    final String prompt = runWithArgsAndCaptureConfirmationPrompt(sourceFile, destinationFile, searchFolder
+                                                                , ShortcutFileNamePolicy.EXACT);
+                                                                
+    Assert.assertFalse(prompt.contains("and renaming the shortcut files whose own names match the old name"), prompt);
+    
+    assertNoEffectWarning();
+  }
+  
+  @Test
+  void confirmationOmitsShortcutFileRenamingForNeverPolicy() throws Throwable {
+  
+    final File sourceFile = Files.createTempFile(newTempSubfolder(true), "promptNever_"
+                                                , EXTENSION_SEPARATOR + "txt").toFile();
+                                                
+    final File destinationFile = new File(sourceFile.getParentFile(), "promptNeverRenamed" + EXTENSION_SEPARATOR
+                                                                        + "txt");
+                                                                        
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "promptSearchNever_").toFile();
+    
+    final String prompt = runWithArgsAndCaptureConfirmationPrompt(sourceFile, destinationFile, searchFolder
+                                                                , ShortcutFileNamePolicy.NEVER);
+                                                                
+    Assert.assertFalse(prompt.contains("and renaming the shortcut files whose own names match the old name"), prompt);
+    
+    verify(this.mockUserIO, never()).warnChars(contains("has no effect"));
+  }
+  
+  @Test
+  void confirmationMentionsShortcutFileRenamingForFolderRename() throws Throwable {
+  
+    final File sourceFolder = Files.createTempDirectory(newTempSubfolder(true), "promptOldFolder_").toFile();
+    
+    final File destinationFolder = new File(sourceFolder.getParentFile(), "promptNewFolder_");
+    
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "promptSearchFolderRename_").toFile();
+    
+    final String prompt = runWithArgsAndCaptureConfirmationPrompt(sourceFolder, destinationFolder, searchFolder
+                                                                , ShortcutFileNamePolicy.DESCENDANT);
+                                                                
+    Assert.assertTrue(prompt.contains("and renaming the shortcut files whose own names match the old name"), prompt);
+    
+    verify(this.mockUserIO, never()).warnChars(contains("has no effect"));
+  }
+  
+  @Test
+  void confirmationWarnsWhenPolicyHasNoEffectOnPureFolderMove() throws Throwable {
+  
+    final File sourceFolder = Files.createTempDirectory(newTempSubfolder(true), "promptMovedFolder_").toFile();
+    
+    final File destinationFolder = new File(newTempSubfolder(true).toFile(), sourceFolder.getName());
+    
+    final File searchFolder = Files.createTempDirectory(this.tempDir, "promptSearchFolderMove_").toFile();
+    
+    final String prompt = runWithArgsAndCaptureConfirmationPrompt(sourceFolder, destinationFolder, searchFolder
+                                                                , ShortcutFileNamePolicy.DESCENDANT);
+                                                                
+    Assert.assertFalse(prompt.contains("and renaming the shortcut files whose own names match the old name"), prompt);
+    
+    assertNoEffectWarning();
+  }
+  
+  /**
+   * Runs the app with the given command-line values and returns the start-confirmation prompt.
+   *
+   * @param original The file or folder to rename / move.<br>
+   *
+   * @param destination The destination file or folder.<br>
+   *
+   * @param searchFolder The folder under which to search for shortcuts.<br>
+   *
+   * @param shortcutFileNamePolicy The shortcut-file name policy.
+   *
+   * @return The start-confirmation prompt.
+   */
+  private String runWithArgsAndCaptureConfirmationPrompt(@NotNull File original
+                                                       , @NotNull File destination
+                                                       , @NotNull File searchFolder
+                                                       , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy)
+                                                       throws Throwable {
+                                                       
+    clearInvocations(this.mockUserIO);
+    
+    lenient().when(this.mockUserIO.in(anyString(), anyString(), anyString())).thenReturn(EMPTY);
+    
+    final MoveWithShortcuts app = MoveWithShortcuts.newInstance(this.mockAppContext);
+    
+    app.run(this.updatersToTest.get(ZERO_i), original.getPath(), destination.getPath(), searchFolder.getPath()
+          , shortcutFileNamePolicy);
+          
+    final ArgumentCaptor<String> prompts = ArgumentCaptor.forClass(String.class);
+    
+    verify(this.mockUserIO, atLeastOnce()).in(prompts.capture(), anyString(), anyString());
+    
+    return prompts.getAllValues().stream()
+                  .filter(prompt -> prompt.contains("Press Enter to confirm"))
+                  .findFirst()
+                  .orElseThrow();
+  }
+  
+  /**
+   * Asserts that the no-effect warning for the shortcut-file name policy has been shown.
+   */
+  private void assertNoEffectWarning() {
+  
+    final ArgumentCaptor<String> warnings = ArgumentCaptor.forClass(String.class);
+    
+    verify(this.mockUserIO, atLeastOnce()).warnChars(warnings.capture());
+    
+    Assert.assertTrue(warnings.getAllValues().stream().anyMatch(w -> w.contains("has no effect"))
+                    , warnings.getAllValues().toString());
   }
   
   /**
@@ -1192,13 +1339,13 @@ public class MoveWithShortcutsTest {
    *         next value of {@link #nextTempDirCounter}.
    */
   private @NotNull Path newTempSubfolder(boolean create) throws IOException {
-    
+  
     final Path result = Path.of(this.tempDir.toString(), S(++this.nextTempDirCounter));
     
     Assert.assertNotNull(checkIsExistingFolder(result.toString()), "Invalid test prerequisite, the subfolder " + getCanonicalPath(result.toFile()) + " already exists.");
     
     if (create) {
-      
+    
       Files.createDirectories(result);
     }
     return result;
@@ -1213,11 +1360,11 @@ public class MoveWithShortcutsTest {
    * @return The prefix for the assertion messages.
    */
   private static String amp(@NotNull IShortcutsUpdater currentUpdater) {
-    
+  
     String result = "Current Updater : " + currentUpdater.getClass().getSimpleName();
     
     if (currentUpdater instanceof WinShortcutsUpdater_OneByOne updaterOneByOne) {
-      
+    
       result += " with " + updaterOneByOne.getShortcutTargetUpdater().getClass().getSimpleName();
     }
     return result + " :" + NLT;
@@ -1239,19 +1386,20 @@ public class MoveWithShortcutsTest {
   @SuppressWarnings("deprecation")
   private int remove__WinShortcutsUpdater_OneByOne__HavingShortcutUpdater(
                                                          @NotNull Class<? extends IShortcutUpdater> unwantedClass) {
-    
+                                                         
     Assert.assertNotNull(unwantedClass, "unwantedClass");
     
     int result = ZERO_i;
     
     for (final ListIterator<? extends IShortcutsUpdater> iterator = this.updatersToTest.listIterator();
                                                                           iterator.hasNext();) {
+                                                                          
       final IShortcutsUpdater updater = iterator.next();
       
       if (updater instanceof WinShortcutsUpdater_OneByOne updaterOneByOne) {
-        
+      
         if (updaterOneByOne.getShortcutTargetUpdater().getClass().equals(unwantedClass)) {
-          
+        
           this.devLog.log("Removing a " + updater.getClass().getSimpleName() + " from the list of the " + this.updatersToTest.size() + " " + IShortcutsUpdater.class.getSimpleName() + " updaters to test.");
           
           iterator.remove();
@@ -1268,20 +1416,22 @@ public class MoveWithShortcutsTest {
    * if that throws a {@link RuntimeException}, catches it and rethrows a new one of the same type with the same {@link Throwable#getMessage()
    * message} but prefixed by the {@link #amp( IShortcutsUpdater ) Assertion Message Prefix} for the {@code updater}.
    *
-   * @param app
-   * @param updater
+   * @param app The {@link MoveWithShortcuts} instance to run.<br>
    *
-   * @throws UserRequestedTermination
-   * @throws IOException
+   * @param updater The updater to use.
+   *
+   * @throws UserRequestedTermination If the user cancels.<br>
+   *
+   * @throws IOException If the operation fails.
    */
   private static void runApp(MoveWithShortcuts app, IShortcutsUpdater updater) throws UserRequestedTermination, IOException {
-    
+  
     try {
-      
+    
       app.run(updater);
     }
     catch (RuntimeException re) {
-      
+    
       throw getExceptionSupplier(re.getClass(), re, amp(updater) + re.getMessage()
                   , m -> app.getAppContext().outUserLog(m)).get();
     }
@@ -1304,20 +1454,22 @@ public class MoveWithShortcutsTest {
    *                                
    * @param updater                 Same param of {@link MoveWithShortcuts#execute(File, TwoObjects, File, IShortcutsUpdater)}.<br>
    *
-   * @throws UserRequestedTermination
-   * @throws IOException
+   * @throws UserRequestedTermination If the user cancels.<br>
+   *
+   * @throws IOException If the operation fails.
    */
   private static void executeApp(@NotNull MoveWithShortcuts app
                                , @NotNull File originalFileOrFolder
                                , @NotNull TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder
                                , @NotNull File searchFolder
                                , @NotNull IShortcutsUpdater updater) throws UserRequestedTermination, IOException {
+                               
     try {
-      
+    
       app.execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, updater);
     }
     catch (RuntimeException re) {
-      
+    
       throw getExceptionSupplier(re.getClass(), re, amp(updater) + re.getMessage()
                   , m -> app.getAppContext().outUserLog(m)).get();
     }
