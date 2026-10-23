@@ -24,6 +24,8 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +50,11 @@ final class PathTextField extends JTextField {
   @Serial
   private static final long serialVersionUID = 1L;
   
+  /**
+   * Whether the next focus gain must select all the text.
+   */
+  private boolean selectAllOnNextFocus = true;
+  
   
   /**
    * Factory method.
@@ -69,6 +76,25 @@ final class PathTextField extends JTextField {
     new DropTarget(this, DnDConstants.ACTION_COPY, new PathDropTargetListener(), true);
     
     installContextMenu();
+    
+    addFocusListener(new FocusAdapter() {
+    
+      /**
+       * Selects all the text on the first focus gain.
+       *
+       * @param e The focus event.
+       */
+      @Override
+      public void focusGained(FocusEvent e) {
+      
+        if (selectAllOnNextFocus) {
+        
+          selectAll();
+          
+          selectAllOnNextFocus = false;
+        }
+      }
+    });
   }
   
   
@@ -193,6 +219,12 @@ final class PathTextField extends JTextField {
             final PathTextField target = PathTextField.this;
             
             target.setText(getCanonicalPath(files.getFirst()));
+            
+            target.selectAll();
+            
+            target.selectAllOnNextFocus = false;
+            
+            target.requestFocusInWindow();
             
             success = true;
           }

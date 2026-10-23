@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -20,6 +21,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -32,6 +35,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -113,6 +117,16 @@ final class MoveWithShortcutsGui {
    */
   private final JProgressBar progressBar;
   
+  /**
+   * The reporter of the progress of the current operation.
+   */
+  private final GuiProgressReporter progressReporter;
+  
+  /**
+   * The label of the last reported phase.
+   */
+  private String lastPhase = ProgressTracker.PHASE_WORKING;
+  
   
   /**
    * Shows the dialog.
@@ -121,11 +135,14 @@ final class MoveWithShortcutsGui {
    *
    * @param updater The shortcuts updater implementation to use.<br>
    *
-   * @param originalPath The original path received from Explorer, or {@code null} when started standalone.
+   * @param originalPath The original path received from Explorer, or {@code null} when started standalone.<br>
+   *
+   * @param progressReporter The reporter of the progress of the operation.
    */
-  static void show(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater, String originalPath) {
-  
-    new MoveWithShortcutsGui(appContext, updater, originalPath);
+  static void show(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater, String originalPath
+                 , @NotNull GuiProgressReporter progressReporter) {
+                 
+    new MoveWithShortcutsGui(appContext, updater, originalPath, progressReporter);
   }
   
   /**
@@ -135,10 +152,12 @@ final class MoveWithShortcutsGui {
    *
    * @param updater {@link #updater}.<br>
    *
-   * @param originalPath The original path received from Explorer, or {@code null} when started standalone.
+   * @param originalPath The original path received from Explorer, or {@code null} when started standalone.<br>
+   *
+   * @param progressReporter {@link #progressReporter}.
    */
   private MoveWithShortcutsGui(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater
-                             , String originalPath) {
+                             , String originalPath, @NotNull GuiProgressReporter progressReporter) {
                              
     this.appContext = assertNonNull(appContext);
     
@@ -159,6 +178,10 @@ final class MoveWithShortcutsGui {
     this.cancelButton = new JButton("Cancel");
     
     this.progressBar = new JProgressBar();
+    
+    this.progressReporter = assertNonNull(progressReporter);
+    
+    this.progressReporter.setListener(this::onProgress);
     
     initFields(originalPath);
     
@@ -191,6 +214,12 @@ final class MoveWithShortcutsGui {
     
     this.cancelButton.addActionListener(e -> cancel());
     
+    this.frame.getRootPane().setDefaultButton(this.okButton);
+    
+    this.frame.getRootPane().registerKeyboardAction(e -> cancel()
+                                                 , KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)
+                                                 , JComponent.WHEN_IN_FOCUSED_WINDOW);
+                                                 
     this.frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     
     this.frame.addWindowListener(new WindowAdapter() {
@@ -280,7 +309,9 @@ final class MoveWithShortcutsGui {
     
     this.progressBar.setVisible(false);
     
-    this.progressBar.setPreferredSize(new Dimension(120, 16));
+    this.progressBar.setStringPainted(true);
+    
+    this.progressBar.setPreferredSize(new Dimension(260, 16));
     
     result.add(this.progressBar);
     
@@ -531,6 +562,10 @@ final class MoveWithShortcutsGui {
         
           if (this.userInterrupted) {
           
+            MoveWithShortcutsGui.this.progressBar.setIndeterminate(false);
+            
+            MoveWithShortcutsGui.this.progressBar.setString(MoveWithShortcutsGui.this.lastPhase + ": interrupted");
+            
             JOptionPane.showMessageDialog(MoveWithShortcutsGui.this.frame
                                                , "The operation was interrupted on user request."
                                                  , MoveWithShortcutsMain.APP_NAME
@@ -538,6 +573,8 @@ final class MoveWithShortcutsGui {
           }
           else {
           
+            updateProgressBar(MoveWithShortcutsGui.this.lastPhase, 100);
+            
             JOptionPane.showMessageDialog(MoveWithShortcutsGui.this.frame, buildSummaryMessage()
                                                  , MoveWithShortcutsMain.APP_NAME
                                             , JOptionPane.INFORMATION_MESSAGE);
@@ -548,7 +585,7 @@ final class MoveWithShortcutsGui {
   }
   
   /**
-   * Enables or disables the dialog's controls and shows or hides the progress bar.
+   * Enables or disables the dialog's controls and starts or stops the progress display.
    *
    * @param busy Whether the operation is running.
    */
@@ -564,9 +601,56 @@ final class MoveWithShortcutsGui {
     
     this.cancelButton.setEnabled(     ! busy);
     
-    this.progressBar.setIndeterminate(busy);
+    if (busy) {
     
-    this.progressBar.setVisible(      busy);
+      this.lastPhase = ProgressTracker.PHASE_WORKING;
+      
+      this.progressBar.setIndeterminate(true);
+      
+      this.progressBar.setValue(ZERO_i);
+      
+      this.progressBar.setString(ProgressTracker.PHASE_WORKING + "...");
+    }
+    this.progressBar.setVisible(true);
+  }
+  
+  /**
+   * Receives a progress update from the operation thread and forwards it to the event dispatch thread.
+   *
+   * @param phase The phase label.<br>
+   *
+   * @param percentage The percentage, or a negative value when it is not known yet.
+   */
+  private void onProgress(@NotNull String phase, int percentage) {
+  
+    SwingUtilities.invokeLater(() -> updateProgressBar(phase, percentage));
+  }
+  
+  /**
+   * Updates the progress bar. Must be called on the event dispatch thread.
+   *
+   * @param phase The phase label.<br>
+   *
+   * @param percentage The percentage, or a negative value when it is not known yet.
+   */
+  private void updateProgressBar(@NotNull String phase, int percentage) {
+  
+    this.lastPhase = phase;
+    
+    if (percentage < ZERO_i) {
+    
+      this.progressBar.setIndeterminate(true);
+      
+      this.progressBar.setString(phase + "...");
+    }
+    else {
+    
+      this.progressBar.setIndeterminate(false);
+      
+      this.progressBar.setValue(percentage);
+      
+      this.progressBar.setString(phase + ": " + percentage + "%");
+    }
   }
   
   /**
@@ -655,6 +739,8 @@ final class MoveWithShortcutsGui {
    */
   private void closeAppContext() {
   
+    this.progressReporter.setListener(null);
+    
     try {
     
       this.appContext.close();

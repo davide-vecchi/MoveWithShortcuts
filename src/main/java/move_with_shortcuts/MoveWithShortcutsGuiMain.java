@@ -7,7 +7,6 @@ package move_with_shortcuts;
 import application.AAppContext;
 import dfile.shortcut.IShortcutsUpdater;
 import dlog.log.Log;
-import duser_input_output.impl.NeutralUserInputOutput;
 import dutil.value_holder.ObjectAndDescr;
 import jakarta.validation.constraints.NotNull;
 
@@ -70,7 +69,9 @@ public final class MoveWithShortcutsGuiMain {
       final Log devLog =    new Log(APP_DESCR + " - developer log"
                                   , logFileName(logFolder, APP_NAME + "_dev-log.LOG"), true);
                                   
-      final AAppContext appContext = AppContext.newAppContext(NeutralUserInputOutput.newInstance()
+      final GuiProgressReporter progressReporter = GuiProgressReporter.newInstance();
+      
+      final AAppContext appContext = AppContext.newAppContext(GuiUserInputOutput.newInstance(progressReporter)
                                                                     , screenLog, userLog, devLog);
                                                                     
       writeLogsHeaders(screenLog, userLog, devLog, APP_NAME, APP_DESCR);
@@ -82,7 +83,8 @@ public final class MoveWithShortcutsGuiMain {
       final IShortcutsUpdater updater = MoveWithShortcutsMain.selectShortcutsUpdaterForGui(appContext)
                                                              .newUpdater(appContext);
                                                              
-      SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext, updater, originalPath));
+      SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext, updater, originalPath
+                                                               , progressReporter));
     }
     catch (Exception e) {
     
