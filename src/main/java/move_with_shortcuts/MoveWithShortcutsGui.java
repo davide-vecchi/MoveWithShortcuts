@@ -624,6 +624,12 @@ final class MoveWithShortcutsGui {
                                             , JOptionPane.INFORMATION_MESSAGE);
           }
         }
+        else {
+        
+          MoveWithShortcutsGui.this.progressBar.setIndeterminate(false);
+          
+          MoveWithShortcutsGui.this.progressBar.setString("Failed");
+        }
       }
     }.execute();
   }
