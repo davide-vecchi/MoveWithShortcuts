@@ -117,6 +117,23 @@ public class MoveWithShortcutsGuiTest {
   }
   
   /**
+   * Tests that a {@code reg add} command escapes the double quotes of the value, because {@code reg} would otherwise
+   * treat them as syntax.
+   */
+  @Test
+  void buildRegAddArgsEscapesDoubleQuotesInValue() {
+  
+    final String value = "\"C:\\Program Files\\javaw.exe\" -cp \"C:\\MWS\\MoveWithShortcuts.jar\" main \"%1\"";
+    
+    final List<String> args = ExplorerContextMenu.buildRegAddArgs(
+                                        ExplorerContextMenu.FILES_VERB_KEY + "\\command", null, value);
+                                        
+    Assert.assertEquals(args.get(4)
+                      , "\\\"C:\\Program Files\\javaw.exe\\\" -cp \\\"C:\\MWS\\MoveWithShortcuts.jar\\\" main"
+                      + " \\\"%1\\\"");
+  }
+  
+  /**
    * Tests that a {@code reg query} command for a named value uses {@code /v}.
    */
   @Test

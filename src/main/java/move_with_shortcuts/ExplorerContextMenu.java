@@ -168,7 +168,7 @@ final class ExplorerContextMenu {
    *
    * @param valueName The name of the value, or {@code null} for the key's default value.<br>
    *
-   * @param value The value to write.
+   * @param value The value to write ; its double quotes are escaped for {@code reg add}.
    *
    * @return The arguments, without the program name.
    */
@@ -184,10 +184,23 @@ final class ExplorerContextMenu {
     
     result.add("/d");
     
-    result.add(value);
+    result.add(escapeRegData(value));
     
     result.add("/f");
     return result;
+  }
+  
+  /**
+   * Escapes the double quotes of a registry value so that {@code reg add} stores them literally instead of treating
+   * them as syntax.
+   *
+   * @param value The value to escape.
+   *
+   * @return The escaped value.
+   */
+  private static String escapeRegData(@NotBlank String value) {
+  
+    return value.replace("\"", "\\\"");
   }
   
   /**
