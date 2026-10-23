@@ -746,6 +746,7 @@ final class MoveWithShortcutsGui {
    *
    * @return The message.
    */
+  @SuppressWarnings("ConstantValue")
   private String buildLogsLocationMessage() {
   
     String result = "Logs: not written to files.";
@@ -820,6 +821,7 @@ final class MoveWithShortcutsGui {
    *
    * @param messageType The {@link JOptionPane} message type.
    */
+  @SuppressWarnings("MagicConstant")
   private void showTextDialog(@NotNull String title, @NotNull String text, int messageType) {
   
     final JTextArea textArea = new JTextArea(text);
