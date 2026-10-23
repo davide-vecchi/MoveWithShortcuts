@@ -188,6 +188,7 @@ final class ExplorerContextMenu {
     result.add(escapeRegData(value));
     
     result.add("/f");
+    
     return result;
   }
   
@@ -222,6 +223,7 @@ final class ExplorerContextMenu {
     result.add(key);
     
     addValueNameArgs(result, valueName);
+    
     return result;
   }
   
@@ -289,15 +291,15 @@ final class ExplorerContextMenu {
    *
    * @param appContext The application context to use for logging and warnings.<br>
    *
-   * @param key The verb key.<br>
+   * @param key        The verb key.<br>
    *
-   * @param command The command line to store.
+   * @param command    The command line to store.
    *
-   * @return {@link Boolean#TRUE TRUE} in {@link ObjectAndDescr#object object} when the key was written, {@link
-   *         Boolean#FALSE FALSE} when it was already up to date ; a description when a registry command failed.
+   * @return {@link Boolean#TRUE TRUE} in {@link ObjectAndDescr#object object} when the key was written, {@link Boolean#FALSE
+   *         FALSE} when it was already up to date; a description when a registry command failed.
    */
-  private static ObjectAndDescr<Boolean> ensureKey(@NotNull AAppContext appContext, @NotBlank String key
-                                                 , @NotBlank String command) {
+  private static ObjectAndDescr<Boolean> ensureKey(@NotNull  AAppContext appContext, @NotBlank String key
+                                                 , @NotBlank String      command) {
                                                  
     final boolean upToDate = isValueUpToDate(appContext, key, null, MENU_LABEL)
                           && isValueUpToDate(appContext, key, MULTI_SELECT_MODEL, MULTI_SELECT_MODEL_VALUE)
@@ -317,15 +319,15 @@ final class ExplorerContextMenu {
    *
    * @param appContext The application context to use for logging and warnings.<br>
    *
-   * @param key The verb key.<br>
+   * @param key        The verb key.<br>
    *
-   * @param command The command line to store.
+   * @param command    The command line to store.
    *
    * @return {@link Boolean#TRUE TRUE} in {@link ObjectAndDescr#object object} when all values were written ; a
    *         description when a registry command failed.
    */
-  private static ObjectAndDescr<Boolean> addKeyValues(@NotNull AAppContext appContext, @NotBlank String key
-                                                    , @NotBlank String command) {
+  private static ObjectAndDescr<Boolean> addKeyValues(@NotNull  AAppContext appContext, @NotBlank String key
+                                                    , @NotBlank String      command) {
                                                     
     String error = addValue(appContext, key, null, MENU_LABEL);
     
@@ -376,8 +378,8 @@ final class ExplorerContextMenu {
     }
     else if (outcome.exitValue() != ZERO_i) {
     
-      result = "The Windows registry command failed with exit value " + outcome.exitValue() + " :" + NL
-             + outcome.processOutput();
+      result = "The Windows registry command failed with exit value " + outcome.exitValue()     + " :" + NL
+                                                                      + outcome.processOutput();
     }
     return result;
   }
@@ -400,9 +402,8 @@ final class ExplorerContextMenu {
                                        
     final RunCommandOutcome outcome = runReg(appContext, buildRegQueryArgs(key, valueName));
     
-    final boolean result = outcome != null && outcome.exitValue() == ZERO_i
-                        && outcome.processOutput() != null
-                        && outcome.processOutput().contains(expected);
+    final boolean result = outcome != null && outcome.exitValue() == ZERO_i && outcome.processOutput() != null
+                                                                            && outcome.processOutput().contains(expected);
     return result;
   }
   
@@ -421,8 +422,11 @@ final class ExplorerContextMenu {
     
     try {
     
-      result = OSUtilities.runCommand(null, REG_COMMAND, REG_TIMEOUT_MS, appContext.devLog
-                                    , Function.identity(), null, null, null, args.toArray(String[]::new));
+      result = OSUtilities.runCommand(null,                  REG_COMMAND
+                                 , REG_TIMEOUT_MS,        appContext.devLog
+                        , Function.identity()
+                       , null, null
+                              , null,         args.toArray(String[]::new));
     }
     catch (InterruptedException e) {
     
@@ -474,4 +478,5 @@ final class ExplorerContextMenu {
       args.add(valueName);
     }
   }
+
 }

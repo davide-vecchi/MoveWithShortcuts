@@ -710,14 +710,14 @@ final class MoveWithShortcutsGui {
    */
   private String buildSummaryMessage() {
   
-    return "The operation completed." + NL2
-         + "Shortcuts found: " + this.app.numTotalShortcuts + NL
-         + "Shortcuts needing update: " + this.app.numProcessedShortcuts + NL
-         + "Shortcuts updated: " + this.app.numUpdatedShortcuts + NL
-         + "Shortcut files renamed: " + this.app.numRenamedShortcuts + NL
-         + "Shortcut-file rename collisions: " + this.app.numRenameCollisions + NL
-         + "Shortcut-file renames skipped: " + this.app.numRenameSkippedShortcuts + NL
-         + "Shortcuts skipped: " + this.app.numSkippedShortcuts + NL2
+    return "The operation completed."                                               + NL2
+         + "Shortcuts found: "                 + this.app.numTotalShortcuts         + NL
+         + "Shortcuts needing update: "        + this.app.numProcessedShortcuts     + NL
+         + "Shortcuts updated: "               + this.app.numUpdatedShortcuts       + NL
+         + "Shortcut files renamed: "          + this.app.numRenamedShortcuts       + NL
+         + "Shortcut-file rename collisions: " + this.app.numRenameCollisions       + NL
+         + "Shortcut-file renames skipped: "   + this.app.numRenameSkippedShortcuts + NL
+         + "Shortcuts skipped: "               + this.app.numSkippedShortcuts       + NL2
          + buildLogsLocationMessage();
   }
   
@@ -726,19 +726,19 @@ final class MoveWithShortcutsGui {
    */
   private void logFinalSummary() {
   
-    this.appContext.outUser(NL + "Total shortcuts to process :     " + this.app.numTotalShortcuts     + " .");
+    this.appContext.outUser(NL + "Total shortcuts to process :     "        + this.app.numTotalShortcuts        + " .");
     
-    this.appContext.outUser(NL + "Total shortcuts needing update : " + this.app.numProcessedShortcuts + " .");
+    this.appContext.outUser(NL + "Total shortcuts needing update : "        + this.app.numProcessedShortcuts    + " .");
     
-    this.appContext.outUser(NL + "Total shortcuts updated :        " + this.app.numUpdatedShortcuts   + " .");
+    this.appContext.outUser(NL + "Total shortcuts updated :        "        + this.app.numUpdatedShortcuts      + " .");
     
-    this.appContext.outUser(NL + "Total shortcut files renamed :   " + this.app.numRenamedShortcuts + " .");
+    this.appContext.outUser(NL + "Total shortcut files renamed :   "        + this.app.numRenamedShortcuts      + " .");
     
-    this.appContext.outUser(NL + "Total shortcut-file rename collisions : " + this.app.numRenameCollisions + " .");
+    this.appContext.outUser(NL + "Total shortcut-file rename collisions : " + this.app.numRenameCollisions      + " .");
     
-    this.appContext.outUser(NL + "Total shortcut-file renames skipped : " + this.app.numRenameSkippedShortcuts + " .");
+    this.appContext.outUser(NL + "Total shortcut-file renames skipped : "   + this.app.numRenameSkippedShortcuts + " .");
     
-    this.appContext.outUser(NL + "Total shortcuts skipped :        " + this.app.numSkippedShortcuts   + " .");
+    this.appContext.outUser(NL + "Total shortcuts skipped :        "        + this.app.numSkippedShortcuts       + " .");
   }
   
   /**
@@ -767,7 +767,7 @@ final class MoveWithShortcutsGui {
   private void showAbout() {
   
     showTextDialog("About " + MoveWithShortcutsMain.APP_NAME, buildAboutMessage()
-                 , JOptionPane.INFORMATION_MESSAGE);
+            , JOptionPane.INFORMATION_MESSAGE);
   }
   
   /**
@@ -780,7 +780,7 @@ final class MoveWithShortcutsGui {
     final ObjectAndDescr<String> version = AAppContext.getVersion(MoveWithShortcutsGuiMain.class);
     
     final String versionText = version.object != null ? version.object
-                               : version.description != null ? version.description : "unknown";
+                                                      : version.description != null ? version.description : "unknown";
                                
     final Package appPackage = MoveWithShortcutsGuiMain.class.getPackage();
     
@@ -848,7 +848,8 @@ final class MoveWithShortcutsGui {
    */
   private void showError(@NotNull Throwable e) {
   
-    JOptionPane.showMessageDialog(this.frame, getFullDescriptionWithRootCause(e) + NL2 + buildLogsLocationMessage()
+    JOptionPane.showMessageDialog(this.frame, getFullDescriptionWithRootCause(e) + NL2
+                                                                       + buildLogsLocationMessage()
                                          , "Error", JOptionPane.ERROR_MESSAGE);
   }
   
