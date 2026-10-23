@@ -22,6 +22,7 @@ import java.util.function.Function;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.string.TextUtilities.DQ;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.assertWindowsOS;
@@ -200,7 +201,7 @@ final class ExplorerContextMenu {
    */
   private static String escapeRegData(@NotBlank String value) {
   
-    return value.replace("\"", "\\\"");
+    return value.replace(DQ, "\\\"");
   }
   
   /**
