@@ -8,6 +8,7 @@ import application.AAppContext;
 import dfile.shortcut.IShortcutsUpdater;
 import dfile.shortcut.ShortcutFileNamePolicy;
 import dutil.exception.UserRequestedTermination;
+import dutil.system.OSUtilities;
 import dutil.value_holder.ObjectAndDescr;
 import jakarta.validation.constraints.NotNull;
 
@@ -21,6 +22,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -113,6 +116,11 @@ final class MoveWithShortcutsGui {
   private final JButton cancelButton;
   
   /**
+   * The button that shows the program information.
+   */
+  private final JButton aboutButton;
+  
+  /**
    * The progress bar shown while the operation runs.
    */
   private final JProgressBar progressBar;
@@ -177,7 +185,23 @@ final class MoveWithShortcutsGui {
     
     this.cancelButton = new JButton("Cancel");
     
+    this.aboutButton = new JButton("About");
+    
     this.progressBar = new JProgressBar();
+    
+    this.originalField.setToolTipText("The file or folder to move / rename, or the path it had before.");
+    
+    this.destinationField.setToolTipText("The new path, or the path it has now if the move was already done.");
+    
+    this.searchField.setToolTipText("The folder under which to search for shortcuts to update.");
+    
+    this.okButton.setToolTipText("Rename / move the file or folder and update the shortcuts (Enter).");
+    
+    this.cancelButton.setToolTipText("Close without performing the operation (Esc).");
+    
+    this.aboutButton.setToolTipText("Show program information.");
+    
+    this.progressBar.setToolTipText("Progress of the current operation.");
     
     this.progressReporter = assertNonNull(progressReporter);
     
@@ -213,6 +237,8 @@ final class MoveWithShortcutsGui {
     this.okButton.addActionListener(    e -> onOk());
     
     this.cancelButton.addActionListener(e -> cancel());
+    
+    this.aboutButton.addActionListener(e -> showAbout());
     
     this.frame.getRootPane().setDefaultButton(this.okButton);
     
@@ -287,12 +313,15 @@ final class MoveWithShortcutsGui {
     
     gbc.gridy = ZERO_i;
     
-    addPathRow(result, gbc, "Original",      this.originalField,    this::browseOriginal);
-    
-    addPathRow(result, gbc, "Destination",   this.destinationField, this::browseDestination);
-    
-    addPathRow(result, gbc, "Search folder", this.searchField,      this::browseSearch);
-    
+    addPathRow(result, gbc, "Original", this.originalField, this::browseOriginal
+             , "Browse for the original file or folder.");
+             
+    addPathRow(result, gbc, "Destination", this.destinationField, this::browseDestination
+             , "Browse for the destination path.");
+             
+    addPathRow(result, gbc, "Search folder", this.searchField, this::browseSearch
+             , "Browse for the search folder.");
+             
     return result;
   }
   
@@ -303,7 +332,13 @@ final class MoveWithShortcutsGui {
    */
   private JPanel createButtonsPanel() {
   
-    final JPanel result = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    final JPanel result = new JPanel(new BorderLayout());
+    
+    final JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    
+    leftPanel.add(this.aboutButton);
+    
+    final JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     
     this.progressBar.setIndeterminate(false);
     
@@ -313,11 +348,15 @@ final class MoveWithShortcutsGui {
     
     this.progressBar.setPreferredSize(new Dimension(260, 16));
     
-    result.add(this.progressBar);
+    rightPanel.add(this.progressBar);
     
-    result.add(this.okButton);
+    rightPanel.add(this.okButton);
     
-    result.add(this.cancelButton);
+    rightPanel.add(this.cancelButton);
+    
+    result.add(leftPanel, BorderLayout.WEST);
+    
+    result.add(rightPanel, BorderLayout.EAST);
     
     return result;
   }
@@ -333,10 +372,13 @@ final class MoveWithShortcutsGui {
    *
    * @param field The field.<br>
    *
-   * @param browseAction The action to run when the browse button is pressed.
+   * @param browseAction The action to run when the browse button is pressed.<br>
+   *
+   * @param browseTooltip The tooltip of the browse button.
    */
   private static void addPathRow(@NotNull JPanel        panel, @NotNull GridBagConstraints gbc, @NotNull String label
-                               , @NotNull PathTextField field, @NotNull Runnable           browseAction) {
+                               , @NotNull PathTextField field, @NotNull Runnable           browseAction
+                               , @NotNull String        browseTooltip) {
                                
     gbc.gridx = ZERO_i;
     
@@ -355,6 +397,8 @@ final class MoveWithShortcutsGui {
     gbc.weightx = 0.0;
     
     final JButton browseButton = new JButton("...");
+    
+    browseButton.setToolTipText(browseTooltip);
     
     browseButton.addActionListener(e -> browseAction.run());
     
@@ -461,7 +505,7 @@ final class MoveWithShortcutsGui {
       final int answer = JOptionPane.showConfirmDialog(this.frame, buildConfirmationMessage(request)
                                                               , "Confirm"
                                                           , JOptionPane.YES_NO_OPTION
-                                                         , JOptionPane.WARNING_MESSAGE);
+                                                         , JOptionPane.QUESTION_MESSAGE);
       if (answer == JOptionPane.YES_OPTION) {
       
         execute(request);
@@ -709,6 +753,86 @@ final class MoveWithShortcutsGui {
       result = "Logs written to: " + dq(getCanonicalPath(logFolder));
     }
     return result;
+  }
+  
+  /**
+   * Shows the program information.
+   */
+  private void showAbout() {
+  
+    showTextDialog("About " + MoveWithShortcutsMain.APP_NAME, buildAboutMessage()
+                 , JOptionPane.INFORMATION_MESSAGE);
+  }
+  
+  /**
+   * Builds the program information message.
+   *
+   * @return The message.
+   */
+  private static String buildAboutMessage() {
+  
+    final ObjectAndDescr<String> version = AAppContext.getVersion(MoveWithShortcutsGuiMain.class);
+    
+    final String versionText = version.object != null ? version.object
+                               : version.description != null ? version.description : "unknown";
+                               
+    final Package appPackage = MoveWithShortcutsGuiMain.class.getPackage();
+    
+    final String vendor = appPackage != null ? appPackage.getImplementationVendor() : null;
+    
+    final StringBuilder result = new StringBuilder();
+    
+    result.append(MoveWithShortcutsMain.APP_NAME).append(NL2);
+    
+    result.append(MoveWithShortcutsMain.APP_DESCR).append(NL2);
+    
+    result.append("Version: ").append(versionText).append(NL);
+    
+    if (isNotBlank(vendor)) {
+    
+      result.append("Vendor: ").append(vendor).append(NL);
+    }
+    result.append(NL);
+    
+    result.append(OSUtilities.getDescription()).append(NL2);
+    
+    result.append("Author: Davide Vecchi").append(NL);
+    
+    result.append("Copyright © 2026 Davide Vecchi").append(NL);
+    
+    result.append("GitHub: https://github.com/davide-vecchi/MoveWithShortcuts");
+    
+    return result.toString();
+  }
+  
+  /**
+   * Shows a scrollable, read-only text dialog.
+   *
+   * @param title The dialog title.<br>
+   *
+   * @param text The text to show.<br>
+   *
+   * @param messageType The {@link JOptionPane} message type.
+   */
+  private void showTextDialog(@NotNull String title, @NotNull String text, int messageType) {
+  
+    final JTextArea textArea = new JTextArea(text);
+    
+    textArea.setEditable(false);
+    
+    textArea.setLineWrap(true);
+    
+    textArea.setWrapStyleWord(true);
+    
+    textArea.setCaretPosition(ZERO_i);
+    
+    textArea.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    
+    final JScrollPane scrollPane = new JScrollPane(textArea);
+    
+    scrollPane.setPreferredSize(new Dimension(600, 300));
+    
+    JOptionPane.showMessageDialog(this.frame, scrollPane, title, messageType);
   }
   
   /**
