@@ -335,9 +335,8 @@ public class MoveWithShortcuts {
     
     final File originalFileOrFolder = resolveOriginalPath(argOriginalPath);
     
-    final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
-                                         resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
-                                         
+    final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder = resolveDestinationFileOrFolder(
+                                                                                argDestinationPath, originalFileOrFolder);
     final File searchFolder = resolveSearchFolder(argSearchPath);
     
     return new GuiMoveRequest(originalFileOrFolder, destinationFileOrFolder.o1
@@ -395,8 +394,8 @@ public class MoveWithShortcuts {
     assertNoneNull(shortcutsTargetUpdater, args, shortcutFileNamePolicy);
     
     final File originalFileOrFolder = args.wasGiven(MoveWithShortcutsMain.FROM_OPTION_NAME)
-                                      ? resolveOriginalPath(args.getFile(MoveWithShortcutsMain.FROM_OPTION_NAME)
-                                                                 .getPath())
+                                      ? resolveOriginalPath(
+                                            args.getFile(MoveWithShortcutsMain.FROM_OPTION_NAME).getPath())
                                       : askOriginalPathRepeatedly();
                                       
     final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
@@ -711,7 +710,6 @@ public class MoveWithShortcuts {
                                                + dq(originalFileOrFolder.      getPath()) + NL2T + "to *become*" + NL2T2
                                                + dq(destinationFileOrFolder.o1.getPath()) + NL2T + "and "
                                                                              : EMPTY;
-                                                                             
     final String msgRenameShortcutFiles = renamesShortcutFiles
                                           ? NL2T + "and renaming the shortcut files whose own names match the old name,"
                                           : EMPTY;
@@ -761,7 +759,6 @@ public class MoveWithShortcuts {
   private static @NotNull TwoObjects<@NotNull File, @NotNull Boolean> resolveDestinationFileOrFolder(
                                                                                      @NotBlank String argDestinationPath
                                                                                    , @NotNull  File   original) {
-                                                                                   
     final String effectiveNewName;
     
     if (hasParentInfo(assertNonBlankNorTrimmable(argDestinationPath))) {
@@ -954,6 +951,7 @@ public class MoveWithShortcuts {
     
     this.appContext.outUser(ONE_i, "Done.");
   }
+  
   /**
    * Retrieves all files under the given {@code searchFolder} tree that have the {@link OSUtilities#WIN_SHORTCUT_EXTENSION
    * extension} of Windows shortcut files.
