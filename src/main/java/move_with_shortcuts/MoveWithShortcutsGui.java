@@ -905,7 +905,7 @@ final class MoveWithShortcutsGui {
      * @throws HeadlessException If the dialog cannot be created in a headless environment.
      */
     @Override
-    protected JDialog createDialog(Component parent) throws HeadlessException {
+    protected JDialog createDialog(Component parent) {
     
       final JDialog result = super.createDialog(parent);
       
