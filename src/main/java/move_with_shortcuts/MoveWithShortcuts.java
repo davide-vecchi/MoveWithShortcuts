@@ -528,7 +528,7 @@ public class MoveWithShortcuts {
    *                                exclusively from this value, not by re-checking which path exists and which doesn't.</li></ul><br>
    *
    * @param searchFolder            The folder under which, <b>after</b> {@link #renameFileOrFolder performing} the
-   *                                rename / move, the existing shortcuts must be possibly have their targets updated.<br>
+   *                                rename / move, the existing shortcuts must possibly have their targets updated.<br>
    *
    * @param shortcutsTargetUpdater  The {@link IShortcutsUpdater shortcuts processor} to use to perform the updates of
    *                                the shortcuts' targets that need it.<br>
@@ -640,7 +640,7 @@ public class MoveWithShortcuts {
    *
    * @param searchFolder            The folder under which the shortcuts must be updated.<br>
    *
-   * @param shortcutsTargetUpdater  The {@link IShortcutsUpdater shortcuts processor} to use.
+   * @param shortcutsTargetUpdater  The {@link IShortcutsUpdater shortcuts updater} to use.
    */
   void execute(@NotNull File                      originalFileOrFolder
              , @NotNull TwoObjects<File, Boolean> destinationFileOrFolder
