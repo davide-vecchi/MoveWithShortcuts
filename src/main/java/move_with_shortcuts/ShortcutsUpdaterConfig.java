@@ -13,6 +13,7 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.util.Map;
 
+import static dfile.file.FileUtilities.calcPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
 import static dutil.properties.PropertiesUtilities.readProperties;
@@ -154,9 +155,9 @@ final class ShortcutsUpdaterConfig {
                                                                           : location.getParentFile().getParentFile();
               if (projectFolder != null) {
               
-                final File sourceFile = new File(projectFolder
-                                                , "src" + File.separator + "main" + File.separator + "resources"
-                                                         + File.separator + CONFIG_FILE_NAME);
+                final File sourceFile = new File(
+                                         projectFolder
+                                        , calcPath("src", "main", "resources", CONFIG_FILE_NAME));
                 if (sourceFile.isFile()) {
                 
                   result = sourceFile;
