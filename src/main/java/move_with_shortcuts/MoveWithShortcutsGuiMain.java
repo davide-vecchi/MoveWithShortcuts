@@ -15,6 +15,11 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.security.CodeSource;
 
 import static dlog.log.Log.writeLogsHeaders;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
@@ -54,15 +59,20 @@ public final class MoveWithShortcutsGuiMain {
     
     try {
     
-      final Log screenLog = new Log(APP_DESCR + " - screen log",    APP_NAME + "_screen-log.LOG", true);
+      final File logFolder = resolveGuiLogFolder();
       
-      final Log userLog =   new Log(APP_DESCR + " - user log",      APP_NAME + "_user-log.LOG",   true);
-      
-      final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
-      
+      final Log screenLog = new Log(APP_DESCR + " - screen log"
+                                  , logFileName(logFolder, APP_NAME + "_screen-log.LOG"), true);
+                                  
+      final Log userLog =   new Log(APP_DESCR + " - user log"
+                                  , logFileName(logFolder, APP_NAME + "_user-log.LOG"), true);
+                                  
+      final Log devLog =    new Log(APP_DESCR + " - developer log"
+                                  , logFileName(logFolder, APP_NAME + "_dev-log.LOG"), true);
+                                  
       final AAppContext appContext = AppContext.newAppContext(NeutralUserInputOutput.newInstance()
                                                                     , screenLog, userLog, devLog);
-                                                              
+                                                                    
       writeLogsHeaders(screenLog, userLog, devLog, APP_NAME, APP_DESCR);
       
       setSystemLookAndFeel();
@@ -71,7 +81,7 @@ public final class MoveWithShortcutsGuiMain {
       
       final IShortcutsUpdater updater = MoveWithShortcutsMain.selectShortcutsUpdaterForGui(appContext)
                                                              .newUpdater(appContext);
-                                                           
+                                                             
       SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext, updater, originalPath));
     }
     catch (Exception e) {
@@ -80,6 +90,109 @@ public final class MoveWithShortcutsGuiMain {
       
       System.exit(ONE_i);
     }
+  }
+  
+  /**
+   * Returns the folder where the GUI logs must be written : a {@code LOG} folder next to the JAR that contains this
+   * class, falling back to a per-user folder when that folder cannot be created.
+   *
+   * @return The log folder, or {@code null} when no folder can be created.
+   */
+  private static File resolveGuiLogFolder() {
+  
+    File result = null;
+    
+    final File appFolder = applicationFolder();
+    
+    if (appFolder != null) {
+    
+      final File appLogFolder = new File(appFolder, "LOG");
+      
+      if (ensureFolder(appLogFolder)) {
+      
+        result = appLogFolder;
+      }
+    }
+    if (result == null) {
+    
+      final String userHome = System.getProperty("user.home");
+      
+      if (userHome != null) {
+      
+        final File userLogFolder = new File(new File(userHome, "MoveWithShortcuts"), "LOG");
+        
+        if (ensureFolder(userLogFolder)) {
+        
+          result = userLogFolder;
+        }
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Returns the folder that contains the running JAR, or the class folder when running from an IDE.
+   *
+   * @return The application folder, or {@code null} when it cannot be determined.
+   */
+  private static File applicationFolder() {
+  
+    File result = null;
+    
+    final CodeSource codeSource = MoveWithShortcutsGuiMain.class.getProtectionDomain().getCodeSource();
+    
+    if (codeSource != null && codeSource.getLocation() != null) {
+    
+      try {
+      
+        final File location = new File(codeSource.getLocation().toURI());
+        
+        result = location.isFile() ? location.getParentFile() : location;
+      }
+      catch (URISyntaxException e) {
+      
+        result = null;
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Creates the given folder if needed and tells whether it is a writable folder.
+   *
+   * @param folder The folder to ensure.
+   *
+   * @return Whether the folder exists and is writable.
+   */
+  private static boolean ensureFolder(@NotNull File folder) {
+  
+    boolean result;
+    
+    try {
+    
+      Files.createDirectories(folder.toPath());
+      
+      result = folder.isDirectory() && folder.canWrite();
+    }
+    catch (IOException e) {
+    
+      result = false;
+    }
+    return result;
+  }
+  
+  /**
+   * Returns the path to use for one GUI log file.
+   *
+   * @param logFolder The log folder, or {@code null} to use a bare file name.<br>
+   *
+   * @param fileName The log file name.
+   *
+   * @return The log file path.
+   */
+  private static String logFileName(File logFolder, @NotNull String fileName) {
+  
+    return logFolder == null ? fileName : new File(logFolder, fileName).getPath();
   }
   
   /**
@@ -117,7 +230,7 @@ public final class MoveWithShortcutsGuiMain {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-         
+    
       // Keep the default look and feel.
     }
   }

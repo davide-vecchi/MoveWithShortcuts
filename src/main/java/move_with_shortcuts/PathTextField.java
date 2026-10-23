@@ -7,9 +7,14 @@ package move_with_shortcuts;
 import jakarta.validation.constraints.NotNull;
 
 import javax.swing.JTextField;
-import javax.swing.TransferHandler;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serial;
@@ -23,7 +28,8 @@ import static dfile.file.FileUtilities.getCanonicalPath;
 
 /**
  * A text field that accepts files and folders dropped from Windows Explorer, setting the dropped item's full path as
- * its text.
+ * its text. It keeps the standard text-field transfer handler, so the clipboard actions and the context menu work as
+ * usual.
  */
 final class PathTextField extends JTextField {
 
@@ -43,74 +49,104 @@ final class PathTextField extends JTextField {
   }
   
   /**
-   * Private constructor. Installs the drop handler.
+   * Private constructor. Installs the drop target.
    */
   private PathTextField() {
   
     super();
     
-    setTransferHandler(new PathTransferHandler());
+    new DropTarget(this, DnDConstants.ACTION_COPY, new PathDropTargetListener(), true);
   }
   
   
   /**
-   * Transfer handler that accepts the first file or folder of a dropped file list.
+   * Drop target listener that accepts the first file or folder of a dropped file list.
    */
-  private final class PathTransferHandler extends TransferHandler {
+  private final class PathDropTargetListener extends DropTargetAdapter {
   
   
-    @Serial
-    private static final long serialVersionUID = 1L;
-    
-    
     /**
-     * Tells whether the transfer can be imported as a dropped file or folder.
+     * Accepts or rejects the drag when it enters this field.
      *
-     * @param support The transfer support.
-     *
-     * @return Whether the transfer can be imported.
+     * @param dtde The drag event.
      */
     @Override
-    public boolean canImport(@NotNull TransferSupport support) {
+    public void dragEnter(@NotNull DropTargetDragEvent dtde) {
     
-      return support.isDrop() && support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+      acceptOrReject(dtde);
+    }
+    
+    /**
+     * Accepts or rejects the drag while it is over this field.
+     *
+     * @param dtde The drag event.
+     */
+    @Override
+    public void dragOver(@NotNull DropTargetDragEvent dtde) {
+    
+      acceptOrReject(dtde);
     }
     
     /**
      * Sets this field's text to the full path of the first dropped file or folder.
      *
-     * @param support The transfer support.
-     *
-     * @return Whether the transfer was imported.
+     * @param dtde The drop event.
      */
     @Override
     @SuppressWarnings("unchecked")
-    public boolean importData(@NotNull TransferSupport support) {
+    public void drop(@NotNull DropTargetDropEvent dtde) {
     
-      boolean result = false;
+      if (! dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
       
-      if (canImport(support)) {
+        dtde.rejectDrop();
+      }
+      else {
       
+        dtde.acceptDrop(DnDConstants.ACTION_COPY);
+        
+        boolean success = false;
+        
         try {
         
-          final List<File> files = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                                                      
+          final Transferable transferable = dtde.getTransferable();
+          
+          final List<File> files = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+          
           if (! files.isEmpty()) {
           
             final PathTextField target = PathTextField.this;
             
             target.setText(getCanonicalPath(files.getFirst()));
             
-            result = true;
+            success = true;
           }
         }
         catch (UnsupportedFlavorException | IOException e) {
         
-          // Do nothing, result stays false.
+          success = false;
+        }
+        finally {
+        
+          dtde.dropComplete(success);
         }
       }
-      return result;
+    }
+    
+    /**
+     * Accepts the drag as a copy when it carries a file list, and rejects it otherwise.
+     *
+     * @param dtde The drag event.
+     */
+    private void acceptOrReject(@NotNull DropTargetDragEvent dtde) {
+    
+      if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+      
+        dtde.acceptDrag(DnDConstants.ACTION_COPY);
+      }
+      else {
+      
+        dtde.rejectDrag();
+      }
     }
   }
-  
 }

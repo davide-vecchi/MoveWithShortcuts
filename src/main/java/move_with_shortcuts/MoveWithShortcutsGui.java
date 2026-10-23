@@ -33,7 +33,6 @@ import java.io.File;
 import java.util.concurrent.ExecutionException;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
-import static dfile.file.FileUtilities.getCurrentFolder;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
@@ -52,6 +51,12 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 final class MoveWithShortcutsGui {
 
 
+  /**
+   * The factor by which the dialog's preferred width is enlarged.
+   */
+  private static final double WIDER_FRAME_FACTOR = 1.3;
+  
+  
   /**
    * The application context to use for logging.
    */
@@ -168,7 +173,7 @@ final class MoveWithShortcutsGui {
       
       this.destinationField.setText(originalPath);
     }
-    this.searchField.setText(getCurrentFolder());
+    this.searchField.setText(MoveWithShortcutsGuiController.defaultSearchPath(originalPath));
   }
   
   /**
@@ -199,7 +204,11 @@ final class MoveWithShortcutsGui {
     
     this.frame.pack();
     
-    this.frame.setMinimumSize(this.frame.getPreferredSize());
+    final Dimension preferredSize = this.frame.getSize();
+    
+    this.frame.setMinimumSize(preferredSize);
+    
+    this.frame.setSize((int) Math.round(preferredSize.width * WIDER_FRAME_FACTOR), preferredSize.height);
     
     this.frame.setLocationRelativeTo(null);
     
@@ -291,6 +300,7 @@ final class MoveWithShortcutsGui {
    */
   private static void addPathRow(@NotNull JPanel        panel, @NotNull GridBagConstraints gbc, @NotNull String label
                                , @NotNull PathTextField field, @NotNull Runnable           browseAction) {
+                               
     gbc.gridx = ZERO_i;
     
     gbc.weightx = 0.0;
@@ -321,7 +331,8 @@ final class MoveWithShortcutsGui {
    */
   private void browseOriginal() {
   
-    browse(this.originalField, JFileChooser.FILES_AND_DIRECTORIES, "Select the file or folder to move / rename");
+    browse(this.originalField, JFileChooser.FILES_AND_DIRECTORIES
+         , "Select the file or folder to move / rename", true);
   }
   
   /**
@@ -329,7 +340,7 @@ final class MoveWithShortcutsGui {
    */
   private void browseDestination() {
   
-    browse(this.destinationField, JFileChooser.FILES_AND_DIRECTORIES, "Select the new path");
+    browse(this.destinationField, JFileChooser.FILES_AND_DIRECTORIES, "Select the new path", true);
   }
   
   /**
@@ -337,7 +348,8 @@ final class MoveWithShortcutsGui {
    */
   private void browseSearch() {
   
-    browse(this.searchField, JFileChooser.DIRECTORIES_ONLY, "Select the folder to scan for shortcuts");
+    browse(this.searchField, JFileChooser.DIRECTORIES_ONLY
+         , "Select the folder to scan for shortcuts", false);
   }
   
   /**
@@ -347,16 +359,27 @@ final class MoveWithShortcutsGui {
    *
    * @param selectionMode The {@link JFileChooser} selection mode.<br>
    *
-   * @param title The chooser's title.
+   * @param title The chooser's title.<br>
+   *
+   * @param showFileTypeFilter Whether to show the "Files of type" filter list.
    */
-  private void browse(@NotNull PathTextField field, int selectionMode, @NotNull String title) {
-  
+  private void browse(@NotNull PathTextField field, int selectionMode, @NotNull String title
+                    , boolean showFileTypeFilter) {
+                    
     final JFileChooser chooser = new JFileChooser();
     
     chooser.setDialogTitle(title);
     
     chooser.setFileSelectionMode(selectionMode);
     
+    chooser.setApproveButtonText("Select");
+    
+    chooser.setApproveButtonToolTipText("Select");
+    
+    if (! showFileTypeFilter) {
+    
+      chooser.setAcceptAllFileFilterUsed(false);
+    }
     final String currentText = field.getText().trim();
     
     if (! currentText.isEmpty()) {
@@ -424,8 +447,8 @@ final class MoveWithShortcutsGui {
                              + " be updated.";
                              
     return operation + NL2
-                 + "Original: "      + dq(getCanonicalPath(             request.originalFileOrFolder()))    + NL
-                 + "Destination: "   + dq(getCanonicalPath(             request.destinationFileOrFolder())) + NL
+                 + "Original: "      + dq(getCanonicalPath(             request.originalFileOrFolder()))    + NL2
+                 + "Destination: "   + dq(getCanonicalPath(             request.destinationFileOrFolder())) + NL2
                  + "Search folder: " + dq(getCanonicalPath(request.searchFolder()))            + NL2
                  + "Continue?";
   }
@@ -544,7 +567,28 @@ final class MoveWithShortcutsGui {
          + "Shortcut files renamed: " + this.app.numRenamedShortcuts + NL
          + "Shortcut-file rename collisions: " + this.app.numRenameCollisions + NL
          + "Shortcut-file renames skipped: " + this.app.numRenameSkippedShortcuts + NL
-         + "Shortcuts skipped: " + this.app.numSkippedShortcuts;
+         + "Shortcuts skipped: " + this.app.numSkippedShortcuts + NL2
+         + buildLogsLocationMessage();
+  }
+  
+  /**
+   * Builds the message that tells where the logs were written.
+   *
+   * @return The message.
+   */
+  private String buildLogsLocationMessage() {
+  
+    String result = "Logs: not written to files.";
+    
+    if (this.appContext.userLog != null && this.appContext.userLog.logFile != null) {
+    
+      final File logFile = this.appContext.userLog.logFile;
+      
+      final File logFolder = logFile.getParentFile() == null ? logFile : logFile.getParentFile();
+      
+      result = "Logs written to: " + dq(getCanonicalPath(logFolder));
+    }
+    return result;
   }
   
   /**
@@ -554,7 +598,7 @@ final class MoveWithShortcutsGui {
    */
   private void showError(@NotNull Throwable e) {
   
-    JOptionPane.showMessageDialog(this.frame,  getFullDescriptionWithRootCause(e)
+    JOptionPane.showMessageDialog(this.frame, getFullDescriptionWithRootCause(e) + NL2 + buildLogsLocationMessage()
                                          , "Error", JOptionPane.ERROR_MESSAGE);
   }
   

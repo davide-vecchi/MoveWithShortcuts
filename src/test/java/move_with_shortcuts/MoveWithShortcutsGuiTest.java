@@ -20,6 +20,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+import static dfile.file.FileUtilities.getCanonicalPath;
+
 
 // @formatter:off
 
@@ -314,6 +316,61 @@ public class MoveWithShortcutsGuiTest {
     Assert.assertNotNull(built.description);
     
     Assert.assertNull(built.object);
+  }
+  
+  /**
+   * Tests that the default search path is the user's home folder when no original path is given.
+   */
+  @Test
+  void defaultSearchPathUsesUserHomeWhenNoOriginal() {
+  
+    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath(null), System.getProperty("user.home"));
+    
+    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath("  "), System.getProperty("user.home"));
+  }
+  
+  /**
+   * Tests that the default search path is the parent folder of a selected file.
+   *
+   * @throws IOException If the test file cannot be created.
+   */
+  @Test
+  void defaultSearchPathUsesParentOfFile() throws IOException {
+  
+    final File folder = newFolder("searchFileParent");
+    
+    final File file = new File(folder, "file.txt");
+    
+    Files.writeString(file.toPath(), "content");
+    
+    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath(file.getPath()), getCanonicalPath(folder));
+  }
+  
+  /**
+   * Tests that the default search path is the parent folder of a selected folder.
+   *
+   * @throws IOException If the test folder cannot be created.
+   */
+  @Test
+  void defaultSearchPathUsesParentOfFolder() throws IOException {
+  
+    final File folder = newFolder("searchFolderParent");
+    
+    final File child = new File(folder, "child");
+    
+    Files.createDirectories(child.toPath());
+    
+    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath(child.getPath()), getCanonicalPath(folder));
+  }
+  
+  /**
+   * Tests that the default search path falls back to the user's home folder when the path has no parent.
+   */
+  @Test
+  void defaultSearchPathUsesUserHomeForPathWithoutParent() {
+  
+    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath("relative.txt")
+                      , System.getProperty("user.home"));
   }
   
   /**
