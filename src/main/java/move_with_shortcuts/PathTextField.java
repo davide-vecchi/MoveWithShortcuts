@@ -99,7 +99,7 @@ final class PathTextField extends JTextField {
           
             final PathTextField target = PathTextField.this;
             
-            target.setText(getCanonicalPath(files.get(0)));
+            target.setText(getCanonicalPath(files.getFirst()));
             
             result = true;
           }
