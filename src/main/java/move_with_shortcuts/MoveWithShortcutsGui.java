@@ -36,6 +36,7 @@ import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCurrentFolder;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.dq;
@@ -127,9 +128,9 @@ final class MoveWithShortcutsGui {
   private MoveWithShortcutsGui(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater
                              , String originalPath) {
                              
-    this.appContext = appContext;
+    this.appContext = assertNonNull(appContext);
     
-    this.updater = updater;
+    this.updater =    assertNonNull(updater);
     
     this.app = MoveWithShortcuts.newInstance(appContext);
     

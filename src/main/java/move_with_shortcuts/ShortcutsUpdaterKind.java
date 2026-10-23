@@ -14,6 +14,8 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.function.Function;
 
+import static dutil.object.ObjectUtilities.assertNonNull;
+import static dutil.string.TextUtilities.assertNonBlank;
 import static dutil.string.TextUtilities.dq;
 
 
@@ -44,8 +46,9 @@ enum ShortcutsUpdaterKind {
    */
   ShortcutsUpdaterKind(@NotBlank String id, @NotNull Function<AAppContext, IShortcutsUpdater> factory) {
   
-    this.id = id;
-    this.factory = factory;
+    this.id =      assertNonBlank(id);
+    
+    this.factory = assertNonNull(   factory);
   }
   
   
