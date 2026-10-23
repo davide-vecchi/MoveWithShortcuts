@@ -19,6 +19,7 @@ import static dutil.properties.PropertiesUtilities.readProperties;
 import static dutil.properties.PropertiesUtilities.toMap;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2T;
+import static dutil.string.TextUtilities.SLASH;
 import static dutil.string.TextUtilities.dq;
 
 
@@ -42,6 +43,48 @@ final class ShortcutsUpdaterConfig {
   
   
   /**
+   * Reads the configuration parameters from the configuration file.
+   *
+   * @param appContext The application context to use for logging and warnings.
+   *
+   * @return The populated and validated parameters, or {@code null} if there is no usable configuration file.
+   */
+  static MoveWithShortcutsParams readConfiguredParams(@NotNull AAppContext appContext) {
+  
+    final File configFile = findConfigFile();
+    
+    MoveWithShortcutsParams result = null;
+    
+    if (configFile != null) {
+    
+      try {
+      
+        final Map<String, String> configurationMap = toMap(readProperties(getCanonicalPath(
+                                                                                       configFile)));
+        if (! configurationMap.isEmpty()) {
+        
+          final MoveWithShortcutsParams params = new MoveWithShortcutsParams(
+                                                                        configurationMap
+                                                          , "Configuration file "
+                                                                         + dq(getCanonicalPathAsDescr(configFile))
+                                                                       , appContext.devLog);
+          params.populate();
+          
+          params.validate();
+          
+          result = params;
+        }
+      }
+      catch (RuntimeException e) {
+      
+        appContext.warnUser(NL + "Could not use the configuration file " + dq(getCanonicalPathAsDescr(configFile))
+                                       + " : " + e.getLocalizedMessage() + NL2T + "Using the default values.");
+      }
+    }
+    return result;
+  }
+  
+  /**
    * Returns the shortcuts updater ID configured in the configuration file, or {@code null} if there is no usable
    * configuration file.
    *
@@ -51,36 +94,24 @@ final class ShortcutsUpdaterConfig {
    */
   static String readConfiguredUpdaterId(@NotNull AAppContext appContext) {
   
-    final File configFile = findConfigFile();
+    final MoveWithShortcutsParams params = readConfiguredParams(appContext);
     
-    if (configFile == null) {
+    return params == null ? null : params.getShortcutsUpdaterId();
+  }
+  
+  /**
+   * Tells whether the configuration file enables the Windows Explorer context-menu integration, defaulting to {@code
+   * true} when there is no usable configuration file.
+   *
+   * @param appContext The application context to use for logging and warnings.
+   *
+   * @return Whether the integration is enabled.
+   */
+  static boolean readCreateContextMenu(@NotNull AAppContext appContext) {
+  
+    final MoveWithShortcutsParams params = readConfiguredParams(appContext);
     
-      return null;
-    }
-    try {
-    
-      final Map<String, String> configurationMap = toMap(readProperties(getCanonicalPath(configFile)));
-      
-      if (configurationMap.isEmpty()) {
-      
-        return null;
-      }
-      final MoveWithShortcutsParams params = new MoveWithShortcutsParams(configurationMap
-                                                                     , "Configuration file "
-                                                                       + dq(getCanonicalPathAsDescr(configFile))
-                                                                     , appContext.devLog);
-      params.populate();
-      params.validate();
-      
-      return params.getShortcutsUpdaterId();
-    }
-    catch (RuntimeException e) {
-    
-      appContext.warnUser(NL + "Could not use the configuration file " + dq(getCanonicalPathAsDescr(configFile))
-                              + " : " + e.getLocalizedMessage() + NL2T
-                              + "Using the default shortcuts updater.");
-      return null;
-    }
+    return params == null || params.isCreateContextMenu();
   }
   
   /**
@@ -106,7 +137,7 @@ final class ShortcutsUpdaterConfig {
           
           if (location.isDirectory()) {
           
-            final URL resource = ShortcutsUpdaterConfig.class.getResource("/" + CONFIG_FILE_NAME);
+            final URL resource = ShortcutsUpdaterConfig.class.getResource(SLASH + CONFIG_FILE_NAME);
             
             if (resource != null) {
             
@@ -124,9 +155,9 @@ final class ShortcutsUpdaterConfig {
                                          
               if (projectFolder != null) {
               
-                final File sourceFile = new File(projectFolder, "src" + File.separator + "main" + File.separator
-                                                            + "resources" + File.separator + CONFIG_FILE_NAME);
-                                                            
+                final File sourceFile = new File(projectFolder
+                                                , "src" + File.separator + "main" + File.separator + "resources"
+                                                         + File.separator + CONFIG_FILE_NAME);
                 if (sourceFile.isFile()) {
                 
                   result = sourceFile;
@@ -151,7 +182,7 @@ final class ShortcutsUpdaterConfig {
         }
         catch (URISyntaxException e) {
         
-          result = null;
+          // Do nothing, result stays null;
         }
       }
     }

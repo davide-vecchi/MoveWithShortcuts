@@ -9,12 +9,15 @@ import dparam.AParams;
 import dparam.ParamMono;
 import dparam.pvdc.change_loader.AValueChangeTextReader;
 import dparam.pvdc.change_loader.EmptyValueChangeTextReader;
+import dutil.string.value_parser.BooleanStringParser;
 import dutil.string.value_parser.NeutralStringParser;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.io.Serial;
 import java.util.Map;
+
+import static java.lang.Boolean.TRUE;
 
 
 /**
@@ -32,10 +35,22 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   static final String SHORTCUTS_UPDATER_PARAM_NAME = "ShortcutsUpdater";
   
   /**
+   * The name of the parameter that enables or disables the Windows Explorer context-menu integration.
+   */
+  static final String CREATE_CONTEXT_MENU_PARAM_NAME = "CreateContextMenu";
+  
+  /**
    * The shortcuts updater implementation ID, or the default if the parameter is missing.
    */
   @Getter
   private final ParamMono<Object, String> shortcutsUpdater;
+  
+  /**
+   * Whether MWS must create or update the Windows Explorer context-menu integration at startup, or the default if the
+   * parameter is missing.
+   */
+  @Getter
+  private final ParamMono<Object, Boolean> createContextMenu;
   
   
   /**
@@ -50,6 +65,8 @@ final class MoveWithShortcutsParams extends AParams<Object> {
     super(configurationMap, null, sourceDescr, log);
     
     this.shortcutsUpdater = new ParamMono<>(this, SHORTCUTS_UPDATER_PARAM_NAME);
+    
+    this.createContextMenu = new ParamMono<>(this, CREATE_CONTEXT_MENU_PARAM_NAME);
   }
   
   
@@ -61,6 +78,9 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   
     this.shortcutsUpdater.setValueParser(new NeutralStringParser())
                         .loadOptionalValue(ShortcutsUpdaterKind.defaultKind().getId());
+                        
+    this.createContextMenu.setValueParser(new BooleanStringParser())
+                          .loadOptionalValue(TRUE);
   }
   
   /**
@@ -89,5 +109,15 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   String getShortcutsUpdaterId() {
   
     return this.shortcutsUpdater.value;
+  }
+  
+  /**
+   * Tells whether MWS must create or update the Windows Explorer context-menu integration at startup.
+   *
+   * @return Whether the integration must be created or updated.
+   */
+  boolean isCreateContextMenu() {
+  
+    return this.createContextMenu.value.booleanValue();
   }
 }

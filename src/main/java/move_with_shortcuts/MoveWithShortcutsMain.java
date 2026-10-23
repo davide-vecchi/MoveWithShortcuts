@@ -16,6 +16,7 @@ import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
 import dutil.io.ConditionallyCloseablePrintStream;
 import dutil.system.OSUtilities;
+import dutil.value_holder.ObjectAndDescr;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
@@ -77,6 +78,7 @@ public final class MoveWithShortcutsMain {
   static final String FROM_OPTION_NAME      = "from";
   static final String TO_OPTION_NAME        = "to";
   static final String SEARCH_OPTION_NAME    = "search";
+  static final String CREATE_CONTEXT_MENU_OPTION_NAME = "create-context-menu";
   private static final String VERBOSITY_OPTION_NAME = "verbosity";
   private static final String SHORTCUT_FILE_NAME_OPTION_NAME = "shortcut-file-name";
   static final String SHORTCUTS_UPDATER_OPTION_NAME = "shortcuts-updater";
@@ -88,8 +90,8 @@ public final class MoveWithShortcutsMain {
    * @param originalArgs The command line args, as named options :
    *                     {@code -from <file or folder path> -to <value> -search <folder path>}
    *                     {@code [-verbosity <int>] [-shortcut-file-name <never|exact|descendant>]}
-   *                     {@code [-shortcuts-updater <id>] [-help]} ; zero args
-   *                     start the interactive mode.
+   *                     {@code [-shortcuts-updater <id>] [-create-context-menu <true|false>]}
+   *                     {@code [-help]} ; zero args start the interactive mode.
    */
   public static void main(String[] originalArgs) throws Exception {
   
@@ -140,6 +142,8 @@ public final class MoveWithShortcutsMain {
                                                     : ShortcutFileNamePolicy.NEVER;
                                                     
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
+          
+          installOrUpdateContextMenuIfEnabled(args, ac);
           
           
           // -------------------------------------------------------
@@ -231,6 +235,12 @@ public final class MoveWithShortcutsMain {
                                                        , "The shortcuts updater implementation to use. Default: "
                                                        + ShortcutsUpdaterKind.defaultKind().getId() + ".")
                                                .allowedValues(ShortcutsUpdaterKind.ids()))
+                           .addOption(OptionSpec.option(CREATE_CONTEXT_MENU_OPTION_NAME
+                                                       , "Whether to create or update the Windows Explorer"
+                                                       + " right-click context-menu integration at startup"
+                                                       + " (default true).")
+                                               .allowedValues("true", "false")
+                                               .defaultValue("true"))
                            .addOption(OptionSpec.option(VERBOSITY_OPTION_NAME
                                                        , "The verbosity level (0-" + MAX_VERBOSITY + ")")
                                                .intRange(ZERO_i, MAX_VERBOSITY).defaultValue(S(DEFAULT_VERBOSITY)));
@@ -312,6 +322,35 @@ public final class MoveWithShortcutsMain {
   }
   
   /**
+   * Creates or updates the Windows Explorer context-menu integration when it is enabled, and tells the user when it
+   * was created or updated.
+   *
+   * @param args The parsed arguments, or {@code null} in zero-arg mode.<br>
+   *
+   * @param appContext The application context to use for the configuration and the messages.
+   */
+  private static void installOrUpdateContextMenuIfEnabled(ParsedArgs args, @NotNull AAppContext appContext) {
+  
+    final boolean enabled = args != null && args.wasGiven(CREATE_CONTEXT_MENU_OPTION_NAME)
+                            ? Boolean.parseBoolean(args.getString(CREATE_CONTEXT_MENU_OPTION_NAME))
+                            : ShortcutsUpdaterConfig.readCreateContextMenu(appContext);
+                            
+    if (enabled) {
+    
+      final ObjectAndDescr<Boolean> outcome = ExplorerContextMenu.installOrUpdate(appContext);
+      
+      if (outcome.description != null) {
+      
+        appContext.warnUser(NL + outcome.description);
+      }
+      else if (outcome.object != null && outcome.object.booleanValue()) {
+      
+        appContext.outUser(ONE_i, NL + ExplorerContextMenu.INSTALLED_MESSAGE);
+      }
+    }
+  }
+  
+  /**
    * Selects the shortcuts updater implementation : command line, then configuration file, then an interactive prompt
    * (zero-arg mode only), then the default.
    *
@@ -328,24 +367,64 @@ public final class MoveWithShortcutsMain {
     
       return ShortcutsUpdaterKind.parse(args.getString(SHORTCUTS_UPDATER_OPTION_NAME));
     }
-    final String configuredId = ShortcutsUpdaterConfig.readConfiguredUpdaterId(appContext);
+    final ShortcutsUpdaterKind configuredKind = configuredUpdaterOrNull(appContext);
     
-    if (configuredId != null && ! configuredId.isBlank()) {
+    if (configuredKind != null) {
     
-      try {
-      
-        return ShortcutsUpdaterKind.parse(configuredId);
-      }
-      catch (IllegalArgumentException e) {
-      
-        appContext.warnUser(NL + e.getLocalizedMessage() + NL2T + "Using the default shortcuts updater.");
-      }
+      return configuredKind;
     }
     if (args == null && ShortcutsUpdaterKind.ids().length > ONE_i) {
     
       return askShortcutsUpdater(appContext);
     }
     return ShortcutsUpdaterKind.defaultKind();
+  }
+  
+  /**
+   * Selects the shortcuts updater implementation for the GUI : the configured one, or the default. It never prompts,
+   * because the GUI has no console.
+   *
+   * @param appContext The application context to use for the configuration and warnings.
+   *
+   * @return The selected kind.
+   */
+  static ShortcutsUpdaterKind selectShortcutsUpdaterForGui(@NotNull AAppContext appContext) {
+  
+    ShortcutsUpdaterKind result = configuredUpdaterOrNull(appContext);
+    
+    if (result == null) {
+    
+      result = ShortcutsUpdaterKind.defaultKind();
+    }
+    return result;
+  }
+  
+  /**
+   * Returns the shortcuts updater implementation selected in the configuration file, or {@code null} when it is
+   * missing or invalid.
+   *
+   * @param appContext The application context to use for the configuration and warnings.
+   *
+   * @return The configured kind, or {@code null}.
+   */
+  private static ShortcutsUpdaterKind configuredUpdaterOrNull(@NotNull AAppContext appContext) {
+  
+    final String configuredId = ShortcutsUpdaterConfig.readConfiguredUpdaterId(appContext);
+    
+    ShortcutsUpdaterKind result = null;
+    
+    if (configuredId != null && ! configuredId.isBlank()) {
+    
+      try {
+      
+        result = ShortcutsUpdaterKind.parse(configuredId);
+      }
+      catch (IllegalArgumentException e) {
+      
+        appContext.warnUser(NL + e.getLocalizedMessage() + NL2T + "Using the default shortcuts updater.");
+      }
+    }
+    return result;
   }
   
   /**

@@ -312,6 +312,67 @@ public class MoveWithShortcuts {
   }
   
   /**
+   * Resolves and validates the paths entered in the GUI.
+   *
+   * @param argOriginalPath The path of the file or folder to rename / move, or the path it had before.<br>
+   *
+   * @param argDestinationPath The new name or path, or the path it has now.<br>
+   *
+   * @param argSearchPath The folder to scan for shortcuts.
+   *
+   * @return The validated request.
+   *
+   * @throws MissingExternalValueException If a required path does not exist.<br>
+   *
+   * @throws InvalidExternalValueException If a path exists but has the wrong type.<br>
+   *
+   * @throws NonUniqueExternalValueException If the destination is the same as the original.
+   */
+  static GuiMoveRequest resolveGuiRequest(@NotBlank String argOriginalPath, @NotBlank String argDestinationPath
+                                        , @NotBlank String argSearchPath) {
+                                        
+    assertNoneBlankNorTrimmable(argOriginalPath, argDestinationPath, argSearchPath);
+    
+    final File originalFileOrFolder = resolveOriginalPath(argOriginalPath);
+    
+    final TwoObjects<@NotNull File, @NotNull Boolean> destinationFileOrFolder =
+                                         resolveDestinationFileOrFolder(argDestinationPath, originalFileOrFolder);
+                                         
+    final File searchFolder = resolveSearchFolder(argSearchPath);
+    
+    return new GuiMoveRequest(originalFileOrFolder, destinationFileOrFolder.o1
+                            , destinationFileOrFolder.o2.booleanValue(), searchFolder);
+  }
+  
+  /**
+   * Runs the rename / move and the shortcuts update for a validated GUI request, without asking for confirmation on
+   * the console.
+   *
+   * @param shortcutsTargetUpdater The updater to use.<br>
+   *
+   * @param request The validated request.<br>
+   *
+   * @param shortcutFileNamePolicy The selected shortcut-file name policy.
+   *
+   * @throws IOException If the rename / move operation fails.<br>
+   *
+   * @throws UserRequestedTermination If the user interrupts the shortcuts update.
+   */
+  void runGui(@NotNull IShortcutsUpdater shortcutsTargetUpdater, @NotNull GuiMoveRequest request
+            , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy) throws IOException, UserRequestedTermination {
+            
+    assertWindowsOS();
+    
+    assertNoneNull(shortcutsTargetUpdater, request, shortcutFileNamePolicy);
+    
+    this.askBeforeProcessingShortcuts = false;
+    
+    execute(request.originalFileOrFolder()
+          , new TwoObjects<>(request.destinationFileOrFolder(), B(request.mustMove()))
+          , request.searchFolder(), shortcutsTargetUpdater, shortcutFileNamePolicy);
+  }
+  
+  /**
    * Runs the program using the given partially parsed arguments : resolves the given required options and asks the user
    * only for the missing ones, then asks for confirmation and executes.
    *

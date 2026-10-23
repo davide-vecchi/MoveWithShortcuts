@@ -36,7 +36,7 @@ optional options use their defaults. Zero arguments keep the fully interactive f
 In alternative, it can be started with named options :
 
 ```
-MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder path> [-verbosity <0-2>] [-shortcut-file-name <never|exact|descendant>] [-shortcuts-updater <id>] [-help]
+MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder path> [-verbosity <0-2>] [-shortcut-file-name <never|exact|descendant>] [-shortcuts-updater <id>] [-create-context-menu <true|false>] [-help]
 ```
 
 1. `-from` : The path of the file or folder to rename / move, or the path it had before if the operation was already
@@ -76,7 +76,11 @@ MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder pat
    `ps-scripts-multi` is available; it is the default. A configuration file can set it too, and the command line
    overrides the configuration file.
    
-7. `-help` : Prints the usage text and exits.
+7. `-create-context-menu` (optional) : Whether to create or update the Windows Explorer right-click context-menu
+   integration at startup, `true` or `false`, default `true`. A configuration file can set it too, and the command line
+   overrides the configuration file.
+   
+8. `-help` : Prints the usage text and exits.
 
 Wrap paths that contain spaces in double quotes. A value that is itself an option name (e.g. a file literally named
 `-from`) must be attached to its option with `=`, as in `-to=-from`.
@@ -90,15 +94,37 @@ java -jar MoveWithShortcuts.jar -from "C:\Old Name.txt" -to "C:\New Name.txt" -s
 
 ### Configuration file
 
-MWS reads an optional `MoveWithShortcuts-Config.TXT` through DParam. The only parameter is :
+MWS reads an optional `MoveWithShortcuts-Config.TXT` through DParam. The parameters are :
 
 ```
 ShortcutsUpdater = ps-scripts-multi
+
+CreateContextMenu = true
 ```
 
 When running from the IDE, the file is read from `src/main/resources`. For the deployed JAR, place it next to
-`MoveWithShortcuts.jar` (in `C:\MoveWithShortcuts\`). If the file or the parameter is missing, the default is used;
+`MoveWithShortcuts.jar` (in `C:\MoveWithShortcuts\`). If the file or a parameter is missing, the default is used;
 an invalid value is reported and the default is used. The command-line option wins over the configuration file.
+
+### Windows Explorer integration
+
+MWS installs a per-user Windows Explorer right-click context-menu entry named `Move/rename with MWS`, both for files
+and for folders. It requires no administrator rights. Selecting the entry opens a Swing dialog prefilled with the
+selected item's path, so the paths can be corrected, browsed or dropped into their fields instead of being typed.
+
+The first time MWS starts, it installs (or updates) the Windows Explorer context-menu integration automatically. If
+you only want to install the integration without performing a move, start MWS once with no arguments and cancel at the
+first interactive question: the registry keys are created at startup, before any operation. If the new context-menu
+entry does not appear, refresh or restart Windows Explorer; restarting MWS is not required.
+
+On Windows 11 the entry appears under **Show more options**.
+
+To open the same dialog without a selected item (for example to install the integration without performing a move),
+run :
+
+```
+java -cp MoveWithShortcuts.jar move_with_shortcuts.MoveWithShortcutsGuiMain
+```
 
 ## Quick Start (using the distributable ZIP)
 

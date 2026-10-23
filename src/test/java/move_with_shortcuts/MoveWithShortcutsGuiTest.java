@@ -1,0 +1,337 @@
+/**
+ * Created by Davide on 2026-10-23 .
+ */
+package move_with_shortcuts;
+
+
+import dlog.log.Log;
+import dutil.exception.exceptions.InvalidValueException;
+import dutil.value_holder.ObjectAndDescr;
+import org.apache.commons.io.FileUtils;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+
+
+// @formatter:off
+
+
+/**
+ * Tests for the GUI support classes : the registry command construction, the configuration parameter and the GUI
+ * controller. It never creates Swing components, so it runs headless.
+ */
+public class MoveWithShortcutsGuiTest {
+
+
+  /**
+   * A temporary folder for this test class.
+   */
+  private Path tempDir;
+  
+  /**
+   * The log to pass to the objects under test.
+   */
+  private Log devLog;
+  
+  
+  /**
+   * Creates the temporary folder and the log.
+   *
+   * @throws IOException If the temporary folder cannot be created.
+   */
+  @BeforeClass
+  void beforeClass() throws IOException {
+  
+    this.tempDir = Files.createTempDirectory(MoveWithShortcutsGuiTest.class.getSimpleName() + "_");
+    
+    this.devLog = new Log(MoveWithShortcutsGuiTest.class.getSimpleName() + " - developer log"
+                        , MoveWithShortcutsGuiTest.class.getSimpleName() + "_dev-log.LOG", true);
+  }
+  
+  /**
+   * Closes the log and deletes the temporary folder.
+   *
+   * @throws IOException If the temporary folder cannot be deleted.
+   */
+  @AfterClass
+  void afterClass() throws IOException {
+  
+    this.devLog.close();
+    
+    FileUtils.deleteDirectory(this.tempDir.toFile());
+  }
+  
+  
+  /**
+   * Tests that the registry command quotes the executable, the classpath and the placeholder.
+   */
+  @Test
+  void buildCommandQuotesAllPaths() {
+  
+    final String javawPath = "C:\\Program Files\\Java\\bin\\javaw.exe";
+    
+    final String classpath = "C:\\MoveWithShortcuts\\MoveWithShortcuts.jar";
+    
+    final String expected = "\"" + javawPath + "\" -cp \"" + classpath + "\" "
+                          + ExplorerContextMenu.GUI_MAIN_CLASS + " \"%1\"";
+                          
+    Assert.assertEquals(ExplorerContextMenu.buildCommand(javawPath, classpath), expected);
+  }
+  
+  /**
+   * Tests that a {@code reg add} command for the default value uses {@code /ve}.
+   */
+  @Test
+  void buildRegAddArgsUsesVeForDefaultValue() {
+  
+    final List<String> args = ExplorerContextMenu.buildRegAddArgs(
+                                        ExplorerContextMenu.FILES_VERB_KEY, null
+                                      , ExplorerContextMenu.MENU_LABEL);
+                                      
+    Assert.assertEquals(args, List.of("add", ExplorerContextMenu.FILES_VERB_KEY, "/ve", "/d"
+                                    , ExplorerContextMenu.MENU_LABEL, "/f"));
+  }
+  
+  /**
+   * Tests that a {@code reg add} command for a named value uses {@code /v}.
+   */
+  @Test
+  void buildRegAddArgsUsesVForNamedValue() {
+  
+    final List<String> args = ExplorerContextMenu.buildRegAddArgs(
+                                        ExplorerContextMenu.FOLDERS_VERB_KEY
+                                      , ExplorerContextMenu.MULTI_SELECT_MODEL
+                                      , ExplorerContextMenu.MULTI_SELECT_MODEL_VALUE);
+                                      
+    Assert.assertEquals(args, List.of("add", ExplorerContextMenu.FOLDERS_VERB_KEY
+                                    , "/v", ExplorerContextMenu.MULTI_SELECT_MODEL
+                                    , "/d", ExplorerContextMenu.MULTI_SELECT_MODEL_VALUE, "/f"));
+  }
+  
+  /**
+   * Tests that a {@code reg query} command for a named value uses {@code /v}.
+   */
+  @Test
+  void buildRegQueryArgsUsesVForNamedValue() {
+  
+    final List<String> args = ExplorerContextMenu.buildRegQueryArgs(
+                                        ExplorerContextMenu.FOLDERS_VERB_KEY
+                                      , ExplorerContextMenu.MULTI_SELECT_MODEL);
+                                      
+    Assert.assertEquals(args, List.of("query", ExplorerContextMenu.FOLDERS_VERB_KEY
+                                    , "/v", ExplorerContextMenu.MULTI_SELECT_MODEL));
+  }
+  
+  /**
+   * Tests that the context-menu parameter defaults to {@code true}.
+   */
+  @Test
+  void createContextMenuDefaultsToTrue() {
+  
+    Assert.assertTrue(createParams(Map.of(MoveWithShortcutsParams.SHORTCUTS_UPDATER_PARAM_NAME
+                                        , ShortcutsUpdaterKind.defaultKind().getId()))
+                                                .isCreateContextMenu());
+  }
+  
+  /**
+   * Tests that the context-menu parameter reads {@code false}.
+   */
+  @Test
+  void createContextMenuReadsFalse() {
+  
+    Assert.assertFalse(createParams(Map.of(MoveWithShortcutsParams.CREATE_CONTEXT_MENU_PARAM_NAME, "false"))
+                                                .isCreateContextMenu());
+  }
+  
+  /**
+   * Tests that the context-menu parameter accepts {@code yes}.
+   */
+  @Test
+  void createContextMenuReadsYes() {
+  
+    Assert.assertTrue(createParams(Map.of(MoveWithShortcutsParams.CREATE_CONTEXT_MENU_PARAM_NAME, "yes"))
+                                                .isCreateContextMenu());
+  }
+  
+  /**
+   * Tests that the context-menu parameter rejects an invalid value.
+   */
+  @Test
+  void createContextMenuRejectsInvalidValue() {
+  
+    Assert.expectThrows(InvalidValueException.class
+                      , () -> createParams(Map.of(MoveWithShortcutsParams.CREATE_CONTEXT_MENU_PARAM_NAME, "maybe")));
+  }
+  
+  /**
+   * Tests that a rename of an existing file is accepted and requires the move.
+   *
+   * @throws IOException If the test files cannot be created.
+   */
+  @Test
+  void buildRequestAcceptsExistingOriginal() throws IOException {
+  
+    final File searchFolder = newFolder("acceptsExistingOriginal");
+    
+    final File original = new File(searchFolder, "old.txt");
+    
+    Files.writeString(original.toPath(), "content");
+    
+    final File destination = new File(searchFolder, "new.txt");
+    
+    final ObjectAndDescr<GuiMoveRequest> built = MoveWithShortcutsGuiController.buildRequest(
+                                                       original.getPath(), destination.getPath()
+                                                     , searchFolder.getPath());
+                                                     
+    Assert.assertNull(built.description);
+    
+    Assert.assertNotNull(built.object);
+    
+    Assert.assertTrue(built.object.mustMove());
+    
+    Assert.assertEquals(built.object.originalFileOrFolder().getPath(), original.getPath());
+    
+    Assert.assertEquals(built.object.destinationFileOrFolder().getPath(), destination.getPath());
+    
+    Assert.assertEquals(built.object.searchFolder().getPath(), searchFolder.getPath());
+  }
+  
+  /**
+   * Tests that an already-done move is accepted and does not require the move.
+   *
+   * @throws IOException If the test files cannot be created.
+   */
+  @Test
+  void buildRequestAcceptsAlreadyDoneMove() throws IOException {
+  
+    final File searchFolder = newFolder("acceptsAlreadyDoneMove");
+    
+    final File original = new File(searchFolder, "missing.txt");
+    
+    final File destination = new File(searchFolder, "already-there.txt");
+    
+    Files.writeString(destination.toPath(), "content");
+    
+    final ObjectAndDescr<GuiMoveRequest> built = MoveWithShortcutsGuiController.buildRequest(
+                                                       original.getPath(), destination.getPath()
+                                                     , searchFolder.getPath());
+                                                     
+    Assert.assertNull(built.description);
+    
+    Assert.assertNotNull(built.object);
+    
+    Assert.assertFalse(built.object.mustMove());
+  }
+  
+  /**
+   * Tests that blank values are rejected with a description.
+   */
+  @Test
+  void buildRequestRejectsBlankValues() {
+  
+    final File searchFolder = this.tempDir.toFile();
+    
+    final ObjectAndDescr<GuiMoveRequest> built = MoveWithShortcutsGuiController.buildRequest(
+                                                       " ", "destination", searchFolder.getPath());
+                                                       
+    Assert.assertNotNull(built.description);
+    
+    Assert.assertNull(built.object);
+  }
+  
+  /**
+   * Tests that a destination equal to the original is rejected with a description.
+   *
+   * @throws IOException If the test files cannot be created.
+   */
+  @Test
+  void buildRequestRejectsSameOriginalAndDestination() throws IOException {
+  
+    final File searchFolder = newFolder("rejectsSamePath");
+    
+    final File original = new File(searchFolder, "same.txt");
+    
+    Files.writeString(original.toPath(), "content");
+    
+    final ObjectAndDescr<GuiMoveRequest> built = MoveWithShortcutsGuiController.buildRequest(
+                                                       original.getPath(), original.getPath()
+                                                     , searchFolder.getPath());
+                                                     
+    Assert.assertNotNull(built.description);
+    
+    Assert.assertNull(built.object);
+  }
+  
+  /**
+   * Tests that a search path that is a file is rejected with a description.
+   *
+   * @throws IOException If the test files cannot be created.
+   */
+  @Test
+  void buildRequestRejectsSearchPathThatIsNotAFolder() throws IOException {
+  
+    final File searchFolder = newFolder("rejectsSearchFile");
+    
+    final File original = new File(searchFolder, "old.txt");
+    
+    Files.writeString(original.toPath(), "content");
+    
+    final File destination = new File(searchFolder, "new.txt");
+    
+    final File searchFile = new File(searchFolder, "not-a-folder.txt");
+    
+    Files.writeString(searchFile.toPath(), "content");
+    
+    final ObjectAndDescr<GuiMoveRequest> built = MoveWithShortcutsGuiController.buildRequest(
+                                                       original.getPath(), destination.getPath()
+                                                     , searchFile.getPath());
+                                                     
+    Assert.assertNotNull(built.description);
+    
+    Assert.assertNull(built.object);
+  }
+  
+  /**
+   * Creates and populates the configuration parameters from the given map.
+   *
+   * @param configurationMap The configuration map.
+   *
+   * @return The populated and validated parameters.
+   */
+  private MoveWithShortcutsParams createParams(Map<String, String> configurationMap) {
+  
+    final MoveWithShortcutsParams result = new MoveWithShortcutsParams(configurationMap, "test", this.devLog);
+    
+    result.populate();
+    
+    result.validate();
+    
+    return result;
+  }
+  
+  /**
+   * Creates a new empty folder under this test class' temporary folder.
+   *
+   * @param name The folder name.
+   *
+   * @return The new folder.
+   *
+   * @throws IOException If the folder cannot be created.
+   */
+  private File newFolder(String name) throws IOException {
+  
+    final Path folder = this.tempDir.resolve(name + "_" + System.nanoTime());
+    
+    Files.createDirectories(folder);
+    
+    return folder.toFile();
+  }
+}
