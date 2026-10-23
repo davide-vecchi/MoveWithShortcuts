@@ -40,6 +40,7 @@ import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.dq;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 
 // @formatter:off
@@ -161,7 +162,7 @@ final class MoveWithShortcutsGui {
    */
   private void initFields(String originalPath) {
   
-    if (originalPath != null && ! originalPath.isBlank()) {
+    if (isNotBlank(originalPath)) {
     
       this.originalField.setText(   originalPath);
       
