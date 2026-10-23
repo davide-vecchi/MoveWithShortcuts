@@ -107,7 +107,7 @@ final class PathTextField extends JTextField {
         }
         catch (UnsupportedFlavorException | IOException e) {
         
-          result = false;
+          // Do nothing, result stays false.
         }
       }
       return result;

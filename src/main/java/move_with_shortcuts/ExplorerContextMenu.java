@@ -258,7 +258,7 @@ final class ExplorerContextMenu {
       }
       catch (URISyntaxException ignored) {
       
-        result = null;
+        // Do nothing, result stays null.
       }
     }
     if (result == null) {

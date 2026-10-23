@@ -182,7 +182,7 @@ final class ShortcutsUpdaterConfig {
         }
         catch (URISyntaxException e) {
         
-          // Do nothing, result stays null;
+          // Do nothing, result stays null.
         }
       }
     }
