@@ -2,7 +2,7 @@
 
 # Changelog
 
-## [3.1.0-SNAPSHOT]
+## [3.1.0] - 2026-10-23
 
 
 ### Changed

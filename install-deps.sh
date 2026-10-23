@@ -36,7 +36,7 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # MoveWithShortcuts version that this script is for
-MWS_VERSION="3.1.0-SNAPSHOT"
+MWS_VERSION="3.1.0"
 
 # List of DLibs required by MoveWithShortcuts (direct + transitive)
 # Format: groupId/artifactId/version
