@@ -42,7 +42,7 @@ function Write-Normal { Write-Host $args[0] -ForegroundColor White }
 
 
 # MoveWithShortcuts (MWS) version that this script is for
-$MWS_VERSION = "3.1.0"
+$MWS_VERSION = "4.0.0-SNAPSHOT"
 
 # Dependencies required by MoveWithShortcuts (direct + transitive)
 # Format: groupId/artifactId/version
