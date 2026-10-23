@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,16 +21,21 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.Serial;
 import java.util.concurrent.ExecutionException;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
@@ -366,7 +372,7 @@ final class MoveWithShortcutsGui {
   private void browse(@NotNull PathTextField field, int selectionMode, @NotNull String title
                     , boolean showFileTypeFilter) {
                     
-    final JFileChooser chooser = new JFileChooser();
+    final JFileChooser chooser = showFileTypeFilter ? new JFileChooser() : new FolderFileChooser();
     
     chooser.setDialogTitle(title);
     
@@ -499,10 +505,30 @@ final class MoveWithShortcutsGui {
       
         setBusy(false);
         
+        boolean success = false;
+        
         try {
         
           get();
           
+          success = true;
+        }
+        catch (InterruptedException e) {
+        
+          Thread.currentThread().interrupt();
+          
+          showError(e);
+        }
+        catch (ExecutionException e) {
+        
+          showError(e.getCause() != null ? e.getCause() : e);
+        }
+        finally {
+        
+          logFinalSummary();
+        }
+        if (success) {
+        
           if (this.userInterrupted) {
           
             JOptionPane.showMessageDialog(MoveWithShortcutsGui.this.frame
@@ -516,16 +542,6 @@ final class MoveWithShortcutsGui {
                                                  , MoveWithShortcutsMain.APP_NAME
                                             , JOptionPane.INFORMATION_MESSAGE);
           }
-        }
-        catch (InterruptedException e) {
-        
-          Thread.currentThread().interrupt();
-          
-          showError(e);
-        }
-        catch (ExecutionException e) {
-        
-          showError(e.getCause() != null ? e.getCause() : e);
         }
       }
     }.execute();
@@ -569,6 +585,26 @@ final class MoveWithShortcutsGui {
          + "Shortcut-file renames skipped: " + this.app.numRenameSkippedShortcuts + NL
          + "Shortcuts skipped: " + this.app.numSkippedShortcuts + NL2
          + buildLogsLocationMessage();
+  }
+  
+  /**
+   * Logs the final shortcut totals, so that the logs end with the same summary shown by the CLI.
+   */
+  private void logFinalSummary() {
+  
+    this.appContext.outUser(NL + "Total shortcuts to process :     " + this.app.numTotalShortcuts     + " .");
+    
+    this.appContext.outUser(NL + "Total shortcuts needing update : " + this.app.numProcessedShortcuts + " .");
+    
+    this.appContext.outUser(NL + "Total shortcuts updated :        " + this.app.numUpdatedShortcuts   + " .");
+    
+    this.appContext.outUser(NL + "Total shortcut files renamed :   " + this.app.numRenamedShortcuts + " .");
+    
+    this.appContext.outUser(NL + "Total shortcut-file rename collisions : " + this.app.numRenameCollisions + " .");
+    
+    this.appContext.outUser(NL + "Total shortcut-file renames skipped : " + this.app.numRenameSkippedShortcuts + " .");
+    
+    this.appContext.outUser(NL + "Total shortcuts skipped :        " + this.app.numSkippedShortcuts   + " .");
   }
   
   /**
@@ -626,6 +662,78 @@ final class MoveWithShortcutsGui {
     catch (Exception e) {
     
       // The application is exiting, so there is nowhere to report this.
+    }
+  }
+  
+  
+  /**
+   * A file chooser that hides the "Files of type" filter controls, for folder-only selections.
+   */
+  private static final class FolderFileChooser extends JFileChooser {
+  
+  
+    @Serial
+    private static final long serialVersionUID = 1L;
+    
+    
+    /**
+     * Creates the dialog and hides the "Files of type" filter controls.
+     *
+     * @param parent The parent component, or {@code null}.
+     *
+     * @return The dialog.
+     *
+     * @throws HeadlessException If the dialog cannot be created in a headless environment.
+     */
+    @Override
+    protected JDialog createDialog(Component parent) throws HeadlessException {
+    
+      final JDialog result = super.createDialog(parent);
+      
+      hideFileTypeFilter(result.getContentPane());
+      
+      return result;
+    }
+    
+    /**
+     * Hides the "Files of type" label and its combo box, if present.
+     *
+     * @param component The component to inspect.
+     */
+    private static void hideFileTypeFilter(@NotNull Component component) {
+    
+      if (component instanceof JLabel label && isFilesOfTypeLabel(label)) {
+      
+        label.setVisible(false);
+        
+        final Component target = label.getLabelFor();
+        
+        if (target != null) {
+        
+          target.setVisible(false);
+        }
+      }
+      else if (component instanceof Container container) {
+      
+        for (final Component child : container.getComponents()) {
+        
+          hideFileTypeFilter(child);
+        }
+      }
+    }
+    
+    /**
+     * Tells whether the given label is the "Files of type" label.
+     *
+     * @param label The label to inspect.
+     *
+     * @return Whether it is the "Files of type" label.
+     */
+    private static boolean isFilesOfTypeLabel(@NotNull JLabel label) {
+    
+      final String text = UIManager.getString("FileChooser.filesOfTypeLabelText");
+      
+      return text != null && text.equals(label.getText());
     }
   }
   
