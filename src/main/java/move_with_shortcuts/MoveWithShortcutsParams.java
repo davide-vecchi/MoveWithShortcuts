@@ -48,6 +48,7 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   MoveWithShortcutsParams(@NotNull Map<String, String> configurationMap, String sourceDescr, @NotNull Log log) {
   
     super(configurationMap, null, sourceDescr, log);
+    
     this.shortcutsUpdater = new ParamMono<>(this, SHORTCUTS_UPDATER_PARAM_NAME);
   }
   
