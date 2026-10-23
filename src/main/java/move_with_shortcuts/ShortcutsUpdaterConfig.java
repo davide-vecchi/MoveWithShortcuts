@@ -150,9 +150,8 @@ final class ShortcutsUpdaterConfig {
             }
             if (result == null) {
             
-              final File projectFolder = location.getParentFile() == null
-                                         ? null : location.getParentFile().getParentFile();
-                                         
+              final File projectFolder = location.getParentFile() == null ? null
+                                                                          : location.getParentFile().getParentFile();
               if (projectFolder != null) {
               
                 final File sourceFile = new File(projectFolder
@@ -188,4 +187,5 @@ final class ShortcutsUpdaterConfig {
     }
     return result;
   }
+  
 }

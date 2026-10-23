@@ -43,7 +43,7 @@ public final class MoveWithShortcutsGuiMain {
   /**
    * Entry point of the MWS GUI.
    *
-   * @param args The command line args : the first one, when present, is the path of the selected file or folder ;
+   * @param args The command line args : the first one, when present, is the path of the selected file or folder;
    *             no args start the GUI standalone.
    */
   public static void main(String[] args) {
@@ -61,7 +61,7 @@ public final class MoveWithShortcutsGuiMain {
       final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
       
       final AAppContext appContext = AppContext.newAppContext(NeutralUserInputOutput.newInstance()
-                                                              , screenLog, userLog, devLog);
+                                                                    , screenLog, userLog, devLog);
                                                               
       writeLogsHeaders(screenLog, userLog, devLog, APP_NAME, APP_DESCR);
       
@@ -70,7 +70,7 @@ public final class MoveWithShortcutsGuiMain {
       installOrUpdateContextMenu(appContext);
       
       final IShortcutsUpdater updater = MoveWithShortcutsMain.selectShortcutsUpdaterForGui(appContext)
-                                                           .newUpdater(appContext);
+                                                             .newUpdater(appContext);
                                                            
       SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext, updater, originalPath));
     }
@@ -96,12 +96,13 @@ public final class MoveWithShortcutsGuiMain {
       
       if (outcome.description != null) {
       
-        JOptionPane.showMessageDialog(null, outcome.description, APP_NAME, JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(null, outcome.description, APP_NAME
+                                       , JOptionPane.WARNING_MESSAGE);
       }
       else if (outcome.object != null && outcome.object.booleanValue()) {
       
         JOptionPane.showMessageDialog(null, ExplorerContextMenu.INSTALLED_MESSAGE, APP_NAME
-                                     , JOptionPane.INFORMATION_MESSAGE);
+                                       , JOptionPane.INFORMATION_MESSAGE);
       }
     }
   }
@@ -115,8 +116,7 @@ public final class MoveWithShortcutsGuiMain {
     
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
-    catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-         | UnsupportedLookAndFeelException e) {
+    catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
          
       // Keep the default look and feel.
     }
@@ -129,6 +129,8 @@ public final class MoveWithShortcutsGuiMain {
    */
   private static void showErrorDialog(@NotNull Throwable e) {
   
-    JOptionPane.showMessageDialog(null, getFullDescriptionWithRootCause(e), APP_NAME, JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(null, getFullDescriptionWithRootCause(e), APP_NAME
+                                   , JOptionPane.ERROR_MESSAGE);
   }
+  
 }

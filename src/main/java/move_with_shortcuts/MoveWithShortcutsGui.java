@@ -162,7 +162,7 @@ final class MoveWithShortcutsGui {
   
     if (originalPath != null && ! originalPath.isBlank()) {
     
-      this.originalField.setText(originalPath);
+      this.originalField.setText(   originalPath);
       
       this.destinationField.setText(originalPath);
     }
@@ -174,7 +174,7 @@ final class MoveWithShortcutsGui {
    */
   private void initFrame() {
   
-    this.okButton.addActionListener(e -> onOk());
+    this.okButton.addActionListener(    e -> onOk());
     
     this.cancelButton.addActionListener(e -> cancel());
     
@@ -215,9 +215,10 @@ final class MoveWithShortcutsGui {
     
     result.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     
-    result.add(createPathPanel(), BorderLayout.CENTER);
+    result.add(createPathPanel(),    BorderLayout.CENTER);
     
     result.add(createButtonsPanel(), BorderLayout.SOUTH);
+    
     return result;
   }
   
@@ -240,11 +241,12 @@ final class MoveWithShortcutsGui {
     
     gbc.gridy = ZERO_i;
     
-    addPathRow(result, gbc, "Original", this.originalField, this::browseOriginal);
+    addPathRow(result, gbc, "Original",      this.originalField,    this::browseOriginal);
     
-    addPathRow(result, gbc, "Destination", this.destinationField, this::browseDestination);
+    addPathRow(result, gbc, "Destination",   this.destinationField, this::browseDestination);
     
-    addPathRow(result, gbc, "Search folder", this.searchField, this::browseSearch);
+    addPathRow(result, gbc, "Search folder", this.searchField,      this::browseSearch);
+    
     return result;
   }
   
@@ -268,6 +270,7 @@ final class MoveWithShortcutsGui {
     result.add(this.okButton);
     
     result.add(this.cancelButton);
+    
     return result;
   }
   
@@ -284,9 +287,8 @@ final class MoveWithShortcutsGui {
    *
    * @param browseAction The action to run when the browse button is pressed.
    */
-  private static void addPathRow(@NotNull JPanel panel, @NotNull GridBagConstraints gbc, @NotNull String label
-                               , @NotNull PathTextField field, @NotNull Runnable browseAction) {
-                               
+  private static void addPathRow(@NotNull JPanel        panel, @NotNull GridBagConstraints gbc, @NotNull String label
+                               , @NotNull PathTextField field, @NotNull Runnable           browseAction) {
     gbc.gridx = ZERO_i;
     
     gbc.weightx = 0.0;
@@ -382,21 +384,22 @@ final class MoveWithShortcutsGui {
   private void onOk() {
   
     final ObjectAndDescr<GuiMoveRequest> built = MoveWithShortcutsGuiController.buildRequest(
-                                                     this.originalField.getText(), this.destinationField.getText()
-                                                   , this.searchField.getText());
-                                                   
+                                                                             this.originalField.getText()
+                                                                        , this.destinationField.getText()
+                                                                             , this.searchField.getText());
     if (built.description != null) {
     
-      JOptionPane.showMessageDialog(this.frame, built.description, "Invalid paths", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(this.frame, built.description, "Invalid paths"
+                                     , JOptionPane.ERROR_MESSAGE);
     }
     else {
     
       final GuiMoveRequest request = built.object;
       
       final int answer = JOptionPane.showConfirmDialog(this.frame, buildConfirmationMessage(request)
-                                                     , "Confirm", JOptionPane.YES_NO_OPTION
-                                                     , JOptionPane.WARNING_MESSAGE);
-                                                     
+                                                              , "Confirm"
+                                                          , JOptionPane.YES_NO_OPTION
+                                                         , JOptionPane.WARNING_MESSAGE);
       if (answer == JOptionPane.YES_OPTION) {
       
         execute(request);
@@ -419,10 +422,10 @@ final class MoveWithShortcutsGui {
                              + " be updated.";
                              
     return operation + NL2
-         + "Original: " + dq(getCanonicalPath(request.originalFileOrFolder())) + NL
-         + "Destination: " + dq(getCanonicalPath(request.destinationFileOrFolder())) + NL
-         + "Search folder: " + dq(getCanonicalPath(request.searchFolder())) + NL2
-         + "Continue?";
+                 + "Original: "      + dq(getCanonicalPath(             request.originalFileOrFolder()))    + NL
+                 + "Destination: "   + dq(getCanonicalPath(             request.destinationFileOrFolder())) + NL
+                 + "Search folder: " + dq(getCanonicalPath(request.searchFolder()))            + NL2
+                 + "Continue?";
   }
   
   /**
@@ -454,7 +457,7 @@ final class MoveWithShortcutsGui {
         try {
         
           MoveWithShortcutsGui.this.app.runGui(MoveWithShortcutsGui.this.updater, request
-                                             , ShortcutFileNamePolicy.NEVER);
+                       , ShortcutFileNamePolicy.NEVER);
         }
         catch (UserRequestedTermination t) {
         
@@ -478,13 +481,15 @@ final class MoveWithShortcutsGui {
           if (this.userInterrupted) {
           
             JOptionPane.showMessageDialog(MoveWithShortcutsGui.this.frame
-                                         , "The operation was interrupted on user request."
-                                         , MoveWithShortcutsMain.APP_NAME, JOptionPane.WARNING_MESSAGE);
+                                               , "The operation was interrupted on user request."
+                                                 , MoveWithShortcutsMain.APP_NAME
+                                            , JOptionPane.WARNING_MESSAGE);
           }
           else {
           
             JOptionPane.showMessageDialog(MoveWithShortcutsGui.this.frame, buildSummaryMessage()
-                                         , MoveWithShortcutsMain.APP_NAME, JOptionPane.INFORMATION_MESSAGE);
+                                                 , MoveWithShortcutsMain.APP_NAME
+                                            , JOptionPane.INFORMATION_MESSAGE);
           }
         }
         catch (InterruptedException e) {
@@ -508,19 +513,19 @@ final class MoveWithShortcutsGui {
    */
   private void setBusy(boolean busy) {
   
-    this.originalField.setEnabled(! busy);
+    this.originalField.setEnabled(    ! busy);
     
-    this.destinationField.setEnabled(! busy);
+    this.destinationField.setEnabled( ! busy);
     
-    this.searchField.setEnabled(! busy);
+    this.searchField.setEnabled(      ! busy);
     
-    this.okButton.setEnabled(! busy);
+    this.okButton.setEnabled(         ! busy);
     
-    this.cancelButton.setEnabled(! busy);
+    this.cancelButton.setEnabled(     ! busy);
     
     this.progressBar.setIndeterminate(busy);
     
-    this.progressBar.setVisible(busy);
+    this.progressBar.setVisible(      busy);
   }
   
   /**
@@ -547,8 +552,8 @@ final class MoveWithShortcutsGui {
    */
   private void showError(@NotNull Throwable e) {
   
-    JOptionPane.showMessageDialog(this.frame, getFullDescriptionWithRootCause(e), "Error"
-                                 , JOptionPane.ERROR_MESSAGE);
+    JOptionPane.showMessageDialog(this.frame,  getFullDescriptionWithRootCause(e)
+                                         , "Error", JOptionPane.ERROR_MESSAGE);
   }
   
   /**
@@ -577,4 +582,5 @@ final class MoveWithShortcutsGui {
       // The application is exiting, so there is nowhere to report this.
     }
   }
+  
 }

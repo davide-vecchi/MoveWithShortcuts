@@ -38,8 +38,8 @@ final class MoveWithShortcutsGuiController {
    *
    * @param searchPath The value of the search-path field.
    *
-   * @return The request in {@link ObjectAndDescr#object object}, or a human-readable error in {@link
-   *         ObjectAndDescr#description description}.
+   * @return The request in {@link ObjectAndDescr#object object}, or a human-readable error in {@link ObjectAndDescr#description
+   *         description}.
    */
   static ObjectAndDescr<GuiMoveRequest> buildRequest(@NotNull String originalPath
                                                    , @NotNull String destinationPath
@@ -70,11 +70,12 @@ final class MoveWithShortcutsGuiController {
    */
   private static String errorDescription(@NotNull RuntimeException e) {
   
-    final String message = e instanceof InvalidPathException
-                           ? dq(e.getLocalizedMessage()) + " is not a valid path."
-                           : e.getLocalizedMessage();
+    final String message = e instanceof InvalidPathException ? dq(e.getLocalizedMessage()) + " is not a valid path."
+                                                             : e.getLocalizedMessage();
                            
     final String result = message == null || message.isBlank() ? getFullDescriptionWithRootCause(e) : message;
+    
     return result;
   }
+
 }

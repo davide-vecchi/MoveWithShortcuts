@@ -15,13 +15,13 @@ import java.io.File;
 /**
  * A validated move / rename request built from the values entered in the GUI.
  *
- * @param originalFileOrFolder The file or folder to rename / move.<br>
+ * @param originalFileOrFolder    The file or folder to rename / move.<br>
  *
  * @param destinationFileOrFolder The destination file or folder.<br>
  *
- * @param mustMove Whether the rename / move still needs to be performed.<br>
+ * @param mustMove                Whether the rename / move still needs to be performed.<br>
  *
- * @param searchFolder The folder under which to search for the shortcuts to update.
+ * @param searchFolder            The folder under which to search for the shortcuts to update.
  */
-record GuiMoveRequest(@NotNull File originalFileOrFolder, @NotNull File destinationFileOrFolder
-                    , boolean mustMove, @NotNull File searchFolder) {}
+record GuiMoveRequest(@NotNull File    originalFileOrFolder, @NotNull File destinationFileOrFolder
+                             , boolean mustMove,             @NotNull File searchFolder) {}

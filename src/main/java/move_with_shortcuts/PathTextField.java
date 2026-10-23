@@ -93,8 +93,7 @@ final class PathTextField extends JTextField {
       
         try {
         
-          final List<File> files = (List<File>) support.getTransferable()
-                                                      .getTransferData(DataFlavor.javaFileListFlavor);
+          final List<File> files = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                                                       
           if (! files.isEmpty()) {
           
@@ -113,4 +112,5 @@ final class PathTextField extends JTextField {
       return result;
     }
   }
+  
 }

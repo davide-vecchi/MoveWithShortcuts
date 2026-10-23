@@ -26,9 +26,10 @@ enum ShortcutsUpdaterKind {
   /**
    * The PowerShell-based updater that processes all shortcuts in one process.
    */
-  PS_SCRIPTS_MULTI("ps-scripts-multi", ac -> WinShortcutsUpdater_PSScriptsMulti.newInstance(null, ac));
+  PS_SCRIPTS_MULTI(    "ps-scripts-multi"
+    , ac -> WinShortcutsUpdater_PSScriptsMulti.newInstance(null
+                                                                                            , ac));
   // The JNA-based implementation will be added by TASK-28.
-  
   
   @Getter
   private final String id;
@@ -89,7 +90,7 @@ enum ShortcutsUpdaterKind {
       }
     }
     throw new IllegalArgumentException("Unknown shortcuts updater implementation " + dq(id)
-                                     + " ; expected one of " + String.join(", ", ids()) + ".");
+                                       + " ; expected one of " + String.join(", ", ids()) + ".");
   }
   
   /**
@@ -115,4 +116,5 @@ enum ShortcutsUpdaterKind {
   
     return newUpdater(appContext).getDescription();
   }
+  
 }
