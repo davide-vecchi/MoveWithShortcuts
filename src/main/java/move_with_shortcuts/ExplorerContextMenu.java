@@ -27,6 +27,8 @@ import static dutil.string.TextUtilities.dq;
 import static dutil.system.OSUtilities.assertWindowsOS;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static move_with_shortcuts.MoveWithShortcutsMain.APP_NAME;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 
 
@@ -45,12 +47,12 @@ final class ExplorerContextMenu {
   /**
    * The registry key of the context-menu verb for files.
    */
-  static final String FILES_VERB_KEY = "HKCU\\Software\\Classes\\*\\shell\\MoveWithShortcuts";
+  static final String FILES_VERB_KEY = "HKCU\\Software\\Classes\\*\\shell\\" + APP_NAME;
   
   /**
    * The registry key of the context-menu verb for folders.
    */
-  static final String FOLDERS_VERB_KEY = "HKCU\\Software\\Classes\\Directory\\shell\\MoveWithShortcuts";
+  static final String FOLDERS_VERB_KEY = "HKCU\\Software\\Classes\\Directory\\shell\\" + APP_NAME;
   
   /**
    * The label shown in the Explorer context menu.
@@ -263,7 +265,7 @@ final class ExplorerContextMenu {
     
       final String classPath = System.getProperty("java.class.path");
       
-      result = classPath == null ? "" : classPath;
+      result = classPath == null ? EMPTY : classPath;
     }
     return result;
   }
