@@ -33,7 +33,8 @@
   subsequent starts are quiet.
 
 - Phase-labelled progress with the total number of shortcuts, a green `Completed` / red `Failed` progress bar, and an
-  operation-detail text area in the GUI. The Java updater loops now also report their progress in the console.
+  operation-detail text area in the GUI that keeps the previous status lines, newest first. The Java updater loops now
+  also report their progress in the console.
 
 - Per-instance log folders named `<timestamp>_<original leaf>` : several GUI and console instances can run at the same
   time without sharing log files. The summary shows the actual log folder with a trailing separator.

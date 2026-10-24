@@ -202,6 +202,11 @@ final class MoveWithShortcutsGui {
    */
   private GuiMoveRequest currentRequest;
   
+  /**
+   * The last status text inserted in the status area.
+   */
+  private String lastStatusText;
+  
   
   /**
    * Shows the dialog.
@@ -1014,10 +1019,14 @@ final class MoveWithShortcutsGui {
    */
   private void setStatusText(@NotNull String text) {
   
-    this.statusArea.setText(text);
+    if (! text.equals(this.lastStatusText)) {
     
-    this.statusArea.setCaretPosition(ZERO_i);
-    
+      this.statusArea.insert(text + NL, ZERO_i);
+      
+      this.lastStatusText = text;
+      
+      this.statusArea.setCaretPosition(ZERO_i);
+    }
     this.statusArea.setToolTipText(text);
   }
   
