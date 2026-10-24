@@ -47,6 +47,9 @@
 
 ### Fixed
 
+- The three `...` browse buttons and the About button are now disabled while an operation is running, like the path
+  fields.
+
 
 ### Internal changes
 

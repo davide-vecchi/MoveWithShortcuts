@@ -52,6 +52,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
@@ -153,6 +155,11 @@ final class MoveWithShortcutsGui {
    * The button that shows the program information.
    */
   private final JButton aboutButton;
+  
+  /**
+   * The buttons to disable while an operation is running.
+   */
+  private final List<JButton> processingDisabledButtons = new ArrayList<>();
   
   /**
    * The progress bar shown while the operation runs.
@@ -276,6 +283,8 @@ final class MoveWithShortcutsGui {
     this.cancelButton = new JButton("Cancel");
     
     this.aboutButton = new JButton("About");
+    
+    this.processingDisabledButtons.add(this.aboutButton);
     
     this.progressBar = new JProgressBar();
     
@@ -503,15 +512,18 @@ final class MoveWithShortcutsGui {
     
     gbc.gridy = ZERO_i;
     
-    addPathRow(result, gbc, "Original", this.originalField, this::browseOriginal
-             , "Browse for the original file or folder.");
-             
-    addPathRow(result, gbc, "Destination", this.destinationField, this::browseDestination
-             , "Browse for the destination path.");
-             
-    addPathRow(result, gbc, "Search folder", this.searchField, this::browseSearch
-             , "Browse for the search folder.");
-             
+    this.processingDisabledButtons.add(
+        addPathRow(result, gbc, "Original", this.originalField, this::browseOriginal
+                 , "Browse for the original file or folder."));
+                 
+    this.processingDisabledButtons.add(
+        addPathRow(result, gbc, "Destination", this.destinationField, this::browseDestination
+                 , "Browse for the destination path."));
+                 
+    this.processingDisabledButtons.add(
+        addPathRow(result, gbc, "Search folder", this.searchField, this::browseSearch
+                 , "Browse for the search folder."));
+                 
     return result;
   }
   
@@ -583,11 +595,13 @@ final class MoveWithShortcutsGui {
    * @param browseAction The action to run when the browse button is pressed.<br>
    *
    * @param browseTooltip The tooltip of the browse button.
+   *
+   * @return The browse button.
    */
-  private static void addPathRow(@NotNull JPanel        panel, @NotNull GridBagConstraints gbc, @NotNull String label
-                               , @NotNull PathTextField field, @NotNull Runnable           browseAction
-                               , @NotNull String        browseTooltip) {
-                               
+  private static JButton addPathRow(@NotNull JPanel        panel, @NotNull GridBagConstraints gbc, @NotNull String label
+                                  , @NotNull PathTextField field, @NotNull Runnable           browseAction
+                                  , @NotNull String        browseTooltip) {
+                                  
     gbc.gridx = ZERO_i;
     
     gbc.weightx = 0.0;
@@ -613,6 +627,8 @@ final class MoveWithShortcutsGui {
     panel.add(browseButton, gbc);
     
     gbc.gridy++;
+    
+    return browseButton;
   }
   
   /**
@@ -869,6 +885,10 @@ final class MoveWithShortcutsGui {
     
     this.cancelButton.setEnabled(     ! busy);
     
+    for (final JButton button : this.processingDisabledButtons) {
+    
+      button.setEnabled(! busy);
+    }
     if (busy) {
     
       this.lastPhase = ProgressTracker.PHASE_WORKING;
