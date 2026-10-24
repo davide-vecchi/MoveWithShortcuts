@@ -540,13 +540,27 @@ final class MoveWithShortcutsGui {
    */
   private JPanel createButtonsPanel() {
   
-    final JPanel result = new JPanel(new BorderLayout());
+    final JPanel result = new JPanel(new GridBagLayout());
     
-    final JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    final GridBagConstraints gbc = new GridBagConstraints();
+    
+    gbc.gridy = ZERO_i;
+    
+    gbc.insets = new Insets(0, 4, 0, 4);
+    
+    final JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
     
     leftPanel.add(this.aboutButton);
     
-    final JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    gbc.gridx = ZERO_i;
+    
+    gbc.weightx = 0.0;
+    
+    gbc.fill = GridBagConstraints.NONE;
+    
+    gbc.anchor = GridBagConstraints.WEST;
+    
+    result.add(leftPanel, gbc);
     
     this.progressBar.setIndeterminate(false);
     
@@ -556,15 +570,37 @@ final class MoveWithShortcutsGui {
     
     this.progressBar.setPreferredSize(new Dimension(340, 16));
     
-    rightPanel.add(this.progressBar);
+    final JPanel progressPanel = new JPanel(new BorderLayout());
+    
+    progressPanel.setOpaque(false);
+    
+    progressPanel.add(this.progressBar, BorderLayout.CENTER);
+    
+    gbc.gridx = 1;
+    
+    gbc.weightx = 1.0;
+    
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    
+    gbc.anchor = GridBagConstraints.CENTER;
+    
+    result.add(progressPanel, gbc);
+    
+    final JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
     
     rightPanel.add(this.okButton);
     
     rightPanel.add(this.cancelButton);
     
-    result.add(leftPanel, BorderLayout.WEST);
+    gbc.gridx = 2;
     
-    result.add(rightPanel, BorderLayout.EAST);
+    gbc.weightx = 0.0;
+    
+    gbc.fill = GridBagConstraints.NONE;
+    
+    gbc.anchor = GridBagConstraints.EAST;
+    
+    result.add(rightPanel, gbc);
     
     return result;
   }
