@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -290,7 +291,7 @@ final class MoveWithShortcutsGui {
     
     this.defaultProgressBarForeground = this.progressBar.getForeground();
     
-    this.statusArea = new JTextArea(4, 40);
+    this.statusArea = StatusTextArea.newInstance();
     
     this.statusArea.setEditable(false);
     
@@ -480,15 +481,15 @@ final class MoveWithShortcutsGui {
     
     result.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     
-    final JPanel southPanel = new JPanel(new BorderLayout(0, 4));
+    final JPanel topPanel = new JPanel(new BorderLayout(0, 4));
     
-    southPanel.add(createButtonsPanel(), BorderLayout.NORTH);
+    topPanel.add(createPathPanel(), BorderLayout.CENTER);
     
-    southPanel.add(createStatusScrollPane(), BorderLayout.CENTER);
+    topPanel.add(createButtonsPanel(), BorderLayout.SOUTH);
     
-    result.add(createPathPanel(), BorderLayout.CENTER);
+    result.add(topPanel, BorderLayout.NORTH);
     
-    result.add(southPanel, BorderLayout.SOUTH);
+    result.add(createStatusScrollPane(), BorderLayout.CENTER);
     
     return result;
   }
@@ -1244,6 +1245,49 @@ final class MoveWithShortcutsGui {
     catch (Exception e) {
     
       // The application is exiting, so there is nowhere to report this.
+    }
+  }
+  
+  
+  /**
+   * A read-only text area that fills the available height when its content is shorter than the viewport, and scrolls
+   * when the content is longer.
+   */
+  private static final class StatusTextArea extends JTextArea {
+  
+  
+    @Serial
+    private static final long serialVersionUID = 1L;
+    
+    
+    /**
+     * Factory method.
+     *
+     * @return The new text area.
+     */
+    static StatusTextArea newInstance() {
+    
+      return new StatusTextArea();
+    }
+    
+    /**
+     * Private constructor.
+     */
+    private StatusTextArea() {
+    
+      super(0, 40);
+    }
+    
+    
+    /**
+     * Tracks the viewport height when the content is shorter than the viewport.
+     *
+     * @return Whether to track the viewport height.
+     */
+    @Override
+    public boolean getScrollableTracksViewportHeight() {
+    
+      return getParent() instanceof JViewport && getParent().getHeight() > getPreferredSize().height;
     }
   }
   
