@@ -30,6 +30,7 @@ import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -68,6 +69,16 @@ final class MoveWithShortcutsGui {
    * The factor by which the dialog's preferred width is enlarged.
    */
   private static final double WIDER_FRAME_FACTOR = 1.3;
+  
+  /**
+   * The color of the progress bar and status text after a successful operation.
+   */
+  private static final Color SUCCESS_COLOR = new Color(0, 128, 0);
+  
+  /**
+   * The color of the progress bar and status text after a failed operation.
+   */
+  private static final Color FAILURE_COLOR = new Color(200, 0, 0);
   
   
   /**
@@ -126,6 +137,21 @@ final class MoveWithShortcutsGui {
   private final JProgressBar progressBar;
   
   /**
+   * The default foreground color of the progress bar.
+   */
+  private final Color defaultProgressBarForeground;
+  
+  /**
+   * The text area that describes the current operation.
+   */
+  private final JTextArea statusArea;
+  
+  /**
+   * The default foreground color of the status area.
+   */
+  private final Color defaultStatusForeground;
+  
+  /**
    * The reporter of the progress of the current operation.
    */
   private final GuiProgressReporter progressReporter;
@@ -134,6 +160,16 @@ final class MoveWithShortcutsGui {
    * The label of the last reported phase.
    */
   private String lastPhase = ProgressTracker.PHASE_WORKING;
+  
+  /**
+   * The total of the last reported phase, or {@code 0} when it is not known.
+   */
+  private int lastTotal;
+  
+  /**
+   * The request of the operation currently running, or the last one.
+   */
+  private GuiMoveRequest currentRequest;
   
   
   /**
@@ -188,6 +224,24 @@ final class MoveWithShortcutsGui {
     this.aboutButton = new JButton("About");
     
     this.progressBar = new JProgressBar();
+    
+    this.defaultProgressBarForeground = this.progressBar.getForeground();
+    
+    this.statusArea = new JTextArea(2, 40);
+    
+    this.statusArea.setEditable(false);
+    
+    this.statusArea.setLineWrap(true);
+    
+    this.statusArea.setWrapStyleWord(true);
+    
+    this.statusArea.setOpaque(false);
+    
+    this.statusArea.setFocusable(false);
+    
+    this.statusArea.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
+    
+    this.defaultStatusForeground = this.statusArea.getForeground();
     
     this.originalField.setToolTipText("The file or folder to move / rename, or the path it had before.");
     
@@ -346,7 +400,7 @@ final class MoveWithShortcutsGui {
     
     this.progressBar.setStringPainted(true);
     
-    this.progressBar.setPreferredSize(new Dimension(260, 16));
+    this.progressBar.setPreferredSize(new Dimension(340, 16));
     
     rightPanel.add(this.progressBar);
     
@@ -355,6 +409,8 @@ final class MoveWithShortcutsGui {
     rightPanel.add(this.cancelButton);
     
     result.add(leftPanel, BorderLayout.WEST);
+    
+    result.add(this.statusArea, BorderLayout.CENTER);
     
     result.add(rightPanel, BorderLayout.EAST);
     
@@ -543,6 +599,10 @@ final class MoveWithShortcutsGui {
   
     setBusy(true);
     
+    this.currentRequest = request;
+    
+    setStatusText("Retrieving shortcuts under " + folderWithSeparator(request.searchFolder()));
+    
     new SwingWorker<Void, Void>() {
     
       /**
@@ -617,18 +677,24 @@ final class MoveWithShortcutsGui {
           }
           else {
           
-            updateProgressBar(MoveWithShortcutsGui.this.lastPhase, 100);
+            setProgressTo100();
             
             JOptionPane.showMessageDialog(MoveWithShortcutsGui.this.frame, buildSummaryMessage()
                                                  , MoveWithShortcutsMain.APP_NAME
                                             , JOptionPane.INFORMATION_MESSAGE);
+                                            
+            if (MoveWithShortcutsGui.this.currentRequest != null) {
+            
+              setStatusText("Processed the " + MoveWithShortcutsGui.this.app.numTotalShortcuts
+                          + " shortcuts found under "
+                          + folderWithSeparator(MoveWithShortcutsGui.this.currentRequest.searchFolder()));
+            }
+            markProgressCompleted();
           }
         }
         else {
         
-          MoveWithShortcutsGui.this.progressBar.setIndeterminate(false);
-          
-          MoveWithShortcutsGui.this.progressBar.setString("Failed");
+          markProgressFailed();
         }
       }
     }.execute();
@@ -655,6 +721,12 @@ final class MoveWithShortcutsGui {
     
       this.lastPhase = ProgressTracker.PHASE_WORKING;
       
+      this.lastTotal = ZERO_i;
+      
+      this.statusArea.setForeground(this.defaultStatusForeground);
+      
+      this.progressBar.setForeground(this.defaultProgressBarForeground);
+      
       this.progressBar.setIndeterminate(true);
       
       this.progressBar.setValue(ZERO_i);
@@ -667,40 +739,157 @@ final class MoveWithShortcutsGui {
   /**
    * Receives a progress update from the operation thread and forwards it to the event dispatch thread.
    *
-   * @param phase The phase label.<br>
-   *
-   * @param percentage The percentage, or a negative value when it is not known yet.
+   * @param update The progress update.
    */
-  private void onProgress(@NotNull String phase, int percentage) {
+  private void onProgress(@NotNull ProgressUpdate update) {
   
-    SwingUtilities.invokeLater(() -> updateProgressBar(phase, percentage));
+    SwingUtilities.invokeLater(() -> updateProgressBar(update));
   }
   
   /**
-   * Updates the progress bar. Must be called on the event dispatch thread.
+   * Updates the progress bar and the operation-detail text. Must be called on the event dispatch thread.
    *
-   * @param phase The phase label.<br>
-   *
-   * @param percentage The percentage, or a negative value when it is not known yet.
+   * @param update The progress update.
    */
-  private void updateProgressBar(@NotNull String phase, int percentage) {
+  private void updateProgressBar(@NotNull ProgressUpdate update) {
   
-    this.lastPhase = phase;
+    this.lastPhase = update.phase();
     
-    if (percentage < ZERO_i) {
+    this.lastTotal = update.total();
+    
+    final String label = buildPhaseLabel(update.phase(), update.total());
+    
+    if (update.percentage() < ZERO_i) {
     
       this.progressBar.setIndeterminate(true);
       
-      this.progressBar.setString(phase + "...");
+      this.progressBar.setString(label + "...");
     }
     else {
     
       this.progressBar.setIndeterminate(false);
       
-      this.progressBar.setValue(percentage);
+      this.progressBar.setValue(update.percentage());
       
-      this.progressBar.setString(phase + ": " + percentage + "%");
+      this.progressBar.setString(label + ": " + update.percentage() + "%");
     }
+    updateStatus(update);
+  }
+  
+  /**
+   * Builds the phase label, including the total when it is known.
+   *
+   * @param phase The phase label.<br>
+   *
+   * @param total The total, or {@code 0} when it is not known.
+   *
+   * @return The label.
+   */
+  private static String buildPhaseLabel(@NotNull String phase, int total) {
+  
+    String result = phase;
+    
+    if (total > ZERO_i) {
+    
+      final String suffix = " shortcuts";
+      
+      if (phase.endsWith(suffix)) {
+      
+        result = phase.substring(0, phase.length() - suffix.length()) + " " + total + suffix;
+      }
+      else {
+      
+        result = phase + " " + total + suffix;
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Sets the progress bar to 100% before the summary dialog is shown.
+   */
+  private void setProgressTo100() {
+  
+    this.progressBar.setIndeterminate(false);
+    
+    this.progressBar.setValue(100);
+    
+    this.progressBar.setString(buildPhaseLabel(this.lastPhase, this.lastTotal) + ": 100%");
+  }
+  
+  /**
+   * Updates the operation-detail text area from a progress update.
+   *
+   * @param update The progress update.
+   */
+  private void updateStatus(@NotNull ProgressUpdate update) {
+  
+    if (this.currentRequest != null && ! ProgressTracker.PHASE_WORKING.equals(update.phase())
+        && ! ProgressTracker.PHASE_SEARCHING.equals(update.phase())) {
+        
+      final int found = this.app.numTotalShortcuts >= ZERO_i ? this.app.numTotalShortcuts : update.total();
+      
+      setStatusText("Processing the " + found + " shortcuts found under "
+                  + folderWithSeparator(this.currentRequest.searchFolder()));
+    }
+  }
+  
+  /**
+   * Sets the operation-detail text.
+   *
+   * @param text The text to show.
+   */
+  private void setStatusText(@NotNull String text) {
+  
+    this.statusArea.setText(text);
+    
+    this.statusArea.setCaretPosition(ZERO_i);
+    
+    this.statusArea.setToolTipText(text);
+  }
+  
+  /**
+   * Returns the canonical path of a folder, followed by the platform name separator.
+   *
+   * @param folder The folder.
+   *
+   * @return The path with a trailing separator.
+   */
+  private static String folderWithSeparator(@NotNull File folder) {
+  
+    final String path = getCanonicalPath(folder);
+    
+    return path.endsWith(File.separator) ? path : path + File.separator;
+  }
+  
+  /**
+   * Marks the operation as completed, with a green progress bar.
+   */
+  private void markProgressCompleted() {
+  
+    this.progressBar.setIndeterminate(false);
+    
+    this.progressBar.setValue(100);
+    
+    this.progressBar.setString("Completed");
+    
+    this.progressBar.setForeground(SUCCESS_COLOR);
+    
+    this.statusArea.setForeground(SUCCESS_COLOR);
+  }
+  
+  /**
+   * Marks the operation as failed, with a red progress bar.
+   */
+  private void markProgressFailed() {
+  
+    this.progressBar.setIndeterminate(false);
+    
+    this.progressBar.setString("Failed");
+    
+    this.progressBar.setForeground(FAILURE_COLOR);
+    
+    this.statusArea.setForeground(FAILURE_COLOR);
   }
   
   /**
@@ -757,7 +946,7 @@ final class MoveWithShortcutsGui {
       
       final File logFolder = logFile.getParentFile() == null ? logFile : logFile.getParentFile();
       
-      result = "Logs written to: " + dq(getCanonicalPath(logFolder));
+      result = "Logs written to folder: " + dq(folderWithSeparator(logFolder));
     }
     return result;
   }
@@ -782,7 +971,7 @@ final class MoveWithShortcutsGui {
     
     final String versionText = version.object != null ? version.object
                                                       : version.description != null ? version.description : "unknown";
-                               
+                                                      
     final Package appPackage = MoveWithShortcutsGuiMain.class.getPackage();
     
     final String vendor = appPackage != null ? appPackage.getImplementationVendor() : null;

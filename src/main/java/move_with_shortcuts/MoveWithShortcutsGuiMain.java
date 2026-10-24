@@ -58,16 +58,19 @@ public final class MoveWithShortcutsGuiMain {
     
     try {
     
-      final File logFolder = resolveGuiLogFolder();
+      final File logFolder = resolveGuiLogFolder(originalPath);
       
       final Log screenLog = new Log(APP_DESCR + " - screen log"
-                                  , logFileName(logFolder, APP_NAME + "_screen-log.LOG"), true);
+                                  , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_screen-log.LOG")
+                                  , true);
                                   
       final Log userLog =   new Log(APP_DESCR + " - user log"
-                                  , logFileName(logFolder, APP_NAME + "_user-log.LOG"), true);
+                                  , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_user-log.LOG")
+                                  , true);
                                   
       final Log devLog =    new Log(APP_DESCR + " - developer log"
-                                  , logFileName(logFolder, APP_NAME + "_dev-log.LOG"), true);
+                                  , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_dev-log.LOG")
+                                  , true);
                                   
       final GuiProgressReporter progressReporter = GuiProgressReporter.newInstance();
       
@@ -95,12 +98,14 @@ public final class MoveWithShortcutsGuiMain {
   }
   
   /**
-   * Returns the folder where the GUI logs must be written : a {@code LOG} folder next to the JAR that contains this
-   * class, falling back to a per-user folder when that folder cannot be created.
+   * Returns the per-instance folder where the GUI logs must be written : a {@code LOG} folder next to the JAR that
+   * contains this class, falling back to a per-user folder when that folder cannot be created.
+   *
+   * @param originalPath The original path used in the folder name, or {@code null} when it is not known.
    *
    * @return The log folder, or {@code null} when no folder can be created.
    */
-  private static File resolveGuiLogFolder() {
+  private static File resolveGuiLogFolder(String originalPath) {
   
     File result = null;
     
@@ -108,12 +113,7 @@ public final class MoveWithShortcutsGuiMain {
     
     if (appFolder != null) {
     
-      final File appLogFolder = new File(appFolder, "LOG");
-      
-      if (ensureFolder(appLogFolder)) {
-      
-        result = appLogFolder;
-      }
+      result = createLogFolder(new File(appFolder, MoveWithShortcutsLogs.LOG_FOLDER_NAME), originalPath);
     }
     if (result == null) {
     
@@ -121,13 +121,29 @@ public final class MoveWithShortcutsGuiMain {
       
       if (userHome != null) {
       
-        final File userLogFolder = new File(new File(userHome, "MoveWithShortcuts"), "LOG");
-        
-        if (ensureFolder(userLogFolder)) {
-        
-          result = userLogFolder;
-        }
+        result = createLogFolder(new File(new File(userHome, "MoveWithShortcuts")
+                                        , MoveWithShortcutsLogs.LOG_FOLDER_NAME), originalPath);
       }
+    }
+    return result;
+  }
+  
+  /**
+   * Creates the per-instance log folder under the given parent log folder, when the parent is writable.
+   *
+   * @param logParentFolder The parent log folder.<br>
+   *
+   * @param originalPath The original path used in the folder name, or {@code null} when it is not known.
+   *
+   * @return The new folder, or {@code null}.
+   */
+  private static File createLogFolder(@NotNull File logParentFolder, String originalPath) {
+  
+    File result = null;
+    
+    if (ensureFolder(logParentFolder)) {
+    
+      result = MoveWithShortcutsLogs.createInstanceLogFolder(logParentFolder, originalPath);
     }
     return result;
   }
@@ -181,20 +197,6 @@ public final class MoveWithShortcutsGuiMain {
       result = false;
     }
     return result;
-  }
-  
-  /**
-   * Returns the path to use for one GUI log file.
-   *
-   * @param logFolder The log folder, or {@code null} to use a bare file name.<br>
-   *
-   * @param fileName The log file name.
-   *
-   * @return The log file path.
-   */
-  private static String logFileName(File logFolder, @NotNull String fileName) {
-  
-    return logFolder == null ? fileName : new File(logFolder, fileName).getPath();
   }
   
   /**

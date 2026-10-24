@@ -374,6 +374,73 @@ public class MoveWithShortcutsGuiTest {
   }
   
   /**
+   * Tests that the log folder leaf is the original leaf, including its extension.
+   */
+  @Test
+  void logLeafUsesOriginalLeaf() {
+  
+    Assert.assertEquals(MoveWithShortcutsLogs.leafOf("C:\\a\\Budget.xlsx"), "Budget.xlsx");
+    
+    Assert.assertEquals(MoveWithShortcutsLogs.leafOf("C:\\a\\my folder\\"), "my folder");
+    
+    Assert.assertEquals(MoveWithShortcutsLogs.leafOf(null), "MoveWithShortcuts");
+  }
+  
+  /**
+   * Tests that the log folder leaf replaces the characters that Windows does not allow.
+   */
+  @Test
+  void logLeafSanitizesInvalidChars() {
+  
+    Assert.assertEquals(MoveWithShortcutsLogs.leafOf("C:\\a\\a:b*?.txt"), "a_b__.txt");
+    
+    Assert.assertEquals(MoveWithShortcutsLogs.leafOf("C:\\a\\name."), "name");
+  }
+  
+  /**
+   * Tests that the per-instance log folder uses the original leaf and is unique.
+   *
+   * @throws IOException If the test folders cannot be created.
+   */
+  @Test
+  void instanceLogFolderUsesLeafAndIsUnique() throws IOException {
+  
+    final File parent = newFolder("logs");
+    
+    final File first = MoveWithShortcutsLogs.createInstanceLogFolder(parent, "C:\\a\\Budget.xlsx");
+    
+    final File second = MoveWithShortcutsLogs.createInstanceLogFolder(parent, "C:\\a\\Budget.xlsx");
+    
+    Assert.assertNotNull(first);
+    
+    Assert.assertNotNull(second);
+    
+    Assert.assertTrue(first.isDirectory());
+    
+    Assert.assertTrue(second.isDirectory());
+    
+    Assert.assertTrue(first.getName().contains("_Budget.xlsx"));
+    
+    Assert.assertTrue(second.getName().contains("_Budget.xlsx"));
+    
+    Assert.assertNotEquals(first.getName(), second.getName());
+  }
+  
+  /**
+   * Tests that a log file name is placed in the log folder when one is given.
+   */
+  @Test
+  void logFileNameUsesFolderWhenGiven() {
+  
+    final File folder = new File(this.tempDir.toFile(), "log");
+    
+    Assert.assertEquals(MoveWithShortcutsLogs.fileName(null, "test.LOG"), "test.LOG");
+    
+    Assert.assertEquals(MoveWithShortcutsLogs.fileName(folder, "test.LOG")
+                      , new File(folder, "test.LOG").getPath());
+  }
+  
+  /**
    * Creates and populates the configuration parameters from the given map.
    *
    * @param configurationMap The configuration map.

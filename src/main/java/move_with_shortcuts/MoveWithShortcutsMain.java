@@ -19,6 +19,7 @@ import dutil.system.OSUtilities;
 import dutil.value_holder.ObjectAndDescr;
 import jakarta.validation.constraints.NotNull;
 
+import java.io.File;
 import java.util.Date;
 
 import static application.AAppContext.MAX_VERBOSITY;
@@ -108,14 +109,21 @@ public final class MoveWithShortcutsMain {
     }
     // Start the execution :
     
+    final File logFolder = MoveWithShortcutsLogs.createInstanceLogFolder(
+                                      new File(getCurrentFolder(), MoveWithShortcutsLogs.LOG_FOLDER_NAME)
+                                    , originalPathForLogs(args));
+                                    
     try (
     
-      final Log screenLog = new Log(APP_DESCR + " - screen log",    APP_NAME + "_screen-log.LOG", true);
-      
-      final Log userLog =   new Log(APP_DESCR + " - user log",      APP_NAME + "_user-log.LOG",   true);
-      
-      final Log devLog =    new Log(APP_DESCR + " - developer log", APP_NAME + "_dev-log.LOG",    true);
-      
+      final Log screenLog = new Log(APP_DESCR + " - screen log"
+                                  , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_screen-log.LOG"), true);
+                                  
+      final Log userLog =   new Log(APP_DESCR + " - user log"
+                                  , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_user-log.LOG"), true);
+                                  
+      final Log devLog =    new Log(APP_DESCR + " - developer log"
+                                  , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_dev-log.LOG"), true);
+                                  
       final ConditionallyCloseablePrintStream out = new ConditionallyCloseablePrintStream(
                                                                                           System.out,   true
                                                                                         , CHARSET_UTF_8, false);
@@ -319,6 +327,18 @@ public final class MoveWithShortcutsMain {
     ac.outUser(ONE_i, NL + "Shortcut file name policy : " + shortcutFileNamePolicy + " .");
     
     ac.outUser(ONE_i, NL);
+  }
+  
+  /**
+   * Returns the original path to use in the per-instance log folder name, when it is given on the command line.
+   *
+   * @param args The parsed arguments, or {@code null} in zero-arg mode.
+   *
+   * @return The original path, or {@code null} when it is not known.
+   */
+  private static String originalPathForLogs(ParsedArgs args) {
+  
+    return args != null && args.wasGiven(FROM_OPTION_NAME) ? args.getFile(FROM_OPTION_NAME).getPath() : null;
   }
   
   /**

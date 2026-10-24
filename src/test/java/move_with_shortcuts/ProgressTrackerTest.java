@@ -71,7 +71,48 @@ public class ProgressTrackerTest {
   }
   
   /**
-   * Tests the phase and percentage updates for a full sequence of lines.
+   * Tests that the total is extracted from a progress line.
+   */
+  @Test
+  void parseProgressTotalReadsTotal() {
+  
+    Assert.assertEquals(ProgressTracker.parseProgressTotal("1 / 4 (25,00%)"), 4);
+    
+    Assert.assertEquals(ProgressTracker.parseProgressTotal("1 / 1.890 (0,05%)"), 1890);
+    
+    Assert.assertEquals(ProgressTracker.parseProgressTotal("Analyzing shortcuts: 1 / 908 (1,00%)"), 908);
+  }
+  
+  /**
+   * Tests that the last total of a line with several progress entries is used.
+   */
+  @Test
+  void parseProgressTotalUsesLastProgressInLine() {
+  
+    Assert.assertEquals(ProgressTracker.parseProgressTotal(
+                                        "1 / 4 (25,00%)\t\t2 / 1.890 (0,11%)"), 1890);
+  }
+  
+  /**
+   * Tests the total extraction from the PowerShell reading and updating phase lines.
+   */
+  @Test
+  void parseHeaderTotalReadsPhaseTotals() {
+  
+    Assert.assertEquals(ProgressTracker.parseHeaderTotal(
+                                        "Starting reading targets of 1.890 shortcuts from file ..."
+                                      , "of ", " shortcuts"), 1890);
+                                      
+    Assert.assertEquals(ProgressTracker.parseHeaderTotal(
+                                        "Starting updating the targets and/or work folders of the 12 shortcuts from"
+                                      + " file ...", "of the ", " shortcuts"), 12);
+                                      
+    Assert.assertEquals(ProgressTracker.parseHeaderTotal(
+                                        "Completed. Processed 2 shortcuts.", "Processed ", " shortcuts"), 2);
+  }
+  
+  /**
+   * Tests the phase, total and percentage updates for a full sequence of lines.
    */
   @Test
   void trackerReportsPhasesAndPercentages() {
@@ -79,8 +120,9 @@ public class ProgressTrackerTest {
     final List<String> updates = new ArrayList<>();
     
     final ProgressTracker tracker = new ProgressTracker(
-                                        (phase, percentage) -> updates.add(phase + "=" + percentage));
-                                        
+                                        update -> updates.add(update.phase() + "=" + update.total() + "="
+                                                            + update.percentage()));
+                                                            
     tracker.acceptChars("Retrieving shortcuts to check for needed update, under folder \"C:\\Temp\" ...");
     
     tracker.accept("Starting reading targets of 4 shortcuts...");
@@ -93,8 +135,8 @@ public class ProgressTrackerTest {
     
     tracker.accept("Completed. Processed 2 shortcuts.");
     
-    Assert.assertEquals(updates, List.of("Searching shortcuts=-1", "Reading shortcuts=-1"
-                                        , "Reading shortcuts=25", "Analyzing shortcuts=25"
-                                        , "Finalizing=50", "Finalizing=100"));
+    Assert.assertEquals(updates, List.of("Searching shortcuts=0=-1", "Reading shortcuts=4=-1"
+                                        , "Reading shortcuts=4=25", "Analyzing shortcuts=4=25"
+                                        , "Finalizing=2=50", "Finalizing=2=100"));
   }
 }

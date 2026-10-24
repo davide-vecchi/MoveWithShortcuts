@@ -4,9 +4,9 @@
 package move_with_shortcuts;
 
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 
 // @formatter:off
@@ -21,7 +21,7 @@ final class GuiProgressReporter {
   /**
    * The listener to notify, or {@code null} when the GUI is not ready or has been closed.
    */
-  private volatile BiConsumer<String, Integer> listener;
+  private volatile Consumer<ProgressUpdate> listener;
   
   
   /**
@@ -45,7 +45,7 @@ final class GuiProgressReporter {
    *
    * @param listener The listener, or {@code null} to stop notifying.
    */
-  void setListener(BiConsumer<String, Integer> listener) {
+  void setListener(Consumer<ProgressUpdate> listener) {
   
     this.listener = listener;
   }
@@ -53,17 +53,15 @@ final class GuiProgressReporter {
   /**
    * Reports a phase change or a progress update.
    *
-   * @param phase The phase label.<br>
-   *
-   * @param percentage The percentage, or a negative value when the exact percentage is not known yet.
+   * @param update The progress update.
    */
-  void report(@NotBlank String phase, int percentage) {
+  void report(@NotNull ProgressUpdate update) {
   
-    final BiConsumer<String, Integer> currentListener = this.listener;
+    final Consumer<ProgressUpdate> currentListener = this.listener;
     
     if (currentListener != null) {
     
-      currentListener.accept(phase, percentage);
+      currentListener.accept(update);
     }
   }
 }

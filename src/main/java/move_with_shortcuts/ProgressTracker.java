@@ -7,15 +7,17 @@ package move_with_shortcuts;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import static dutil.number.NumberUtilities.ZERO_i;
 
 
 // @formatter:off
 
 
 /**
- * Turns the progress lines written by the PowerShell scripts and by the Java updater loops into phase and percentage
- * updates for the GUI.
+ * Turns the progress lines written by the PowerShell scripts and by the Java updater loops into phase, total and
+ * percentage updates for the GUI.
  */
 final class ProgressTracker {
 
@@ -81,27 +83,52 @@ final class ProgressTracker {
   private static final String COMPLETED_PREFIX = "Completed. Processed ";
   
   /**
-   * The consumer of the phase and percentage updates.
+   * The text that precedes the total in the PowerShell reading phase line.
    */
-  private final BiConsumer<String, Integer> progressConsumer;
+  private static final String READING_TOTAL_PREFIX = "of ";
+  
+  /**
+   * The text that precedes the total in the PowerShell updating phase line.
+   */
+  private static final String UPDATING_TOTAL_PREFIX = "of the ";
+  
+  /**
+   * The text that precedes the total in the PowerShell completion line.
+   */
+  private static final String COMPLETED_TOTAL_PREFIX = "Processed ";
+  
+  /**
+   * The text that follows the total in the PowerShell phase and completion lines.
+   */
+  private static final String TOTAL_SUFFIX = " shortcuts";
+  
+  /**
+   * The consumer of the progress updates.
+   */
+  private final Consumer<ProgressUpdate> progressConsumer;
   
   /**
    * The phase of the current loop.
    */
   private String phase = PHASE_WORKING;
   
+  /**
+   * The total number of items in the current phase, or {@code 0} when it is not known.
+   */
+  private int total;
+  
   
   /**
    * @param progressConsumer {@link #progressConsumer}.
    */
-  ProgressTracker(@NotNull BiConsumer<String, Integer> progressConsumer) {
+  ProgressTracker(@NotNull Consumer<ProgressUpdate> progressConsumer) {
   
     this.progressConsumer = progressConsumer;
   }
   
   
   /**
-   * Parses one output line and reports a phase or percentage update when the line carries one.
+   * Parses one output line and reports a phase or progress update when the line carries one.
    *
    * @param line The output line, or {@code null}.
    */
@@ -119,10 +146,14 @@ final class ProgressTracker {
     }
     if (text.startsWith(READING_PREFIX)) {
     
+      this.total = parseHeaderTotal(text, READING_TOTAL_PREFIX, TOTAL_SUFFIX);
+      
       setPhase(PHASE_READING);
     }
     else if (text.startsWith(UPDATING_PREFIX)) {
     
+      this.total = parseHeaderTotal(text, UPDATING_TOTAL_PREFIX, TOTAL_SUFFIX);
+      
       setPhase(PHASE_UPDATING);
     }
     else if (text.startsWith(ANALYZING_PREFIX)) {
@@ -135,7 +166,13 @@ final class ProgressTracker {
     }
     else if (text.startsWith(COMPLETED_PREFIX)) {
     
-      this.progressConsumer.accept(this.phase, 100);
+      final int completed = parseHeaderTotal(text, COMPLETED_TOTAL_PREFIX, TOTAL_SUFFIX);
+      
+      if (completed > ZERO_i) {
+      
+        this.total = completed;
+      }
+      this.progressConsumer.accept(new ProgressUpdate(this.phase, this.total, 100));
     }
     else {
     
@@ -143,7 +180,13 @@ final class ProgressTracker {
       
       if (percentage != null) {
       
-        this.progressConsumer.accept(this.phase, percentage);
+        final int parsedTotal = parseProgressTotal(text);
+        
+        if (parsedTotal > ZERO_i) {
+        
+          this.total = parsedTotal;
+        }
+        this.progressConsumer.accept(new ProgressUpdate(this.phase, this.total, percentage));
       }
     }
   }
@@ -157,6 +200,8 @@ final class ProgressTracker {
   
     if (chars != null && chars.contains("Retrieving shortcuts to check for needed update")) {
     
+      this.total = ZERO_i;
+      
       setPhase(PHASE_SEARCHING);
     }
   }
@@ -170,11 +215,11 @@ final class ProgressTracker {
   
     this.phase = newPhase;
     
-    this.progressConsumer.accept(this.phase, UNKNOWN_PERCENTAGE);
+    this.progressConsumer.accept(new ProgressUpdate(this.phase, this.total, UNKNOWN_PERCENTAGE));
   }
   
   /**
-   * Sets the current phase and reports its percentage, when the line contains one.
+   * Sets the current phase, updates the total and reports the percentage, when the line contains one.
    *
    * @param newPhase The new phase label.<br>
    *
@@ -184,16 +229,16 @@ final class ProgressTracker {
   
     this.phase = newPhase;
     
+    final int parsedTotal = parseProgressTotal(line);
+    
+    if (parsedTotal > ZERO_i) {
+    
+      this.total = parsedTotal;
+    }
     final Integer percentage = parsePercentage(line);
     
-    if (percentage == null) {
-    
-      this.progressConsumer.accept(this.phase, UNKNOWN_PERCENTAGE);
-    }
-    else {
-    
-      this.progressConsumer.accept(this.phase, percentage);
-    }
+    this.progressConsumer.accept(new ProgressUpdate(this.phase, this.total
+                                                  , percentage == null ? UNKNOWN_PERCENTAGE : percentage));
   }
   
   /**
@@ -231,6 +276,98 @@ final class ProgressTracker {
           }
         }
       }
+    }
+    return result;
+  }
+  
+  /**
+   * Extracts the total from a progress line, like {@code "1 / 4 (25,00%)"}.
+   *
+   * @param line The line to parse, or {@code null}.
+   *
+   * @return The total, or {@code 0} when it cannot be parsed.
+   */
+  static int parseProgressTotal(String line) {
+  
+    int result = ZERO_i;
+    
+    if (line != null) {
+    
+      final int percentIndex = line.lastIndexOf('%');
+      
+      if (percentIndex > 0) {
+      
+        final int openIndex = line.lastIndexOf('(', percentIndex);
+        
+        if (openIndex > 0) {
+        
+          final int slashIndex = line.lastIndexOf('/', openIndex);
+          
+          if (slashIndex > 0) {
+          
+            result = parseCount(line.substring(slashIndex + 1, openIndex).trim());
+          }
+        }
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Extracts the total from one of the PowerShell phase or completion lines.
+   *
+   * @param line The line to parse, or {@code null}.<br>
+   *
+   * @param prefix The text that precedes the total.<br>
+   *
+   * @param suffix The text that follows the total.
+   *
+   * @return The total, or {@code 0} when it cannot be parsed.
+   */
+  static int parseHeaderTotal(String line, @NotBlank String prefix, @NotBlank String suffix) {
+  
+    int result = ZERO_i;
+    
+    if (line != null) {
+    
+      final int prefixIndex = line.indexOf(prefix);
+      
+      if (prefixIndex >= 0) {
+      
+        final int start = prefixIndex + prefix.length();
+        
+        final int end = line.indexOf(suffix, start);
+        
+        if (end > start) {
+        
+          result = parseCount(line.substring(start, end));
+        }
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Parses an integer that may contain a grouping separator.
+   *
+   * @param text The text to parse.
+   *
+   * @return The parsed integer, or {@code 0} when it cannot be parsed.
+   */
+  private static int parseCount(@NotBlank String text) {
+  
+    int result = ZERO_i;
+    
+    try {
+    
+      final String digits = text.replace(".", "").replace(",", "").replace(" ", "")
+                                .replace("\u00A0", "").replace("\u202F", "");
+                                
+      result = Integer.parseInt(digits);
+    }
+    catch (NumberFormatException e) {
+    
+      result = ZERO_i;
     }
     return result;
   }
