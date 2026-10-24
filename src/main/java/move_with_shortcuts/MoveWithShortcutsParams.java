@@ -17,6 +17,7 @@ import lombok.Getter;
 import java.io.Serial;
 import java.util.Map;
 
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 
@@ -40,6 +41,11 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   static final String CREATE_CONTEXT_MENU_PARAM_NAME = "CreateContextMenu";
   
   /**
+   * The name of the parameter that selects console mode instead of the default GUI mode.
+   */
+  static final String CONSOLE_PARAM_NAME = "Console";
+  
+  /**
    * The shortcuts updater implementation ID, or the default if the parameter is missing.
    */
   @Getter
@@ -51,6 +57,13 @@ final class MoveWithShortcutsParams extends AParams<Object> {
    */
   @Getter
   private final ParamMono<Object, Boolean> createContextMenu;
+  
+  /**
+   * Whether MWS must start in console mode instead of the default GUI mode, or the default if the parameter is
+   * missing.
+   */
+  @Getter
+  private final ParamMono<Object, Boolean> console;
   
   
   /**
@@ -67,6 +80,8 @@ final class MoveWithShortcutsParams extends AParams<Object> {
     this.shortcutsUpdater = new ParamMono<>(this, SHORTCUTS_UPDATER_PARAM_NAME);
     
     this.createContextMenu = new ParamMono<>(this, CREATE_CONTEXT_MENU_PARAM_NAME);
+    
+    this.console = new ParamMono<>(this, CONSOLE_PARAM_NAME);
   }
   
   
@@ -81,6 +96,9 @@ final class MoveWithShortcutsParams extends AParams<Object> {
                         
     this.createContextMenu.setValueParser(new BooleanStringParser())
                           .loadOptionalValue(TRUE);
+                          
+    this.console.setValueParser(new BooleanStringParser())
+                .loadOptionalValue(FALSE);
   }
   
   /**
@@ -119,5 +137,15 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   boolean isCreateContextMenu() {
   
     return this.createContextMenu.value.booleanValue();
+  }
+  
+  /**
+   * Tells whether MWS must start in console mode instead of the default GUI mode.
+   *
+   * @return Whether console mode is selected.
+   */
+  boolean isConsole() {
+  
+    return this.console.value.booleanValue();
   }
 }

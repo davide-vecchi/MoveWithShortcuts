@@ -191,6 +191,51 @@ public class MoveWithShortcutsGuiTest {
   }
   
   /**
+   * Tests that the console parameter defaults to {@code false}.
+   */
+  @Test
+  void consoleDefaultsToFalse() {
+  
+    Assert.assertFalse(createParams(Map.of(MoveWithShortcutsParams.SHORTCUTS_UPDATER_PARAM_NAME
+                                         , ShortcutsUpdaterKind.defaultKind().getId()))
+                                                .isConsole());
+  }
+  
+  /**
+   * Tests that the console parameter reads {@code true}.
+   */
+  @Test
+  void consoleReadsTrue() {
+  
+    Assert.assertTrue(createParams(Map.of(MoveWithShortcutsParams.CONSOLE_PARAM_NAME, "true")).isConsole());
+  }
+  
+  /**
+   * Tests that the console parameter rejects an invalid value.
+   */
+  @Test
+  void consoleRejectsInvalidValue() {
+  
+    Assert.expectThrows(InvalidValueException.class
+                      , () -> createParams(Map.of(MoveWithShortcutsParams.CONSOLE_PARAM_NAME, "maybe")));
+  }
+  
+  /**
+   * Tests the console/GUI mode decision.
+   */
+  @Test
+  void consoleModeDecisionFollowsFlagsAndConfiguration() {
+  
+    Assert.assertTrue(MoveWithShortcutsMain.isConsoleRequested(true, false, false));
+    
+    Assert.assertFalse(MoveWithShortcutsMain.isConsoleRequested(false, true, true));
+    
+    Assert.assertTrue(MoveWithShortcutsMain.isConsoleRequested(false, false, true));
+    
+    Assert.assertFalse(MoveWithShortcutsMain.isConsoleRequested(false, false, false));
+  }
+  
+  /**
    * Tests that a rename of an existing file is accepted and requires the move.
    *
    * @throws IOException If the test files cannot be created.

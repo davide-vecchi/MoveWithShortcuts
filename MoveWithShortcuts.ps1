@@ -5,8 +5,9 @@
 # @ECHO OFF
 # wt pwsh -NoExit -File "MoveWithShortcuts.ps1"
 #
-# Any argument other than -WorkDir is forwarded unchanged to the JAR
-# (e.g. -from, -to, -search, -verbosity, -help).
+# Any argument other than -WorkDir is forwarded to the JAR (e.g. -from, -to,
+# -search, -verbosity, -help), and -console is added unless it is already
+# present, because this is the console launcher.
 #
 
 param(
@@ -38,9 +39,20 @@ else {
 
 $jarPath = "$PSScriptRoot\MoveWithShortcuts.jar"
 
-[System.Console]::Out.WriteLine()
-[System.Console]::Out.WriteLine("java -jar ""$jarPath"" $args")
+# This launcher is the console launcher : add -console unless the caller already
+# passed it explicitly.
 
-java -jar "$jarPath" $args
+$consoleArgs = @()
+
+if (-not (($args -contains "-console") -or ($args -contains "--console"))) {
+
+    $consoleArgs += "-console"
+}
+$consoleArgs += $args
+
+[System.Console]::Out.WriteLine()
+[System.Console]::Out.WriteLine("java -jar ""$jarPath"" $($consoleArgs -join ' ')")
+
+java -jar "$jarPath" @consoleArgs
 
 # Read-Host "Press Enter to exit"

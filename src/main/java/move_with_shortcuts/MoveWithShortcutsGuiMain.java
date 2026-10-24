@@ -6,6 +6,7 @@ package move_with_shortcuts;
 
 import application.AAppContext;
 import dfile.shortcut.IShortcutsUpdater;
+import dfile.shortcut.ShortcutFileNamePolicy;
 import dlog.log.Log;
 import dutil.value_holder.ObjectAndDescr;
 import jakarta.validation.constraints.NotNull;
@@ -56,6 +57,33 @@ public final class MoveWithShortcutsGuiMain {
     
     final String originalPath = args.length > ZERO_i ? args[ZERO_i] : null;
     
+    start(originalPath, null, null, null, ShortcutFileNamePolicy.NEVER, null, null, null);
+  }
+  
+  /**
+   * Starts the GUI with the given initial values and overrides.
+   *
+   * @param originalPath The original path to prefill, or {@code null}.<br>
+   *
+   * @param destinationPath The destination path to prefill, or {@code null}.<br>
+   *
+   * @param searchPath The search folder to prefill, or {@code null}.<br>
+   *
+   * @param updaterKindOverride The updater to use, or {@code null} to use the configuration/default.<br>
+   *
+   * @param shortcutFileNamePolicy The shortcut-file name policy to use.<br>
+   *
+   * @param createContextMenuOverride Whether to create or update the context-menu integration, or {@code null} to use
+   *        the configuration.<br>
+   *
+   * @param verbosityOverride The verbosity to use, or {@code null} to use the GUI default.<br>
+   *
+   * @param warningMessage A message to show in the operation-detail area, or {@code null}.
+   */
+  static void start(String originalPath, String destinationPath, String searchPath
+                  , ShortcutsUpdaterKind updaterKindOverride, ShortcutFileNamePolicy shortcutFileNamePolicy
+                  , Boolean createContextMenuOverride, Integer verbosityOverride, String warningMessage) {
+                  
     try {
     
       final File logFolder = resolveGuiLogFolder(originalPath);
@@ -77,17 +105,25 @@ public final class MoveWithShortcutsGuiMain {
       final AAppContext appContext = AppContext.newAppContext(GuiUserInputOutput.newInstance(progressReporter)
                                                                     , screenLog, userLog, devLog);
                                                                     
+      if (verbosityOverride != null) {
+      
+        appContext.currentVerbosity = verbosityOverride.intValue();
+      }
       writeLogsHeaders(screenLog, userLog, devLog, APP_NAME, APP_DESCR);
       
       setSystemLookAndFeel();
       
-      installOrUpdateContextMenu(appContext);
+      installOrUpdateContextMenu(appContext, createContextMenuOverride);
       
-      final IShortcutsUpdater updater = MoveWithShortcutsMain.selectShortcutsUpdaterForGui(appContext)
-                                                             .newUpdater(appContext);
-                                                             
+      final ShortcutsUpdaterKind updaterKind = updaterKindOverride != null ? updaterKindOverride
+                                              : MoveWithShortcutsMain.selectShortcutsUpdaterForGui(appContext);
+                                              
+      final IShortcutsUpdater updater = updaterKind.newUpdater(appContext);
+      
       SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext, updater, originalPath
-                                                               , progressReporter));
+                                                               , destinationPath, searchPath
+                                                               , shortcutFileNamePolicy, progressReporter
+                                                               , warningMessage));
     }
     catch (Exception e) {
     
@@ -203,11 +239,18 @@ public final class MoveWithShortcutsGuiMain {
    * Creates or updates the Windows Explorer context-menu integration when the configuration enables it, showing a
    * message only when it was created or updated, or an error when it failed.
    *
-   * @param appContext The application context to use for the configuration and the messages.
+   * @param appContext The application context to use for the configuration and the messages.<br>
+   *
+   * @param createContextMenuOverride Whether to create or update the integration, or {@code null} to use the
+   *        configuration.
    */
-  private static void installOrUpdateContextMenu(@NotNull AAppContext appContext) {
-  
-    if (ShortcutsUpdaterConfig.readCreateContextMenu(appContext)) {
+  private static void installOrUpdateContextMenu(@NotNull AAppContext appContext
+                                               , Boolean createContextMenuOverride) {
+                                               
+    final boolean enabled = createContextMenuOverride != null ? createContextMenuOverride.booleanValue()
+                                                              : ShortcutsUpdaterConfig.readCreateContextMenu(appContext);
+                                                              
+    if (enabled) {
     
       final ObjectAndDescr<Boolean> outcome = ExplorerContextMenu.installOrUpdate(appContext);
       

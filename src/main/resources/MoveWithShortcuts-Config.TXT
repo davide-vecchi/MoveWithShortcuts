@@ -15,3 +15,11 @@ ShortcutsUpdater = ps-scripts-multi
 # Accepted values : true, false (yes / no are accepted too). Default : true.
 #
 CreateContextMenu = true
+
+#
+# Console : whether to start in console mode instead of the default GUI mode.
+# Accepted values : true, false (yes / no are accepted too). Default : false.
+#
+# true / yes makes console mode the default; a -gui command line arg overrides it.
+#
+Console = false

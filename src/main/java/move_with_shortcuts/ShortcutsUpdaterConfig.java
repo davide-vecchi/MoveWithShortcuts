@@ -5,6 +5,7 @@ package move_with_shortcuts;
 
 
 import application.AAppContext;
+import dutil.string.value_parser.BooleanStringParser;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.File;
@@ -113,6 +114,39 @@ final class ShortcutsUpdaterConfig {
     final MoveWithShortcutsParams params = readConfiguredParams(appContext);
     
     return params == null || params.isCreateContextMenu();
+  }
+  
+  /**
+   * Tells whether the configuration file selects console mode, defaulting to {@code false} when there is no usable
+   * configuration file.
+   *
+   * @return Whether console mode is selected.
+   */
+  static boolean readConsole() {
+  
+    final File configFile = findConfigFile();
+    
+    boolean result = false;
+    
+    if (configFile != null) {
+    
+      try {
+      
+        final Map<String, String> configurationMap = toMap(readProperties(getCanonicalPath(configFile)));
+        
+        final String value = configurationMap.get(MoveWithShortcutsParams.CONSOLE_PARAM_NAME);
+        
+        if (value != null) {
+        
+          result = new BooleanStringParser().parse(value).booleanValue();
+        }
+      }
+      catch (RuntimeException e) {
+      
+        result = false;
+      }
+    }
+    return result;
   }
   
   /**

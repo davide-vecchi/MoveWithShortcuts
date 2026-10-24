@@ -17,8 +17,10 @@ import dutil.exception.UserRequestedTermination;
 import dutil.io.ConditionallyCloseablePrintStream;
 import dutil.system.OSUtilities;
 import dutil.value_holder.ObjectAndDescr;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.util.Date;
 
@@ -41,6 +43,7 @@ import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static java.util.Arrays.asList;
 import static move_with_shortcuts.MoveWithShortcuts.CANCEL_CHARS;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.fusesource.jansi.Ansi.Color.BLACK;
 import static org.fusesource.jansi.Ansi.Color.CYAN;
 import static org.fusesource.jansi.Ansi.Color.RED;
@@ -79,6 +82,8 @@ public final class MoveWithShortcutsMain {
   static final String FROM_OPTION_NAME      = "from";
   static final String TO_OPTION_NAME        = "to";
   static final String SEARCH_OPTION_NAME    = "search";
+  static final String CONSOLE_OPTION_NAME   = "console";
+  static final String GUI_OPTION_NAME       = "gui";
   static final String CREATE_CONTEXT_MENU_OPTION_NAME = "create-context-menu";
   private static final String VERBOSITY_OPTION_NAME = "verbosity";
   private static final String SHORTCUT_FILE_NAME_OPTION_NAME = "shortcut-file-name";
@@ -92,15 +97,150 @@ public final class MoveWithShortcutsMain {
    *                     {@code -from <file or folder path> -to <value> -search <folder path>}
    *                     {@code [-verbosity <int>] [-shortcut-file-name <never|exact|descendant>]}
    *                     {@code [-shortcuts-updater <id>] [-create-context-menu <true|false>]}
-   *                     {@code [-help]} ; zero args start the interactive mode.
+   *                     {@code [-console] [-gui] [-help]} ; GUI mode is the default, and the operation
+   *                     options prefill its fields ; {@code -console} starts the console instead.
    */
   public static void main(String[] originalArgs) throws Exception {
   
     setSystemEncodingUTF8();
     
     final DCommandLineSpec argsSpec = newArgsSpec();
-    final ParsedArgs        args     = originalArgs.length == ZERO_i ? null : parseArgs(argsSpec, originalArgs);
     
+    boolean consoleFlag = false;
+    
+    boolean guiFlag = false;
+    
+    for (final String arg : originalArgs) {
+    
+      if (isOption(arg, CONSOLE_OPTION_NAME)) {
+      
+        consoleFlag = true;
+      }
+      else if (isOption(arg, GUI_OPTION_NAME)) {
+      
+        guiFlag = true;
+      }
+    }
+    if (consoleFlag && guiFlag) {
+    
+      System.out.println(NL + "The options -console and -gui cannot be used together.");
+      
+      System.out.println(argsSpec.getUsageText());
+      
+      System.exit(ONE_i);
+    }
+    final boolean configConsole = consoleFlag || guiFlag ? false : ShortcutsUpdaterConfig.readConsole();
+    
+    final boolean consoleMode = isConsoleRequested(consoleFlag, guiFlag, configConsole);
+    
+    if (consoleMode) {
+    
+      final ParsedArgs args = originalArgs.length == ZERO_i ? null : parseArgs(argsSpec, originalArgs);
+      
+      runConsole(args, originalArgs);
+    }
+    else {
+    
+      startGui(argsSpec, originalArgs);
+    }
+  }
+  
+  /**
+   * Starts the GUI, or falls back to the console in a headless environment.
+   *
+   * @param argsSpec The command-line specification.<br>
+   *
+   * @param originalArgs The command line args.
+   *
+   * @throws Exception If the console fallback fails.
+   */
+  private static void startGui(@NotNull DCommandLineSpec argsSpec, @NotNull String[] originalArgs)
+                                                                                       throws Exception {
+                                                                                       
+    ParsedArgs args = null;
+    
+    String warning = null;
+    
+    try {
+    
+      args = argsSpec.parsePartial(originalArgs);
+      
+      if (args.isHelpRequested()) {
+      
+        System.out.println(argsSpec.getUsageText());
+        
+        System.exit(ZERO_i);
+        
+        return;
+      }
+    }
+    catch (CommandLineArgException e) {
+    
+      final String detail = e.getLocalizedMessage();
+      
+      warning = "Some command-line values were invalid and were not prefilled"
+              + (isBlank(detail) ? "." : ": " + detail);
+    }
+    if (GraphicsEnvironment.isHeadless()) {
+    
+      System.out.println(NL + "Headless environment: the GUI cannot be started, running in console mode.");
+      
+      final ParsedArgs consoleArgs;
+      
+      if (originalArgs.length == ZERO_i) {
+      
+        consoleArgs = null;
+      }
+      else {
+      
+        consoleArgs = args != null ? args : parseArgs(argsSpec, originalArgs);
+      }
+      runConsole(consoleArgs, originalArgs);
+    }
+    else {
+    
+      final String originalPath = args != null && args.wasGiven(FROM_OPTION_NAME)
+                                  ? args.getFile(FROM_OPTION_NAME).getPath() : null;
+                                  
+      final String destinationPath = args != null && args.wasGiven(TO_OPTION_NAME)
+                                     ? args.getString(TO_OPTION_NAME) : null;
+                                     
+      final String searchPath = args != null && args.wasGiven(SEARCH_OPTION_NAME)
+                                ? args.getFile(SEARCH_OPTION_NAME).getPath() : null;
+                                
+      final ShortcutsUpdaterKind updaterKind = args != null && args.wasGiven(SHORTCUTS_UPDATER_OPTION_NAME)
+                                               ? ShortcutsUpdaterKind.parse(
+                                                          args.getString(SHORTCUTS_UPDATER_OPTION_NAME))
+                                               : null;
+                                               
+      final ShortcutFileNamePolicy policy = args != null && args.wasGiven(SHORTCUT_FILE_NAME_OPTION_NAME)
+                                            ? ShortcutFileNamePolicy.parse(
+                                                       args.getString(SHORTCUT_FILE_NAME_OPTION_NAME))
+                                            : ShortcutFileNamePolicy.NEVER;
+                                            
+      final Boolean createContextMenu = args != null && args.wasGiven(CREATE_CONTEXT_MENU_OPTION_NAME)
+                                        ? Boolean.valueOf(args.getString(CREATE_CONTEXT_MENU_OPTION_NAME))
+                                        : null;
+                                        
+      final Integer verbosity = args != null && args.wasGiven(VERBOSITY_OPTION_NAME)
+                                ? Integer.valueOf(args.getInt(VERBOSITY_OPTION_NAME)) : null;
+                                
+      MoveWithShortcutsGuiMain.start(originalPath, destinationPath, searchPath, updaterKind, policy
+                                   , createContextMenu, verbosity, warning);
+    }
+  }
+  
+  /**
+   * Runs the console flow.
+   *
+   * @param args The parsed arguments, or {@code null} in zero-arg mode.<br>
+   *
+   * @param originalArgs The command line args.
+   *
+   * @throws Exception If the console flow fails.
+   */
+  private static void runConsole(ParsedArgs args, @NotNull String[] originalArgs) throws Exception {
+  
     // In the help / bad-args case parseArgs already printed the usage and set the exit code, and never returns :
     
     if (args == null && originalArgs.length > ZERO_i) {
@@ -209,6 +349,36 @@ public final class MoveWithShortcutsMain {
   }
   
   /**
+   * Tells whether the given argument is the given option, with one or two leading hyphens.
+   *
+   * @param arg The argument.<br>
+   *
+   * @param optionName The option name, without the hyphens.
+   *
+   * @return Whether it is the option.
+   */
+  private static boolean isOption(@NotNull String arg, @NotBlank String optionName) {
+  
+    return arg.equalsIgnoreCase("-" + optionName) || arg.equalsIgnoreCase("--" + optionName);
+  }
+  
+  /**
+   * Tells whether console mode must be used.
+   *
+   * @param consoleFlag Whether {@code -console} was given.<br>
+   *
+   * @param guiFlag Whether {@code -gui} was given.<br>
+   *
+   * @param configConsole Whether the configuration selects console mode.
+   *
+   * @return Whether console mode must be used.
+   */
+  static boolean isConsoleRequested(boolean consoleFlag, boolean guiFlag, boolean configConsole) {
+  
+    return consoleFlag || (! guiFlag && configConsole);
+  }
+  
+  /**
    * Builds the specification of this program's named command-line arguments.
    *
    * @return the command-line specification
@@ -221,17 +391,16 @@ public final class MoveWithShortcutsMain {
                                                        + " had before if the operation was already done elsewhere, in"
                                                        + " which case no rename / move will be done and only the shortcuts"
                                                        + " adjustment will be done.")
-                                               .required().fileOrFolderPath())
+                                               .fileOrFolderPath())
                            .addOption(OptionSpec.option(TO_OPTION_NAME
                                                        , "The new name or path for the file or folder, or the path it has"
                                                        + " now if the operation was already done elsewhere, in which case no"
                                                        + " rename / move will be done and only the shortcuts adjustment will"
                                                        + " be done. Exactly one of -from and -to must exist, the other must"
-                                                       + " not.")
-                                               .required())
+                                                       + " not."))
                            .addOption(OptionSpec.option(SEARCH_OPTION_NAME
                                                        , "The folder to scan for " + WIN_SHORTCUT_EXTENSION + " shortcuts to update.")
-                                               .required().existingFolder())
+                                               .existingFolder())
                            .addOption(OptionSpec.option(SHORTCUT_FILE_NAME_OPTION_NAME
                                                        , "The shortcut file name policy : never, exact or descendant"
                                                        + " (default never). exact / descendant rename a shortcut file"
@@ -249,6 +418,16 @@ public final class MoveWithShortcutsMain {
                                                        + " (default true).")
                                                .allowedValues("true", "false")
                                                .defaultValue("true"))
+                           .addOption(OptionSpec.option(CONSOLE_OPTION_NAME
+                                                       , "Starts in console mode instead of the default GUI"
+                                                       + " mode. In console mode the operation options are"
+                                                       + " required unless prompted. Cannot be combined with"
+                                                       + " -gui.").flag())
+                           .addOption(OptionSpec.option(GUI_OPTION_NAME
+                                                       , "Starts in GUI mode, overriding Console=true in the"
+                                                       + " configuration file. In GUI mode the operation"
+                                                       + " options are optional prefills. Cannot be combined"
+                                                       + " with -console.").flag())
                            .addOption(OptionSpec.option(VERBOSITY_OPTION_NAME
                                                        , "The verbosity level (0-" + MAX_VERBOSITY + ")")
                                                .intRange(ZERO_i, MAX_VERBOSITY).defaultValue(S(DEFAULT_VERBOSITY)));

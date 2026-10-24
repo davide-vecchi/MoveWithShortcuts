@@ -9,7 +9,12 @@
 
 - MWS now creates or updates its per-user Windows Explorer context-menu integration at startup, unless the new
   `CreateContextMenu` configuration parameter or the new `-create-context-menu <true|false>` command-line option
-  disables it. The existing command-line and interactive console flows are unchanged.
+  disables it.
+
+- GUI mode is now the default. The console flow starts with `-console` or with `Console = true` in the configuration
+  file; `-gui` forces the GUI. In GUI mode `-from`, `-to` and `-search` prefill the fields and the other operation
+  options are honored; invalid GUI-mode values are reported in the operation-detail area. The console launchers add
+  `-console`, and new GUI launchers use `javaw`.
 
 
 ### Added
@@ -26,6 +31,12 @@
 
 - The first start creates or updates the context-menu integration and shows a message only when it did so ; the
   subsequent starts are quiet.
+
+- Phase-labelled progress with the total number of shortcuts, a green `Completed` / red `Failed` progress bar, and an
+  operation-detail text area in the GUI. The Java updater loops now also report their progress in the console.
+
+- Per-instance log folders named `<timestamp>_<original leaf>` : several GUI and console instances can run at the same
+  time without sharing log files. The summary shows the actual log folder with a trailing separator.
 
 
 ### Removed

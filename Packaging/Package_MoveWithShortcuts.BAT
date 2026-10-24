@@ -7,9 +7,11 @@ REM        It reads the following files :
 REM
 REM          - MoveWithShortcuts.jar  (from this folder; the built executable
 REM                                    JAR; overridable by the first argument)
-REM          - MoveWithShortcuts.BAT  (from the parent module folder)
-REM          - MoveWithShortcuts.ps1  (from the parent module folder)
-REM          - README.md              (from the parent module folder)
+REM          - MoveWithShortcuts.BAT     (from the parent module folder)
+REM          - MoveWithShortcuts.ps1     (from the parent module folder)
+REM          - MoveWithShortcutsGui.BAT  (from the parent module folder)
+REM          - MoveWithShortcutsGui.ps1  (from the parent module folder)
+REM          - README.md                 (from the parent module folder)
 REM          - LICENSE                (from the parent module folder)
 REM
 REM        and produces a ZIP archive containing a top-level "MoveWithShortcuts"
@@ -32,6 +34,8 @@ REM The file names (used both to locate the inputs and as the staged names) :
 SET JAR_NAME=%APP_NAME%.jar
 SET LAUNCHER_BAT_NAME=%APP_NAME%.BAT
 SET LAUNCHER_PS1_NAME=%APP_NAME%.ps1
+SET LAUNCHER_GUI_BAT_NAME=%APP_NAME%Gui.BAT
+SET LAUNCHER_GUI_PS1_NAME=%APP_NAME%Gui.ps1
 SET README_NAME=README.md
 SET LICENSE_NAME=LICENSE
 
@@ -48,6 +52,8 @@ SET VERSION=%~2
 REM The other input files (the launchers, README and LICENSE are in the parent module folder) :
 SET LAUNCHER_BAT=%~dp0..\%LAUNCHER_BAT_NAME%
 SET LAUNCHER_PS1=%~dp0..\%LAUNCHER_PS1_NAME%
+SET LAUNCHER_GUI_BAT=%~dp0..\%LAUNCHER_GUI_BAT_NAME%
+SET LAUNCHER_GUI_PS1=%~dp0..\%LAUNCHER_GUI_PS1_NAME%
 SET README_FILE=%~dp0..\%README_NAME%
 SET LICENSE_FILE=%~dp0..\%LICENSE_NAME%
 
@@ -83,11 +89,13 @@ IF "!PS_EXE!"=="" (
 
 REM Ensure all the input files exist :
 SET MISSING=0
-CALL :Require "!JAR_FILE!"     "executable JAR"
-CALL :Require "!LAUNCHER_BAT!" "Windows launcher"
-CALL :Require "!LAUNCHER_PS1!" "PowerShell launcher"
-CALL :Require "!README_FILE!"  "README"
-CALL :Require "!LICENSE_FILE!" "license"
+CALL :Require "!JAR_FILE!"          "executable JAR"
+CALL :Require "!LAUNCHER_BAT!"      "Windows launcher"
+CALL :Require "!LAUNCHER_PS1!"      "PowerShell launcher"
+CALL :Require "!LAUNCHER_GUI_BAT!"  "GUI Windows launcher"
+CALL :Require "!LAUNCHER_GUI_PS1!"  "GUI PowerShell launcher"
+CALL :Require "!README_FILE!"       "README"
+CALL :Require "!LICENSE_FILE!"      "license"
 
 IF !MISSING! NEQ 0 (
 	ECHO.
@@ -101,11 +109,13 @@ REM Stage the files into the top-level folder :
 IF EXIST "!STAGING_FOLDER!" RMDIR /S /Q "!STAGING_FOLDER!"
 MKDIR "!STAGING_FOLDER!"
 
-COPY /Y "!JAR_FILE!"     "!STAGING_FOLDER!\!JAR_NAME!"           >NUL
-COPY /Y "!LAUNCHER_BAT!" "!STAGING_FOLDER!\!LAUNCHER_BAT_NAME!"  >NUL
-COPY /Y "!LAUNCHER_PS1!" "!STAGING_FOLDER!\!LAUNCHER_PS1_NAME!"  >NUL
-COPY /Y "!README_FILE!"  "!STAGING_FOLDER!\!README_NAME!"        >NUL
-COPY /Y "!LICENSE_FILE!" "!STAGING_FOLDER!\!LICENSE_NAME!"       >NUL
+COPY /Y "!JAR_FILE!"          "!STAGING_FOLDER!\!JAR_NAME!"              >NUL
+COPY /Y "!LAUNCHER_BAT!"      "!STAGING_FOLDER!\!LAUNCHER_BAT_NAME!"     >NUL
+COPY /Y "!LAUNCHER_PS1!"      "!STAGING_FOLDER!\!LAUNCHER_PS1_NAME!"     >NUL
+COPY /Y "!LAUNCHER_GUI_BAT!"  "!STAGING_FOLDER!\!LAUNCHER_GUI_BAT_NAME!" >NUL
+COPY /Y "!LAUNCHER_GUI_PS1!"  "!STAGING_FOLDER!\!LAUNCHER_GUI_PS1_NAME!" >NUL
+COPY /Y "!README_FILE!"       "!STAGING_FOLDER!\!README_NAME!"           >NUL
+COPY /Y "!LICENSE_FILE!"      "!STAGING_FOLDER!\!LICENSE_NAME!"          >NUL
 
 REM Create the archive :
 IF EXIST "!ARCHIVE_FILE!" DEL /Q "!ARCHIVE_FILE!"
@@ -132,6 +142,8 @@ ECHO   !JAR_NAME!
 ECHO     from "!JAR_DIR!"
 ECHO   !LAUNCHER_BAT_NAME!
 ECHO   !LAUNCHER_PS1_NAME!
+ECHO   !LAUNCHER_GUI_BAT_NAME!
+ECHO   !LAUNCHER_GUI_PS1_NAME!
 ECHO   !README_NAME!
 ECHO   !LICENSE_NAME!
 ECHO.

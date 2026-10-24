@@ -15,7 +15,7 @@ REM not start with "wt ". This provides less good Unicode support than
 REM Windows Terminal does.
 REM
 REM In alternative, MoveWithShortcuts can also be executed with the normal
-REM "java -jar MoveWithShortcuts.jar"
+REM "java -jar MoveWithShortcuts.jar -console"
 REM but that provides the least good Unicode support.
 
     wt pwsh -ExecutionPolicy Bypass -NoExit -File "%~dp0MoveWithShortcuts.ps1" -WorkDir "%CD%" %*
@@ -24,4 +24,4 @@ REM    pwsh -ExecutionPolicy Bypass -NoExit -File "%~dp0MoveWithShortcuts.ps1" -
 
 REM    pwsh -ExecutionPolicy Bypass -NoExit -File "%~dp0MoveWithShortcuts.ps1" -WorkDir "%CD%" %*
 
-REM    java -jar MoveWithShortcuts.jar %*
+REM    java -jar MoveWithShortcuts.jar -console %*

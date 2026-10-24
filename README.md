@@ -28,16 +28,28 @@ In detail :
    
 ## Usage
 
-The program can be started without arguments, in which case it will prompt on the console for the needed values.
+MoveWithShortcuts has two launch modes :
 
+- **GUI mode (the default)** : starts the Swing dialog. With no arguments it opens empty; the operation options
+  (`-from`, `-to`, `-search`) prefill its fields, and the other operation options are honored too.
+- **Console mode** : the traditional console flow. It starts when `-console` is passed or when `Console = true` is set
+  in the configuration file. `-gui` overrides `Console = true`.
+
+In a headless environment the program falls back to console mode automatically and prints a message.
+
+The console flow can be started with `-console` and no other arguments, in which case it prompts for the needed values.
 When started with some named options, only the missing required options (`-from`, `-to`, `-search`) are asked for;
-optional options use their defaults. Zero arguments keep the fully interactive flow, including the verbosity prompt.
+optional options use their defaults.
 
-In alternative, it can be started with named options :
+The command-line format is :
 
 ```
-MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder path> [-verbosity <0-2>] [-shortcut-file-name <never|exact|descendant>] [-shortcuts-updater <id>] [-create-context-menu <true|false>] [-help]
+MoveWithShortcuts [-console | -gui] [-from <file or folder path>] [-to <new path>] [-search <folder path>] [-verbosity <0-2>] [-shortcut-file-name <never|exact|descendant>] [-shortcuts-updater <id>] [-create-context-menu <true|false>] [-help]
 ```
+
+In console mode `-from`, `-to` and `-search` are required unless prompted ; in GUI mode they are optional prefills.
+If a value cannot be used in GUI mode, the GUI still opens without that prefill and shows the parse error in the
+operation-detail area. `-help` prints the console usage text.
 
 1. `-from` : The path of the file or folder to rename / move, or the path it had before if the operation was already
    done elsewhere, in which case no rename / move will be done and only the shortcuts adjustment will be done.
@@ -80,7 +92,12 @@ MoveWithShortcuts -from <file or folder path> -to <new path> -search <folder pat
    integration at startup, `true` or `false`, default `true`. A configuration file can set it too, and the command line
    overrides the configuration file.
    
-8. `-help` : Prints the usage text and exits.
+8. `-console` (flag) : Starts in console mode instead of the default GUI mode. The flag takes no value.
+   
+9. `-gui` (flag) : Starts in GUI mode, overriding `Console = true` in the configuration file. The flag takes no value.
+   `-console` and `-gui` cannot be used together.
+   
+10. `-help` : Prints the usage text and exits.
 
 Wrap paths that contain spaces in double quotes. A value that is itself an option name (e.g. a file literally named
 `-from`) must be attached to its option with `=`, as in `-to=-from`.
@@ -88,9 +105,14 @@ Wrap paths that contain spaces in double quotes. A value that is itself an optio
 Examples :
 
 ```
+MoveWithShortcutsGui.BAT -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide"
 MoveWithShortcuts.BAT -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide"
-java -jar MoveWithShortcuts.jar -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide" -shortcut-file-name exact
+java -jar MoveWithShortcuts.jar -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide"
+java -jar MoveWithShortcuts.jar -console -from "C:\Old Name.txt" -to "C:\New Name.txt" -search "C:\Users\Davide" -shortcut-file-name exact
 ```
+
+The console launchers (`MoveWithShortcuts.BAT` / `.ps1`) add `-console` automatically; the GUI launchers
+(`MoveWithShortcutsGui.BAT` / `.ps1`) use `javaw` and start the GUI.
 
 ### Configuration file
 
@@ -100,11 +122,15 @@ MWS reads an optional `MoveWithShortcuts-Config.TXT` through DParam. The paramet
 ShortcutsUpdater = ps-scripts-multi
 
 CreateContextMenu = true
+
+Console = false
 ```
 
 When running from the IDE, the file is read from `src/main/resources`. For the deployed JAR, place it next to
 `MoveWithShortcuts.jar` (in `C:\MoveWithShortcuts\`). If the file or a parameter is missing, the default is used;
-an invalid value is reported and the default is used. The command-line option wins over the configuration file.
+an invalid value is reported and the default is used. The command-line options win over the configuration file.
+`Console = true` makes console mode the default for all launches; `-gui` overrides it. If `Console = true`, a
+no-argument launch of the JAR starts the console; use the GUI launcher (which passes `-gui`) or `-gui` to start the GUI.
 
 ### Windows Explorer integration
 
@@ -112,10 +138,11 @@ MWS installs a per-user Windows Explorer right-click context-menu entry named `M
 and for folders. It requires no administrator rights. Selecting the entry opens a Swing dialog prefilled with the
 selected item's path, so the paths can be corrected, browsed or dropped into their fields instead of being typed.
 
-The first time MWS starts, it installs (or updates) the Windows Explorer context-menu integration automatically. If
-you only want to install the integration without performing a move, start MWS once with no arguments and cancel at the
-first interactive question: the registry keys are created at startup, before any operation. If the new context-menu
-entry does not appear, refresh or restart Windows Explorer; restarting MWS is not required.
+The first time MWS starts, in either mode, it installs (or updates) the Windows Explorer context-menu integration
+automatically. If you only want to install the integration without performing a move, start the GUI once and close it,
+or start the console with `-console` and cancel at the first interactive question: the registry keys are created at
+startup, before any operation. If the new context-menu entry does not appear, refresh or restart Windows Explorer;
+restarting MWS is not required.
 
 On Windows 11 the entry appears under **Show more options**.
 
@@ -134,10 +161,11 @@ If you just want to use MoveWithShortcuts without building from source:
    [Releases](https://github.com/davide-vecchi/MoveWithShortcuts/releases) page and unzip it into a convenient folder
    (e.g. `C:\MoveWithShortcuts\`).
    
-2. Run `MoveWithShortcuts.BAT`.
+2. Run `MoveWithShortcutsGui.BAT` for the GUI (the default), or `MoveWithShortcuts.BAT` for the console.
 
-   The ZIP contains the executable jar, the launcher scripts (`MoveWithShortcuts.BAT` / `MoveWithShortcuts.ps1`), the
-   `README.md` and the `LICENSE`. Java 21 or higher is required.
+   The ZIP contains the executable jar, the console launchers (`MoveWithShortcuts.BAT` / `MoveWithShortcuts.ps1`), the
+   GUI launchers (`MoveWithShortcutsGui.BAT` / `MoveWithShortcutsGui.ps1`), the `README.md` and the `LICENSE`.
+   Java 21 or higher is required.
    
 ## Prerequisites (for building from source)
 

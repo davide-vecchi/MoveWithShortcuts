@@ -97,6 +97,11 @@ final class MoveWithShortcutsGui {
   private final MoveWithShortcuts app;
   
   /**
+   * The shortcut-file name policy to use.
+   */
+  private final ShortcutFileNamePolicy shortcutFileNamePolicy;
+  
+  /**
    * The dialog's frame.
    */
   private final JFrame frame;
@@ -179,14 +184,25 @@ final class MoveWithShortcutsGui {
    *
    * @param updater The shortcuts updater implementation to use.<br>
    *
-   * @param originalPath The original path received from Explorer, or {@code null} when started standalone.<br>
+   * @param originalPath The original path to prefill, or {@code null}.<br>
    *
-   * @param progressReporter The reporter of the progress of the operation.
+   * @param destinationPath The destination path to prefill, or {@code null}.<br>
+   *
+   * @param searchPath The search folder to prefill, or {@code null}.<br>
+   *
+   * @param shortcutFileNamePolicy The shortcut-file name policy to use.<br>
+   *
+   * @param progressReporter The reporter of the progress of the operation.<br>
+   *
+   * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
   static void show(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater, String originalPath
-                 , @NotNull GuiProgressReporter progressReporter) {
+                 , String destinationPath, String searchPath
+                 , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy
+                 , @NotNull GuiProgressReporter progressReporter, String warningMessage) {
                  
-    new MoveWithShortcutsGui(appContext, updater, originalPath, progressReporter);
+    new MoveWithShortcutsGui(appContext, updater, originalPath, destinationPath, searchPath
+                           , shortcutFileNamePolicy, progressReporter, warningMessage);
   }
   
   /**
@@ -196,18 +212,30 @@ final class MoveWithShortcutsGui {
    *
    * @param updater {@link #updater}.<br>
    *
-   * @param originalPath The original path received from Explorer, or {@code null} when started standalone.<br>
+   * @param originalPath The original path to prefill, or {@code null}.<br>
    *
-   * @param progressReporter {@link #progressReporter}.
+   * @param destinationPath The destination path to prefill, or {@code null}.<br>
+   *
+   * @param searchPath The search folder to prefill, or {@code null}.<br>
+   *
+   * @param shortcutFileNamePolicy {@link #shortcutFileNamePolicy}.<br>
+   *
+   * @param progressReporter {@link #progressReporter}.<br>
+   *
+   * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
   private MoveWithShortcutsGui(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater
-                             , String originalPath, @NotNull GuiProgressReporter progressReporter) {
+                             , String originalPath, String destinationPath, String searchPath
+                             , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy
+                             , @NotNull GuiProgressReporter progressReporter, String warningMessage) {
                              
     this.appContext = assertNonNull(appContext);
     
     this.updater =    assertNonNull(updater);
     
     this.app = MoveWithShortcuts.newInstance(appContext);
+    
+    this.shortcutFileNamePolicy = assertNonNull(shortcutFileNamePolicy);
     
     this.frame = new JFrame(MoveWithShortcutsMain.APP_NAME);
     
@@ -261,7 +289,7 @@ final class MoveWithShortcutsGui {
     
     this.progressReporter.setListener(this::onProgress);
     
-    initFields(originalPath);
+    initFields(originalPath, destinationPath, searchPath, warningMessage);
     
     initFrame();
   }
@@ -270,17 +298,41 @@ final class MoveWithShortcutsGui {
   /**
    * Fills the fields with their initial values.
    *
-   * @param originalPath The original path received from Explorer, or {@code null} when started standalone.
+   * @param originalPath The original path to prefill, or {@code null}.<br>
+   *
+   * @param destinationPath The destination path to prefill, or {@code null}.<br>
+   *
+   * @param searchPath The search folder to prefill, or {@code null}.<br>
+   *
+   * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
-  private void initFields(String originalPath) {
-  
+  private void initFields(String originalPath, String destinationPath, String searchPath
+                        , String warningMessage) {
+                        
     if (isNotBlank(originalPath)) {
     
-      this.originalField.setText(   originalPath);
-      
+      this.originalField.setText(originalPath);
+    }
+    if (isNotBlank(destinationPath)) {
+    
+      this.destinationField.setText(destinationPath);
+    }
+    else if (isNotBlank(originalPath)) {
+    
       this.destinationField.setText(originalPath);
     }
-    this.searchField.setText(MoveWithShortcutsGuiController.defaultSearchPath(originalPath));
+    if (isNotBlank(searchPath)) {
+    
+      this.searchField.setText(searchPath);
+    }
+    else {
+    
+      this.searchField.setText(MoveWithShortcutsGuiController.defaultSearchPath(originalPath));
+    }
+    if (isNotBlank(warningMessage)) {
+    
+      setStatusText(warningMessage);
+    }
   }
   
   /**
@@ -623,7 +675,7 @@ final class MoveWithShortcutsGui {
         try {
         
           MoveWithShortcutsGui.this.app.runGui(MoveWithShortcutsGui.this.updater, request
-                       , ShortcutFileNamePolicy.NEVER);
+                       , MoveWithShortcutsGui.this.shortcutFileNamePolicy);
         }
         catch (UserRequestedTermination t) {
         

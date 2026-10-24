@@ -6,9 +6,11 @@
 #        It reads the following files :
 #          - MoveWithShortcuts.jar  (from this folder; the built executable
 #                                    JAR; overridable by the first argument)
-#          - MoveWithShortcuts.BAT  (from the parent module folder)
-#          - MoveWithShortcuts.ps1  (from the parent module folder)
-#          - README.md              (from the parent module folder)
+#          - MoveWithShortcuts.BAT     (from the parent module folder)
+#          - MoveWithShortcuts.ps1     (from the parent module folder)
+#          - MoveWithShortcutsGui.BAT  (from the parent module folder)
+#          - MoveWithShortcutsGui.ps1  (from the parent module folder)
+#          - README.md                 (from the parent module folder)
 #          - LICENSE                (from the parent module folder)
 #
 #        and produces a ZIP archive containing a top-level "MoveWithShortcuts"
@@ -31,6 +33,8 @@ APP_NAME="MoveWithShortcuts"
 JAR_NAME="$APP_NAME.jar"
 LAUNCHER_BAT_NAME="$APP_NAME.BAT"
 LAUNCHER_PS1_NAME="$APP_NAME.ps1"
+LAUNCHER_GUI_BAT_NAME="${APP_NAME}Gui.BAT"
+LAUNCHER_GUI_PS1_NAME="${APP_NAME}Gui.ps1"
 README_NAME="README.md"
 LICENSE_NAME="LICENSE"
 
@@ -49,6 +53,8 @@ VERSION="${2:-}"
 # The other input files (the launchers, README and LICENSE are in the parent module folder) :
 LAUNCHER_BAT="$SCRIPT_DIR/../$LAUNCHER_BAT_NAME"
 LAUNCHER_PS1="$SCRIPT_DIR/../$LAUNCHER_PS1_NAME"
+LAUNCHER_GUI_BAT="$SCRIPT_DIR/../$LAUNCHER_GUI_BAT_NAME"
+LAUNCHER_GUI_PS1="$SCRIPT_DIR/../$LAUNCHER_GUI_PS1_NAME"
 README_FILE="$SCRIPT_DIR/../$README_NAME"
 LICENSE_FILE="$SCRIPT_DIR/../$LICENSE_NAME"
 
@@ -83,11 +89,13 @@ require() {
     fi
 }
 
-require "$JAR_FILE"     "executable JAR"
-require "$LAUNCHER_BAT" "Windows launcher"
-require "$LAUNCHER_PS1" "PowerShell launcher"
-require "$README_FILE"  "README"
-require "$LICENSE_FILE" "license"
+require "$JAR_FILE"          "executable JAR"
+require "$LAUNCHER_BAT"      "Windows launcher"
+require "$LAUNCHER_PS1"      "PowerShell launcher"
+require "$LAUNCHER_GUI_BAT"  "GUI Windows launcher"
+require "$LAUNCHER_GUI_PS1"  "GUI PowerShell launcher"
+require "$README_FILE"       "README"
+require "$LICENSE_FILE"      "license"
 
 if [ "$MISSING" -ne 0 ]; then
     echo ""
@@ -101,11 +109,13 @@ fi
 rm -rf "$STAGING_FOLDER"
 mkdir -p "$STAGING_FOLDER"
 
-cp "$JAR_FILE"     "$STAGING_FOLDER/$JAR_NAME"
-cp "$LAUNCHER_BAT" "$STAGING_FOLDER/$LAUNCHER_BAT_NAME"
-cp "$LAUNCHER_PS1" "$STAGING_FOLDER/$LAUNCHER_PS1_NAME"
-cp "$README_FILE"  "$STAGING_FOLDER/$README_NAME"
-cp "$LICENSE_FILE" "$STAGING_FOLDER/$LICENSE_NAME"
+cp "$JAR_FILE"          "$STAGING_FOLDER/$JAR_NAME"
+cp "$LAUNCHER_BAT"      "$STAGING_FOLDER/$LAUNCHER_BAT_NAME"
+cp "$LAUNCHER_PS1"      "$STAGING_FOLDER/$LAUNCHER_PS1_NAME"
+cp "$LAUNCHER_GUI_BAT"  "$STAGING_FOLDER/$LAUNCHER_GUI_BAT_NAME"
+cp "$LAUNCHER_GUI_PS1"  "$STAGING_FOLDER/$LAUNCHER_GUI_PS1_NAME"
+cp "$README_FILE"       "$STAGING_FOLDER/$README_NAME"
+cp "$LICENSE_FILE"      "$STAGING_FOLDER/$LICENSE_NAME"
 
 # Create the archive :
 rm -f "$ARCHIVE_FILE"
@@ -131,6 +141,8 @@ echo "  $JAR_NAME"
 echo "    from \"$JAR_DIR\""
 echo "  $LAUNCHER_BAT_NAME"
 echo "  $LAUNCHER_PS1_NAME"
+echo "  $LAUNCHER_GUI_BAT_NAME"
+echo "  $LAUNCHER_GUI_PS1_NAME"
 echo "  $README_NAME"
 echo "  $LICENSE_NAME"
 echo ""
