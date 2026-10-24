@@ -612,7 +612,11 @@ final class MoveWithShortcutsGui {
     
     gbc.weightx = 0.0;
     
-    panel.add(new JLabel(label + ":"), gbc);
+    final JLabel labelComponent = new JLabel(label + ":");
+    
+    labelComponent.setToolTipText(field.getToolTipText());
+    
+    panel.add(labelComponent, gbc);
     
     gbc.gridx = 1;
     
