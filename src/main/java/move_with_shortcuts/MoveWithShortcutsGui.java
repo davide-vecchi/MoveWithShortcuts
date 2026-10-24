@@ -12,7 +12,10 @@ import dutil.system.OSUtilities;
 import dutil.value_holder.ObjectAndDescr;
 import jakarta.validation.constraints.NotNull;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -38,11 +41,15 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serial;
 import java.util.concurrent.ExecutionException;
 
@@ -105,6 +112,16 @@ final class MoveWithShortcutsGui {
    * The dialog's frame.
    */
   private final JFrame frame;
+  
+  /**
+   * The application icon, or {@code null} when it cannot be loaded.
+   */
+  private final ImageIcon appIcon;
+  
+  /**
+   * The scaled icon for the About dialog, or {@code null}.
+   */
+  private final ImageIcon aboutIcon;
   
   /**
    * The field with the path of the file or folder to rename / move.
@@ -239,6 +256,14 @@ final class MoveWithShortcutsGui {
     
     this.frame = new JFrame(MoveWithShortcutsMain.APP_NAME);
     
+    this.appIcon = loadAppIcon();
+    
+    this.aboutIcon = scaleIcon(this.appIcon, 64);
+    
+    if (this.appIcon != null) {
+    
+      this.frame.setIconImage(this.appIcon.getImage());
+    }
     this.originalField = PathTextField.newInstance();
     
     this.destinationField = PathTextField.newInstance();
@@ -294,6 +319,56 @@ final class MoveWithShortcutsGui {
     initFrame();
   }
   
+  
+  /**
+   * Loads the application icon from the classpath.
+   *
+   * @return The icon, or {@code null} when it cannot be loaded.
+   */
+  private static ImageIcon loadAppIcon() {
+  
+    ImageIcon result = null;
+    
+    try (InputStream input = MoveWithShortcutsGui.class.getResourceAsStream("/MWS.png")) {
+    
+      if (input != null) {
+      
+        final BufferedImage image = ImageIO.read(input);
+        
+        if (image != null) {
+        
+          result = new ImageIcon(image);
+        }
+      }
+    }
+    catch (IOException e) {
+    
+      result = null;
+    }
+    return result;
+  }
+  
+  /**
+   * Scales an icon to a square of the given size.
+   *
+   * @param icon The icon to scale, or {@code null}.<br>
+   *
+   * @param size The target side length.
+   *
+   * @return The scaled icon, or {@code null} when the given icon is {@code null} or empty.
+   */
+  private static ImageIcon scaleIcon(ImageIcon icon, int size) {
+  
+    ImageIcon result = null;
+    
+    if (icon != null && icon.getIconWidth() > ZERO_i && icon.getIconHeight() > ZERO_i) {
+    
+      final Image scaled = icon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
+      
+      result = new ImageIcon(scaled);
+    }
+    return result;
+  }
   
   /**
    * Fills the fields with their initial values.
@@ -1009,7 +1084,7 @@ final class MoveWithShortcutsGui {
   private void showAbout() {
   
     showTextDialog("About " + MoveWithShortcutsMain.APP_NAME, buildAboutMessage()
-            , JOptionPane.INFORMATION_MESSAGE);
+            , JOptionPane.INFORMATION_MESSAGE, this.aboutIcon);
   }
   
   /**
@@ -1060,10 +1135,12 @@ final class MoveWithShortcutsGui {
    *
    * @param text The text to show.<br>
    *
-   * @param messageType The {@link JOptionPane} message type.
+   * @param messageType The {@link JOptionPane} message type.<br>
+   *
+   * @param icon The icon to show, or {@code null} for the default one.
    */
   @SuppressWarnings("MagicConstant")
-  private void showTextDialog(@NotNull String title, @NotNull String text, int messageType) {
+  private void showTextDialog(@NotNull String title, @NotNull String text, int messageType, Icon icon) {
   
     final JTextArea textArea = new JTextArea(text);
     
@@ -1081,7 +1158,7 @@ final class MoveWithShortcutsGui {
     
     scrollPane.setPreferredSize(new Dimension(600, 300));
     
-    JOptionPane.showMessageDialog(this.frame, scrollPane, title, messageType);
+    JOptionPane.showMessageDialog(this.frame, scrollPane, title, messageType, icon);
   }
   
   /**

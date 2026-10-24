@@ -12,7 +12,8 @@ REM          - MoveWithShortcuts.ps1     (from the parent module folder)
 REM          - MoveWithShortcutsGui.BAT  (from the parent module folder)
 REM          - MoveWithShortcutsGui.ps1  (from the parent module folder)
 REM          - README.md                 (from the parent module folder)
-REM          - LICENSE                (from the parent module folder)
+REM          - LICENSE                   (from the parent module folder)
+REM          - MWS.ico                   (from src\main\resources)
 REM
 REM        and produces a ZIP archive containing a top-level "MoveWithShortcuts"
 REM        folder with all of them, ready to be extracted into the user's chosen
@@ -36,6 +37,7 @@ SET LAUNCHER_BAT_NAME=%APP_NAME%.BAT
 SET LAUNCHER_PS1_NAME=%APP_NAME%.ps1
 SET LAUNCHER_GUI_BAT_NAME=%APP_NAME%Gui.BAT
 SET LAUNCHER_GUI_PS1_NAME=%APP_NAME%Gui.ps1
+SET ICON_NAME=MWS.ico
 SET README_NAME=README.md
 SET LICENSE_NAME=LICENSE
 
@@ -56,6 +58,7 @@ SET LAUNCHER_GUI_BAT=%~dp0..\%LAUNCHER_GUI_BAT_NAME%
 SET LAUNCHER_GUI_PS1=%~dp0..\%LAUNCHER_GUI_PS1_NAME%
 SET README_FILE=%~dp0..\%README_NAME%
 SET LICENSE_FILE=%~dp0..\%LICENSE_NAME%
+SET ICON_FILE=%~dp0..\src\main\resources\%ICON_NAME%
 
 REM Name of the top-level folder inside the archive :
 SET PACKAGE_FOLDER=%APP_NAME%
@@ -96,6 +99,7 @@ CALL :Require "!LAUNCHER_GUI_BAT!"  "GUI Windows launcher"
 CALL :Require "!LAUNCHER_GUI_PS1!"  "GUI PowerShell launcher"
 CALL :Require "!README_FILE!"       "README"
 CALL :Require "!LICENSE_FILE!"      "license"
+CALL :Require "!ICON_FILE!"         "program icon"
 
 IF !MISSING! NEQ 0 (
 	ECHO.
@@ -116,6 +120,7 @@ COPY /Y "!LAUNCHER_GUI_BAT!"  "!STAGING_FOLDER!\!LAUNCHER_GUI_BAT_NAME!" >NUL
 COPY /Y "!LAUNCHER_GUI_PS1!"  "!STAGING_FOLDER!\!LAUNCHER_GUI_PS1_NAME!" >NUL
 COPY /Y "!README_FILE!"       "!STAGING_FOLDER!\!README_NAME!"           >NUL
 COPY /Y "!LICENSE_FILE!"      "!STAGING_FOLDER!\!LICENSE_NAME!"          >NUL
+COPY /Y "!ICON_FILE!"         "!STAGING_FOLDER!\!ICON_NAME!"             >NUL
 
 REM Create the archive :
 IF EXIST "!ARCHIVE_FILE!" DEL /Q "!ARCHIVE_FILE!"
@@ -146,6 +151,7 @@ ECHO   !LAUNCHER_GUI_BAT_NAME!
 ECHO   !LAUNCHER_GUI_PS1_NAME!
 ECHO   !README_NAME!
 ECHO   !LICENSE_NAME!
+ECHO   !ICON_NAME!
 ECHO.
 PAUSE
 EXIT /B 0

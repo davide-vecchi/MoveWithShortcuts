@@ -137,6 +137,7 @@ no-argument launch of the JAR starts the console; use the GUI launcher (which pa
 MWS installs a per-user Windows Explorer right-click context-menu entry named `Move/rename with MWS`, both for files
 and for folders. It requires no administrator rights. Selecting the entry opens a Swing dialog prefilled with the
 selected item's path, so the paths can be corrected, browsed or dropped into their fields instead of being typed.
+The menu entry uses `MWS.ico`, which must stay next to `MoveWithShortcuts.jar`.
 
 The first time MWS starts, in either mode, it installs (or updates) the Windows Explorer context-menu integration
 automatically. If you only want to install the integration without performing a move, start the GUI once and close it,
@@ -164,8 +165,8 @@ If you just want to use MoveWithShortcuts without building from source:
 2. Run `MoveWithShortcutsGui.BAT` for the GUI (the default), or `MoveWithShortcuts.BAT` for the console.
 
    The ZIP contains the executable jar, the console launchers (`MoveWithShortcuts.BAT` / `MoveWithShortcuts.ps1`), the
-   GUI launchers (`MoveWithShortcutsGui.BAT` / `MoveWithShortcutsGui.ps1`), the `README.md` and the `LICENSE`.
-   Java 21 or higher is required.
+   GUI launchers (`MoveWithShortcutsGui.BAT` / `MoveWithShortcutsGui.ps1`), the `README.md`, the `LICENSE` and the
+   program icon (`MWS.ico`). Java 21 or higher is required.
    
 ## Prerequisites (for building from source)
 

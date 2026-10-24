@@ -150,6 +150,21 @@ public class MoveWithShortcutsGuiTest {
   }
   
   /**
+   * Tests that the context-menu icon value points to the packaged ICO.
+   */
+  @Test
+  void iconValuePointsToTheIco() {
+  
+    final String icon = ExplorerContextMenu.iconValue();
+    
+    Assert.assertNotNull(icon);
+    
+    Assert.assertTrue(icon.contains("MWS.ico"));
+    
+    Assert.assertTrue(icon.startsWith("\""));
+  }
+  
+  /**
    * Tests that the context-menu parameter defaults to {@code true}.
    */
   @Test

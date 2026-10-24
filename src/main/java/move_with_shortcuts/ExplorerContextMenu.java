@@ -87,6 +87,16 @@ final class ExplorerContextMenu {
   private static final String COMMAND_SUBKEY = "command";
   
   /**
+   * The name of the registry value that holds the menu icon.
+   */
+  private static final String ICON_VALUE_NAME = "Icon";
+  
+  /**
+   * The file name of the ICO to use in the Explorer context menu.
+   */
+  private static final String ICON_FILE_NAME = "MWS.ico";
+  
+  /**
    * The command used to query and update the Windows registry.
    */
   private static final String REG_COMMAND = "reg";
@@ -118,13 +128,15 @@ final class ExplorerContextMenu {
     
     final String command = buildCommand(javawPath(), currentClasspath());
     
+    final String iconValue = iconValue();
+    
     boolean changed = false;
     
     String error = null;
     
     for (final String key : List.of(FILES_VERB_KEY, FOLDERS_VERB_KEY)) {
     
-      final ObjectAndDescr<Boolean> outcome = ensureKey(appContext, key, command);
+      final ObjectAndDescr<Boolean> outcome = ensureKey(appContext, key, command, iconValue);
       
       if (outcome.description != null) {
       
@@ -160,6 +172,43 @@ final class ExplorerContextMenu {
   static String buildCommand(@NotBlank String javawPath, @NotBlank String classpath) {
   
     return dq(javawPath) + SPACE + "-cp" + SPACE + dq(classpath) + SPACE + GUI_MAIN_CLASS + SPACE + dq("%1");
+  }
+  
+  /**
+   * Returns the quoted path of the ICO to use in the Explorer context menu, or {@code null} when it cannot be found.
+   *
+   * @return The quoted icon path, or {@code null}.
+   */
+  static String iconValue() {
+  
+    String result = null;
+    
+    final CodeSource codeSource = ExplorerContextMenu.class.getProtectionDomain().getCodeSource();
+    
+    if (codeSource != null && codeSource.getLocation() != null) {
+    
+      try {
+      
+        final File location = new File(codeSource.getLocation().toURI());
+        
+        final File appFolder = location.isFile() ? location.getParentFile() : location;
+        
+        if (appFolder != null) {
+        
+          final File iconFile = new File(appFolder, ICON_FILE_NAME);
+          
+          if (iconFile.isFile()) {
+          
+            result = dq(getCanonicalPath(iconFile));
+          }
+        }
+      }
+      catch (URISyntaxException e) {
+      
+        result = null;
+      }
+    }
+    return result;
   }
   
   /**
@@ -293,23 +342,27 @@ final class ExplorerContextMenu {
    *
    * @param key        The verb key.<br>
    *
-   * @param command    The command line to store.
+   * @param command    The command line to store.<br>
+   *
+   * @param iconValue  The quoted icon path, or {@code null}.
    *
    * @return {@link Boolean#TRUE TRUE} in {@link ObjectAndDescr#object object} when the key was written, {@link Boolean#FALSE
    *         FALSE} when it was already up to date; a description when a registry command failed.
    */
   private static ObjectAndDescr<Boolean> ensureKey(@NotNull  AAppContext appContext, @NotBlank String key
-                                                 , @NotBlank String      command) {
+                                                 , @NotBlank String      command, String iconValue) {
                                                  
     final boolean upToDate = isValueUpToDate(appContext, key, null, MENU_LABEL)
                           && isValueUpToDate(appContext, key, MULTI_SELECT_MODEL, MULTI_SELECT_MODEL_VALUE)
-                          && isValueUpToDate(appContext, key + "\\" + COMMAND_SUBKEY, null, command);
-                          
+                          && isValueUpToDate(appContext, key + "\\" + COMMAND_SUBKEY, null, command)
+                          && (iconValue == null
+                              || isValueUpToDate(appContext, key, ICON_VALUE_NAME, iconValue));
+                              
     ObjectAndDescr<Boolean> result = new ObjectAndDescr<>(FALSE, null);
     
     if (! upToDate) {
     
-      result = addKeyValues(appContext, key, command);
+      result = addKeyValues(appContext, key, command, iconValue);
     }
     return result;
   }
@@ -321,13 +374,15 @@ final class ExplorerContextMenu {
    *
    * @param key        The verb key.<br>
    *
-   * @param command    The command line to store.
+   * @param command    The command line to store.<br>
+   *
+   * @param iconValue  The quoted icon path, or {@code null}.
    *
    * @return {@link Boolean#TRUE TRUE} in {@link ObjectAndDescr#object object} when all values were written ; a
    *         description when a registry command failed.
    */
   private static ObjectAndDescr<Boolean> addKeyValues(@NotNull  AAppContext appContext, @NotBlank String key
-                                                    , @NotBlank String      command) {
+                                                    , @NotBlank String      command, String iconValue) {
                                                     
     String error = addValue(appContext, key, null, MENU_LABEL);
     
@@ -338,6 +393,10 @@ final class ExplorerContextMenu {
     if (error == null) {
     
       error = addValue(appContext, key + "\\" + COMMAND_SUBKEY, null, command);
+    }
+    if (error == null && iconValue != null) {
+    
+      error = addValue(appContext, key, ICON_VALUE_NAME, iconValue);
     }
     final ObjectAndDescr<Boolean> result;
     
@@ -478,5 +537,5 @@ final class ExplorerContextMenu {
       args.add(valueName);
     }
   }
-
+  
 }

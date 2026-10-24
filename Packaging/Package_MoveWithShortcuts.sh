@@ -11,7 +11,8 @@
 #          - MoveWithShortcutsGui.BAT  (from the parent module folder)
 #          - MoveWithShortcutsGui.ps1  (from the parent module folder)
 #          - README.md                 (from the parent module folder)
-#          - LICENSE                (from the parent module folder)
+#          - LICENSE                   (from the parent module folder)
+#          - MWS.ico                   (from src/main/resources)
 #
 #        and produces a ZIP archive containing a top-level "MoveWithShortcuts"
 #        folder with all of them, ready to be extracted into the user's chosen
@@ -35,6 +36,7 @@ LAUNCHER_BAT_NAME="$APP_NAME.BAT"
 LAUNCHER_PS1_NAME="$APP_NAME.ps1"
 LAUNCHER_GUI_BAT_NAME="${APP_NAME}Gui.BAT"
 LAUNCHER_GUI_PS1_NAME="${APP_NAME}Gui.ps1"
+ICON_NAME="MWS.ico"
 README_NAME="README.md"
 LICENSE_NAME="LICENSE"
 
@@ -57,6 +59,7 @@ LAUNCHER_GUI_BAT="$SCRIPT_DIR/../$LAUNCHER_GUI_BAT_NAME"
 LAUNCHER_GUI_PS1="$SCRIPT_DIR/../$LAUNCHER_GUI_PS1_NAME"
 README_FILE="$SCRIPT_DIR/../$README_NAME"
 LICENSE_FILE="$SCRIPT_DIR/../$LICENSE_NAME"
+ICON_FILE="$SCRIPT_DIR/../src/main/resources/$ICON_NAME"
 
 # Name of the top-level folder inside the archive :
 PACKAGE_FOLDER="$APP_NAME"
@@ -96,6 +99,7 @@ require "$LAUNCHER_GUI_BAT"  "GUI Windows launcher"
 require "$LAUNCHER_GUI_PS1"  "GUI PowerShell launcher"
 require "$README_FILE"       "README"
 require "$LICENSE_FILE"      "license"
+require "$ICON_FILE"         "program icon"
 
 if [ "$MISSING" -ne 0 ]; then
     echo ""
@@ -116,6 +120,7 @@ cp "$LAUNCHER_GUI_BAT"  "$STAGING_FOLDER/$LAUNCHER_GUI_BAT_NAME"
 cp "$LAUNCHER_GUI_PS1"  "$STAGING_FOLDER/$LAUNCHER_GUI_PS1_NAME"
 cp "$README_FILE"       "$STAGING_FOLDER/$README_NAME"
 cp "$LICENSE_FILE"      "$STAGING_FOLDER/$LICENSE_NAME"
+cp "$ICON_FILE"         "$STAGING_FOLDER/$ICON_NAME"
 
 # Create the archive :
 rm -f "$ARCHIVE_FILE"
@@ -145,6 +150,7 @@ echo "  $LAUNCHER_GUI_BAT_NAME"
 echo "  $LAUNCHER_GUI_PS1_NAME"
 echo "  $README_NAME"
 echo "  $LICENSE_NAME"
+echo "  $ICON_NAME"
 echo ""
 
 read -r -p "Press Enter to exit..."

@@ -38,6 +38,9 @@
 - Per-instance log folders named `<timestamp>_<original leaf>` : several GUI and console instances can run at the same
   time without sharing log files. The summary shows the actual log folder with a trailing separator.
 
+- The program icon in the dialog title bar, the About dialog and the Windows Explorer context menu. The distributable
+  ZIP includes `MWS.ico` next to the JAR.
+
 
 ### Removed
 
