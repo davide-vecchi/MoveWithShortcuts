@@ -38,6 +38,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
@@ -280,7 +281,7 @@ final class MoveWithShortcutsGui {
     
     this.defaultProgressBarForeground = this.progressBar.getForeground();
     
-    this.statusArea = new JTextArea(2, 40);
+    this.statusArea = new JTextArea(4, 40);
     
     this.statusArea.setEditable(false);
     
@@ -288,11 +289,13 @@ final class MoveWithShortcutsGui {
     
     this.statusArea.setWrapStyleWord(true);
     
-    this.statusArea.setOpaque(false);
-    
     this.statusArea.setFocusable(false);
     
-    this.statusArea.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
+    this.statusArea.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+    
+    final Font statusFont = this.statusArea.getFont();
+    
+    this.statusArea.setFont(new Font("Tahoma", Font.PLAIN, statusFont != null ? statusFont.getSize() : 12));
     
     this.defaultStatusForeground = this.statusArea.getForeground();
     
@@ -468,9 +471,15 @@ final class MoveWithShortcutsGui {
     
     result.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     
-    result.add(createPathPanel(),    BorderLayout.CENTER);
+    final JPanel southPanel = new JPanel(new BorderLayout(0, 4));
     
-    result.add(createButtonsPanel(), BorderLayout.SOUTH);
+    southPanel.add(createButtonsPanel(), BorderLayout.NORTH);
+    
+    southPanel.add(createStatusScrollPane(), BorderLayout.CENTER);
+    
+    result.add(createPathPanel(), BorderLayout.CENTER);
+    
+    result.add(southPanel, BorderLayout.SOUTH);
     
     return result;
   }
@@ -537,9 +546,25 @@ final class MoveWithShortcutsGui {
     
     result.add(leftPanel, BorderLayout.WEST);
     
-    result.add(this.statusArea, BorderLayout.CENTER);
-    
     result.add(rightPanel, BorderLayout.EAST);
+    
+    return result;
+  }
+  
+  /**
+   * Creates the scrollable panel that shows the operation details.
+   *
+   * @return The scroll pane.
+   */
+  private JScrollPane createStatusScrollPane() {
+  
+    final JScrollPane result = new JScrollPane(this.statusArea);
+    
+    result.setPreferredSize(new Dimension(600, 90));
+    
+    result.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    
+    result.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     
     return result;
   }
