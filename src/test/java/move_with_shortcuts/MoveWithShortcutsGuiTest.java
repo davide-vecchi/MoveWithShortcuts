@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
+import static dutil.string.TextUtilities.NL;
+import static dutil.string.TextUtilities.NL2;
 
 
 // @formatter:off
@@ -265,6 +267,21 @@ public class MoveWithShortcutsGuiTest {
     Assert.assertTrue(usage.contains("-help"));
     
     Assert.assertTrue(usage.contains("-from"));
+  }
+  
+  /**
+   * Tests that the usage formatter adds one empty line before each option description.
+   */
+  @Test
+  void formatUsageTextAddsBlankLinesBeforeOptions() {
+  
+    final String raw = "Usage: test" + NL + "  -first first" + NL + "  -second second";
+    
+    final String formatted = MoveWithShortcutsMain.formatUsageText(raw);
+    
+    Assert.assertTrue(formatted.contains(NL2 + "  -first"));
+    
+    Assert.assertTrue(formatted.contains(NL2 + "  -second"));
   }
   
   /**

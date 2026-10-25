@@ -42,7 +42,9 @@
 - The program icon in the dialog title bar, the About dialog and the Windows Explorer context menu. The distributable
   ZIP includes `MWS.ico` next to the JAR.
 
-- A Help button with the question-mark icon, showing the command-line usage text in a scrollable dialog.
+- A Help button with the question-mark icon, showing the command-line usage text in a resizable, scrollable dialog
+  with the MWS icon in the title bar. The usage text, including the console `-help` output, now has one empty line
+  before each option description.
 
 
 ### Removed

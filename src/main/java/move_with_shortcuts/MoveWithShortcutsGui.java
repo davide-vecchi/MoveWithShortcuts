@@ -1219,8 +1219,7 @@ final class MoveWithShortcutsGui {
    */
   private void showAbout() {
   
-    showTextDialog("About " + MoveWithShortcutsMain.APP_NAME, buildAboutMessage()
-            , JOptionPane.INFORMATION_MESSAGE, this.aboutIcon);
+    showTextDialog("About " + MoveWithShortcutsMain.APP_NAME, buildAboutMessage(), this.aboutIcon);
   }
   
   /**
@@ -1228,8 +1227,7 @@ final class MoveWithShortcutsGui {
    */
   private void showHelp() {
   
-    showTextDialog("Help", MoveWithShortcutsMain.getUsageText()
-                 , JOptionPane.INFORMATION_MESSAGE, this.aboutIcon);
+    showTextDialog("Help", MoveWithShortcutsMain.getUsageText(), this.aboutIcon);
   }
   
   /**
@@ -1274,20 +1272,19 @@ final class MoveWithShortcutsGui {
   }
   
   /**
-   * Shows a scrollable, read-only text dialog.
+   * Shows a resizable, scrollable, read-only text dialog.
    *
    * @param title The dialog title.<br>
    *
    * @param text The text to show.<br>
    *
-   * @param messageType The {@link JOptionPane} message type.<br>
-   *
-   * @param icon The icon to show, or {@code null} for the default one.
+   * @param icon The icon to show next to the text, or {@code null}.
    */
-  @SuppressWarnings("MagicConstant")
-  private void showTextDialog(@NotNull String title, @NotNull String text, int messageType, Icon icon) {
+  private void showTextDialog(@NotNull String title, @NotNull String text, Icon icon) {
   
-    final JTextArea textArea = new JTextArea(text);
+    final StatusTextArea textArea = StatusTextArea.newInstance();
+    
+    textArea.setText(text);
     
     textArea.setEditable(false);
     
@@ -1303,7 +1300,51 @@ final class MoveWithShortcutsGui {
     
     scrollPane.setPreferredSize(new Dimension(600, 300));
     
-    JOptionPane.showMessageDialog(this.frame, scrollPane, title, messageType, icon);
+    final JButton closeButton = new JButton("Close");
+    
+    final JDialog dialog = new JDialog(this.frame, title, true);
+    
+    closeButton.addActionListener(e -> dialog.dispose());
+    
+    final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    
+    buttonPanel.add(closeButton);
+    
+    final JPanel contentPanel = new JPanel(new BorderLayout(8, 8));
+    
+    contentPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    
+    if (icon != null) {
+    
+      contentPanel.add(new JLabel(icon), BorderLayout.WEST);
+    }
+    contentPanel.add(scrollPane, BorderLayout.CENTER);
+    
+    contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+    
+    dialog.setContentPane(contentPanel);
+    
+    dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    
+    if (this.appIcon != null) {
+    
+      dialog.setIconImage(this.appIcon.getImage());
+    }
+    dialog.getRootPane().setDefaultButton(closeButton);
+    
+    dialog.getRootPane().registerKeyboardAction(e -> dialog.dispose()
+                                                 , KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)
+                                                 , JComponent.WHEN_IN_FOCUSED_WINDOW);
+                                                 
+    dialog.pack();
+    
+    dialog.setMinimumSize(new Dimension(400, 250));
+    
+    dialog.setResizable(true);
+    
+    dialog.setLocationRelativeTo(this.frame);
+    
+    dialog.setVisible(true);
   }
   
   /**

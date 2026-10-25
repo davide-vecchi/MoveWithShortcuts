@@ -125,7 +125,7 @@ public final class MoveWithShortcutsMain {
     
       System.out.println(NL + "The options -console and -gui cannot be used together.");
       
-      System.out.println(argsSpec.getUsageText());
+      printUsage(argsSpec);
       
       System.exit(ONE_i);
     }
@@ -167,7 +167,7 @@ public final class MoveWithShortcutsMain {
       
       if (args.isHelpRequested()) {
       
-        System.out.println(argsSpec.getUsageText());
+        printUsage(argsSpec);
         
         System.exit(ZERO_i);
         
@@ -385,7 +385,45 @@ public final class MoveWithShortcutsMain {
    */
   static String getUsageText() {
   
-    return newArgsSpec().getUsageText();
+    return formatUsageText(newArgsSpec().getUsageText());
+  }
+  
+  /**
+   * Formats the usage text with one empty line before each option description.
+   *
+   * @param usage The raw usage text.
+   *
+   * @return The formatted usage text.
+   */
+  static String formatUsageText(@NotNull String usage) {
+  
+    final StringBuilder result = new StringBuilder();
+    
+    boolean previousBlank = false;
+    
+    for (final String line : usage.lines().toList()) {
+    
+      final boolean optionLine = line.startsWith("  -");
+      
+      if (optionLine && ! previousBlank) {
+      
+        result.append(NL);
+      }
+      result.append(line).append(NL);
+      
+      previousBlank = line.isBlank();
+    }
+    return result.toString();
+  }
+  
+  /**
+   * Prints the formatted usage text.
+   *
+   * @param argsSpec The command-line specification.
+   */
+  private static void printUsage(@NotNull DCommandLineSpec argsSpec) {
+  
+    System.out.println(formatUsageText(argsSpec.getUsageText()));
   }
   
   /**
@@ -465,7 +503,7 @@ public final class MoveWithShortcutsMain {
       
       if (args.isHelpRequested()) {
       
-        System.out.println(argsSpec.getUsageText());
+        printUsage(argsSpec);
         System.exit(ZERO_i);
         args = null;
       }
@@ -473,7 +511,7 @@ public final class MoveWithShortcutsMain {
     catch (CommandLineArgException e) {
     
       System.out.println(e.getMessage());
-      System.out.println(argsSpec.getUsageText());
+      printUsage(argsSpec);
       System.exit(ONE_i);
       args = null;
     }
