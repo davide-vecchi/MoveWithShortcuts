@@ -251,6 +251,23 @@ public class MoveWithShortcutsGuiTest {
   }
   
   /**
+   * Tests that the usage text mentions the launch modes and the help option.
+   */
+  @Test
+  void usageTextMentionsLaunchModes() {
+  
+    final String usage = MoveWithShortcutsMain.getUsageText();
+    
+    Assert.assertTrue(usage.contains("-console"));
+    
+    Assert.assertTrue(usage.contains("-gui"));
+    
+    Assert.assertTrue(usage.contains("-help"));
+    
+    Assert.assertTrue(usage.contains("-from"));
+  }
+  
+  /**
    * Tests that a rename of an existing file is accepted and requires the move.
    *
    * @throws IOException If the test files cannot be created.

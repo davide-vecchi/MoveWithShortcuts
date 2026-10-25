@@ -42,14 +42,16 @@
 - The program icon in the dialog title bar, the About dialog and the Windows Explorer context menu. The distributable
   ZIP includes `MWS.ico` next to the JAR.
 
+- A Help button with the question-mark icon, showing the command-line usage text in a scrollable dialog.
+
 
 ### Removed
 
 
 ### Fixed
 
-- The three `...` browse buttons and the About button are now disabled while an operation is running, like the path
-  fields.
+- The three `...` browse buttons, the Help button and the About button are now disabled while an operation is running,
+  like the path fields.
 
 
 ### Internal changes

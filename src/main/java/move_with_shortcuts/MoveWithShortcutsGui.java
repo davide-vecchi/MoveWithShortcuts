@@ -158,6 +158,11 @@ final class MoveWithShortcutsGui {
   private final JButton aboutButton;
   
   /**
+   * The button that shows the command-line help.
+   */
+  private final JButton helpButton;
+  
+  /**
    * The buttons to disable while an operation is running.
    */
   private final List<JButton> processingDisabledButtons = new ArrayList<>();
@@ -290,7 +295,15 @@ final class MoveWithShortcutsGui {
     
     this.aboutButton = new JButton("About");
     
+    final Icon questionIcon = UIManager.getIcon("OptionPane.questionIcon");
+    
+    this.helpButton = questionIcon != null ? new JButton(scaleIcon(questionIcon, 16)) : new JButton("?");
+    
+    this.helpButton.getAccessibleContext().setAccessibleName("Help");
+    
     this.processingDisabledButtons.add(this.aboutButton);
+    
+    this.processingDisabledButtons.add(this.helpButton);
     
     this.progressBar = new JProgressBar();
     
@@ -325,6 +338,8 @@ final class MoveWithShortcutsGui {
     this.cancelButton.setToolTipText("Close without performing the operation (Esc).");
     
     this.aboutButton.setToolTipText("Show program information.");
+    
+    this.helpButton.setToolTipText("Show help.");
     
     this.progressBar.setToolTipText("Progress of the current operation.");
     
@@ -389,6 +404,28 @@ final class MoveWithShortcutsGui {
   }
   
   /**
+   * Scales an icon to a square of the given size.
+   *
+   * @param icon The icon to scale, or {@code null}.<br>
+   *
+   * @param size The target side length.
+   *
+   * @return The scaled icon, or the original one when it cannot be scaled.
+   */
+  private static Icon scaleIcon(Icon icon, int size) {
+  
+    Icon result = icon;
+    
+    if (icon instanceof ImageIcon imageIcon) {
+    
+      final Image scaled = imageIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
+      
+      result = new ImageIcon(scaled);
+    }
+    return result;
+  }
+  
+  /**
    * Fills the fields with their initial values.
    *
    * @param originalPath The original path to prefill, or {@code null}.<br>
@@ -438,6 +475,8 @@ final class MoveWithShortcutsGui {
     this.cancelButton.addActionListener(e -> cancel());
     
     this.aboutButton.addActionListener(e -> showAbout());
+    
+    this.helpButton.addActionListener(e -> showHelp());
     
     this.frame.getRootPane().setDefaultButton(this.okButton);
     
@@ -551,6 +590,8 @@ final class MoveWithShortcutsGui {
     final JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
     
     leftPanel.add(this.aboutButton);
+    
+    leftPanel.add(this.helpButton);
     
     gbc.gridx = ZERO_i;
     
@@ -1180,6 +1221,15 @@ final class MoveWithShortcutsGui {
   
     showTextDialog("About " + MoveWithShortcutsMain.APP_NAME, buildAboutMessage()
             , JOptionPane.INFORMATION_MESSAGE, this.aboutIcon);
+  }
+  
+  /**
+   * Shows the command-line usage text.
+   */
+  private void showHelp() {
+  
+    showTextDialog("Help", MoveWithShortcutsMain.getUsageText()
+                 , JOptionPane.INFORMATION_MESSAGE, this.aboutIcon);
   }
   
   /**

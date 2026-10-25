@@ -379,6 +379,16 @@ public final class MoveWithShortcutsMain {
   }
   
   /**
+   * Returns the command-line usage text.
+   *
+   * @return The usage text.
+   */
+  static String getUsageText() {
+  
+    return newArgsSpec().getUsageText();
+  }
+  
+  /**
    * Builds the specification of this program's named command-line arguments.
    *
    * @return the command-line specification
