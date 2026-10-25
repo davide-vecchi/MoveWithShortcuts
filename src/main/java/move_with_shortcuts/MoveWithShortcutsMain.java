@@ -79,26 +79,56 @@ public final class MoveWithShortcutsMain {
    */
   public static final int DEFAULT_VERBOSITY = ONE_i;
   
-  static final String FROM_OPTION_NAME      = "from";
-  static final String TO_OPTION_NAME        = "to";
-  static final String SEARCH_OPTION_NAME    = "search";
-  static final String CONSOLE_OPTION_NAME   = "console";
-  static final String GUI_OPTION_NAME       = "gui";
+  /**
+   * The name of the option that specifies the original file or folder path.
+   */
+  static final String FROM_OPTION_NAME = "from";
+  
+  /**
+   * The name of the option that specifies the destination path.
+   */
+  static final String TO_OPTION_NAME = "to";
+  
+  /**
+   * The name of the option that specifies the folder to scan for shortcuts.
+   */
+  static final String SEARCH_OPTION_NAME = "search";
+  
+  /**
+   * The name of the option that starts the console mode.
+   */
+  static final String CONSOLE_OPTION_NAME = "console";
+  
+  /**
+   * The name of the option that starts the GUI mode.
+   */
+  static final String GUI_OPTION_NAME = "gui";
+  
+  /**
+   * The name of the option that controls the Explorer context-menu integration.
+   */
   static final String CREATE_CONTEXT_MENU_OPTION_NAME = "create-context-menu";
-  private static final String VERBOSITY_OPTION_NAME = "verbosity";
-  private static final String SHORTCUT_FILE_NAME_OPTION_NAME = "shortcut-file-name";
+  
+  /**
+   * The name of the option that sets the verbosity level.
+   */
+  static final String VERBOSITY_OPTION_NAME = "verbosity";
+  
+  /**
+   * The name of the option that selects the shortcut-file name policy.
+   */
+  static final String SHORTCUT_FILE_NAME_OPTION_NAME = "shortcut-file-name";
+  
+  /**
+   * The name of the option that selects the shortcuts updater implementation.
+   */
   static final String SHORTCUTS_UPDATER_OPTION_NAME = "shortcuts-updater";
   
   
   /**
    * Entry point of the MoveWithShortcuts program.
    *
-   * @param originalArgs The command line args, as named options :
-   *                     {@code -from <file or folder path> -to <value> -search <folder path>}
-   *                     {@code [-verbosity <int>] [-shortcut-file-name <never|exact|descendant>]}
-   *                     {@code [-shortcuts-updater <id>] [-create-context-menu <true|false>]}
-   *                     {@code [-console] [-gui] [-help]} ; GUI mode is the default, and the operation
-   *                     options prefill its fields ; {@code -console} starts the console instead.
+   * @param originalArgs The command line args, as named options; see {@link #getUsageText()} for the full list.
    */
   public static void main(String[] originalArgs) throws Exception {
   
@@ -123,8 +153,9 @@ public final class MoveWithShortcutsMain {
     }
     if (consoleFlag && guiFlag) {
     
-      System.out.println(NL + "The options -console and -gui cannot be used together.");
-      
+      System.out.println(NL + "The options -" + CONSOLE_OPTION_NAME + " and -" + GUI_OPTION_NAME
+                              + " cannot be used together.");
+                              
       printUsage(argsSpec);
       
       System.exit(ONE_i);
@@ -365,9 +396,9 @@ public final class MoveWithShortcutsMain {
   /**
    * Tells whether console mode must be used.
    *
-   * @param consoleFlag Whether {@code -console} was given.<br>
+   * @param consoleFlag Whether the {@link #CONSOLE_OPTION_NAME "start as console" arg} was given.<br>
    *
-   * @param guiFlag Whether {@code -gui} was given.<br>
+   * @param guiFlag Whether the {@link #GUI_OPTION_NAME "start as GUI" arg} was given.<br>
    *
    * @param configConsole Whether the configuration selects console mode.
    *
@@ -444,7 +475,8 @@ public final class MoveWithShortcutsMain {
                                                        , "The new name or path for the file or folder, or the path it has"
                                                        + " now if the operation was already done elsewhere, in which case no"
                                                        + " rename / move will be done and only the shortcuts adjustment will"
-                                                       + " be done. Exactly one of -from and -to must exist, the other must"
+                                                       + " be done. Exactly one of -" + FROM_OPTION_NAME + " and -"
+                                                       + TO_OPTION_NAME + " must exist, the other must"
                                                        + " not."))
                            .addOption(OptionSpec.option(SEARCH_OPTION_NAME
                                                        , "The folder to scan for " + WIN_SHORTCUT_EXTENSION + " shortcuts to update.")
@@ -469,13 +501,13 @@ public final class MoveWithShortcutsMain {
                            .addOption(OptionSpec.option(CONSOLE_OPTION_NAME
                                                        , "Starts in console mode instead of the default GUI"
                                                        + " mode. In console mode the operation options are"
-                                                       + " required unless prompted. Cannot be combined with"
-                                                       + " -gui.").flag())
+                                                       + " required unless prompted. Cannot be combined with -"
+                                                       + GUI_OPTION_NAME + ".").flag())
                            .addOption(OptionSpec.option(GUI_OPTION_NAME
                                                        , "Starts in GUI mode, overriding Console=true in the"
                                                        + " configuration file. In GUI mode the operation"
                                                        + " options are optional prefills. Cannot be combined"
-                                                       + " with -console.").flag())
+                                                       + " with -" + CONSOLE_OPTION_NAME + ".").flag())
                            .addOption(OptionSpec.option(VERBOSITY_OPTION_NAME
                                                        , "The verbosity level (0-" + MAX_VERBOSITY + ")")
                                                .intRange(ZERO_i, MAX_VERBOSITY).defaultValue(S(DEFAULT_VERBOSITY)));

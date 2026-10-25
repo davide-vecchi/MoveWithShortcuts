@@ -403,14 +403,14 @@ public class MoveWithShortcuts {
                                                    args.getString(MoveWithShortcutsMain.TO_OPTION_NAME)
                                                                    , originalFileOrFolder)
                                                             : askDestinationFileOrFolderRepeatedly(originalFileOrFolder);
-        
+                                                            
     final File searchFolder = args.wasGiven(MoveWithShortcutsMain.SEARCH_OPTION_NAME) ?
                                 resolveSearchFolder(args.getFile(MoveWithShortcutsMain.SEARCH_OPTION_NAME)
                                                                                                                 .getPath())
                                                                                       : askSearchFolderRepeatedly();
-                              
+                                                                                      
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutFileNamePolicy)) {
-                           
+    
       execute(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutsTargetUpdater
                                                                          , shortcutFileNamePolicy);
     }
@@ -456,6 +456,7 @@ public class MoveWithShortcuts {
    */
   private @NotNull TwoObjects<@NotNull File, @NotNull Boolean> askDestinationFileOrFolderRepeatedly(
                                                                                               @NotNull File original) throws UserRequestedTermination {
+                                                                                              
     TwoObjects<@NotNull File, @NotNull Boolean> result = null;
     
     boolean done = false;
@@ -549,7 +550,7 @@ public class MoveWithShortcuts {
     final boolean mustRenameMove = destinationFileOrFolder.o2.booleanValue();
     
     assertExistingPath(mustRenameMove ? originalFileOrFolder : destinationFileOrFolder.o1, null);
-                        
+    
     assertTrue(mustRenameMove != destinationFileOrFolder.o1.exists(), "One of", getCanonicalPath(originalFileOrFolder), "and", getCanonicalPath(destinationFileOrFolder.o1), "must exist and the other one must not, instead they both", originalFileOrFolder.exists() ? "exist."  : "don't exist.");
     
     assertExistingPath(searchFolder, TRUE);
@@ -693,7 +694,8 @@ public class MoveWithShortcuts {
     
       this.appContext.warnUser(ZERO_i, NL + "The value "
                                           + dq(shortcutFileNamePolicy.name().toLowerCase(Locale.ROOT))
-                                          + " for -shortcut-file-name has no effect : the file or folder name is"
+                                          + " for -" + MoveWithShortcutsMain.SHORTCUT_FILE_NAME_OPTION_NAME
+                                          + " has no effect : the file or folder name is"
                                           + NL2T + "unchanged (the request only moves it to another folder), so no"
                                           + NL2T + "shortcut file can be renamed.");
     }
@@ -759,6 +761,7 @@ public class MoveWithShortcuts {
   private static @NotNull TwoObjects<@NotNull File, @NotNull Boolean> resolveDestinationFileOrFolder(
                                                                                      @NotBlank String argDestinationPath
                                                                                    , @NotNull  File   original) {
+                                                                                   
     final String effectiveNewName;
     
     if (hasParentInfo(assertNonBlankNorTrimmable(argDestinationPath))) {
@@ -973,7 +976,7 @@ public class MoveWithShortcuts {
                                     , true
                                            , FileSortOrder.TIMESTAMP_ASCENDING
                                     , msg -> this.appContext.warnUser(TAB + "Cannot access : " + dq(msg) + "."));
-                 
+                                    
     this.numTotalShortcuts = shortcuts.size();
     
     this.appContext.outUser(ONE_i, NLT + "Found " + FMT0DG.format(this.numTotalShortcuts) + " shortcut file(s) under"
