@@ -16,6 +16,10 @@
   options are honored; invalid GUI-mode values are reported in the operation-detail area. The console launchers add
   `-console`, and new GUI launchers use `javaw`.
 
+- In GUI mode the operation-detail area now shows the same execution messages as console mode, newest first, at the
+  GUI default verbosity of 1; warnings and errors are prefixed with `WARNING: ` / `ERROR: `, the raw progress lines
+  stay in the progress bar, and the history is capped at 1000 lines.
+
 
 ### Added
 

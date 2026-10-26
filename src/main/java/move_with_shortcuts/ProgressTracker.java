@@ -207,6 +207,27 @@ final class ProgressTracker {
   }
   
   /**
+   * Checks whether the given line is a raw progress line, which the operation-detail area must not show because the
+   * progress bar already displays it.
+   *
+   * @param line The line to check, or {@code null}.
+   *
+   * @return Whether the line is a progress line.
+   */
+  static boolean isProgressLine(String line) {
+  
+    boolean result = false;
+    
+    if (line != null) {
+    
+      final String text = line.strip();
+      
+      result = text.endsWith("%)") || text.startsWith(ANALYZING_PREFIX) || text.startsWith(FINALIZING_PREFIX);
+    }
+    return result;
+  }
+  
+  /**
    * Sets the current phase and reports it without a known percentage.
    *
    * @param newPhase The new phase label.

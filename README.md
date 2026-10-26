@@ -37,6 +37,10 @@ MoveWithShortcuts has two launch modes :
 
 In a headless environment the program falls back to console mode automatically and prints a message.
 
+The GUI operation-detail area shows the same execution messages as console mode, newest first. Warnings and errors are
+prefixed with `WARNING: ` / `ERROR: `, the raw progress lines remain in the progress bar, and the history keeps the last
+1000 lines. GUI mode uses verbosity 1 by default; `-verbosity` overrides it.
+
 The console flow can be started with `-console` and no other arguments, in which case it prompts for the needed values.
 When started with some named options, only the missing required options (`-from`, `-to`, `-search`) are asked for;
 optional options use their defaults.

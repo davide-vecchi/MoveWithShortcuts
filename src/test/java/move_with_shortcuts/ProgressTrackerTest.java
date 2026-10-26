@@ -112,6 +112,25 @@ public class ProgressTrackerTest {
   }
   
   /**
+   * Tests the recognition of the raw progress lines that the operation-detail area must not show.
+   */
+  @Test
+  void isProgressLineRecognizesProgressLinesOnly() {
+  
+    Assert.assertTrue(ProgressTracker.isProgressLine("  1 / 4 (25,00%)"));
+    
+    Assert.assertTrue(ProgressTracker.isProgressLine("Analyzing shortcuts: 1 / 4 (25,00%)"));
+    
+    Assert.assertTrue(ProgressTracker.isProgressLine("Finalizing: 1 / 2 (50,00%)"));
+    
+    Assert.assertFalse(ProgressTracker.isProgressLine("Starting reading targets of 4 shortcuts..."));
+    
+    Assert.assertFalse(ProgressTracker.isProgressLine(""));
+    
+    Assert.assertFalse(ProgressTracker.isProgressLine(null));
+  }
+  
+  /**
    * Tests the phase, total and percentage updates for a full sequence of lines.
    */
   @Test

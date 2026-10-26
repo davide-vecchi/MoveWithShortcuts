@@ -33,6 +33,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.text.BadLocationException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -90,6 +91,11 @@ final class MoveWithShortcutsGui {
    * The color of the progress bar and status text after a failed operation.
    */
   private static final Color FAILURE_COLOR = new Color(200, 0, 0);
+  
+  /**
+   * The maximum number of lines kept in the operation-detail area.
+   */
+  private static final int MAX_STATUS_LINES = 1000;
   
   
   /**
@@ -193,6 +199,11 @@ final class MoveWithShortcutsGui {
   private final GuiProgressReporter progressReporter;
   
   /**
+   * The reporter of the execution texts of the current operation.
+   */
+  private final GuiTextReporter textReporter;
+  
+  /**
    * The label of the last reported phase.
    */
   private String lastPhase = ProgressTracker.PHASE_WORKING;
@@ -201,16 +212,6 @@ final class MoveWithShortcutsGui {
    * The total of the last reported phase, or {@code 0} when it is not known.
    */
   private int lastTotal;
-  
-  /**
-   * The request of the operation currently running, or the last one.
-   */
-  private GuiMoveRequest currentRequest;
-  
-  /**
-   * The last status text inserted in the status area.
-   */
-  private String lastStatusText;
   
   
   /**
@@ -230,15 +231,18 @@ final class MoveWithShortcutsGui {
    *
    * @param progressReporter The reporter of the progress of the operation.<br>
    *
+   * @param textReporter The reporter of the execution texts of the operation.<br>
+   *
    * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
   static void show(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater, String originalPath
                  , String destinationPath, String searchPath
                  , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy
-                 , @NotNull GuiProgressReporter progressReporter, String warningMessage) {
+                 , @NotNull GuiProgressReporter progressReporter, @NotNull GuiTextReporter textReporter
+                 , String warningMessage) {
                  
     new MoveWithShortcutsGui(appContext, updater, originalPath, destinationPath, searchPath
-                           , shortcutFileNamePolicy, progressReporter, warningMessage);
+                           , shortcutFileNamePolicy, progressReporter, textReporter, warningMessage);
   }
   
   /**
@@ -258,12 +262,15 @@ final class MoveWithShortcutsGui {
    *
    * @param progressReporter {@link #progressReporter}.<br>
    *
+   * @param textReporter {@link #textReporter}.<br>
+   *
    * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
   private MoveWithShortcutsGui(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater
                              , String originalPath, String destinationPath, String searchPath
                              , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy
-                             , @NotNull GuiProgressReporter progressReporter, String warningMessage) {
+                             , @NotNull GuiProgressReporter progressReporter
+                             , @NotNull GuiTextReporter     textReporter, String warningMessage) {
                              
     this.appContext = assertNonNull(appContext);
     
@@ -346,6 +353,10 @@ final class MoveWithShortcutsGui {
     this.progressReporter = assertNonNull(progressReporter);
     
     this.progressReporter.setListener(this::onProgress);
+    
+    this.textReporter = assertNonNull(textReporter);
+    
+    this.textReporter.setListener(this::onTextUpdate);
     
     initFields(originalPath, destinationPath, searchPath, warningMessage);
     
@@ -461,7 +472,7 @@ final class MoveWithShortcutsGui {
     }
     if (isNotBlank(warningMessage)) {
     
-      setStatusText(warningMessage);
+      appendConsoleText(GuiTextKind.WARNING, warningMessage);
     }
   }
   
@@ -854,10 +865,6 @@ final class MoveWithShortcutsGui {
   
     setBusy(true);
     
-    this.currentRequest = request;
-    
-    setStatusText("Retrieving shortcuts under " + folderWithSeparator(request.searchFolder()));
-    
     new SwingWorker<Void, Void>() {
     
       /**
@@ -938,12 +945,6 @@ final class MoveWithShortcutsGui {
                                                  , MoveWithShortcutsMain.APP_NAME
                                             , JOptionPane.INFORMATION_MESSAGE);
                                             
-            if (MoveWithShortcutsGui.this.currentRequest != null) {
-            
-              setStatusText("Processed the " + MoveWithShortcutsGui.this.app.numTotalShortcuts
-                          + " shortcuts found under "
-                          + folderWithSeparator(MoveWithShortcutsGui.this.currentRequest.searchFolder()));
-            }
             markProgressCompleted();
           }
         }
@@ -1032,7 +1033,6 @@ final class MoveWithShortcutsGui {
       
       this.progressBar.setString(label + ": " + update.percentage() + "%");
     }
-    updateStatus(update);
   }
   
   /**
@@ -1077,38 +1077,63 @@ final class MoveWithShortcutsGui {
   }
   
   /**
-   * Updates the operation-detail text area from a progress update.
+   * Receives an execution text from the operation thread and forwards it to the event dispatch thread.
    *
-   * @param update The progress update.
+   * @param update The text update.
    */
-  private void updateStatus(@NotNull ProgressUpdate update) {
+  private void onTextUpdate(@NotNull GuiTextUpdate update) {
   
-    if (this.currentRequest != null && ! ProgressTracker.PHASE_WORKING.equals(update.phase())
-        && ! ProgressTracker.PHASE_SEARCHING.equals(update.phase())) {
-        
-      final int found = this.app.numTotalShortcuts >= ZERO_i ? this.app.numTotalShortcuts : update.total();
+    SwingUtilities.invokeLater(() -> appendConsoleText(update.kind(), update.text()));
+  }
+  
+  /**
+   * Appends one execution text to the operation-detail area, newest first, and trims the history.
+   *
+   * @param kind The kind of the text.<br>
+   *
+   * @param text The text to append.
+   */
+  private void appendConsoleText(@NotNull GuiTextKind kind, @NotNull String text) {
+  
+    final String trimmed = text.strip();
+    
+    if (! trimmed.isEmpty()) {
+    
+      final String prefix = kind == GuiTextKind.WARNING ? "WARNING: "
+                          : kind == GuiTextKind.ERROR   ? "ERROR: "
+                          :                               "";
+                          
+      this.statusArea.insert(prefix + trimmed + NL, ZERO_i);
       
-      setStatusText("Processing the " + found + " shortcuts found under "
-                  + folderWithSeparator(this.currentRequest.searchFolder()));
+      trimStatusArea();
+      
+      this.statusArea.setCaretPosition(ZERO_i);
+      
+      this.statusArea.setToolTipText(prefix + trimmed);
     }
   }
   
   /**
-   * Sets the operation-detail text.
-   *
-   * @param text The text to show.
+   * Removes the oldest lines from the operation-detail area when the history exceeds {@link #MAX_STATUS_LINES}.
    */
-  private void setStatusText(@NotNull String text) {
+  private void trimStatusArea() {
   
-    if (! text.equals(this.lastStatusText)) {
+    final int lineCount = this.statusArea.getLineCount();
     
-      this.statusArea.insert(text + NL, ZERO_i);
+    if (lineCount > MAX_STATUS_LINES) {
+    
+      try {
       
-      this.lastStatusText = text;
+        final int removeFrom = this.statusArea.getLineStartOffset(MAX_STATUS_LINES);
+        
+        this.statusArea.getDocument().remove(removeFrom
+                                           , this.statusArea.getDocument().getLength() - removeFrom);
+      }
+      catch (BadLocationException e) {
       
-      this.statusArea.setCaretPosition(ZERO_i);
+        // A concurrent update changed the document; the next append trims it again.
+      }
     }
-    this.statusArea.setToolTipText(text);
   }
   
   /**
@@ -1354,8 +1379,11 @@ final class MoveWithShortcutsGui {
    */
   private void showError(@NotNull Throwable e) {
   
-    JOptionPane.showMessageDialog(this.frame, getFullDescriptionWithRootCause(e) + NL2
-                                                                       + buildLogsLocationMessage()
+    final String description = getFullDescriptionWithRootCause(e);
+    
+    appendConsoleText(GuiTextKind.ERROR, description);
+    
+    JOptionPane.showMessageDialog(this.frame, description + NL2 + buildLogsLocationMessage()
                                          , "Error", JOptionPane.ERROR_MESSAGE);
   }
   
@@ -1376,6 +1404,8 @@ final class MoveWithShortcutsGui {
    */
   private void closeAppContext() {
   
+    this.textReporter.setListener(null);
+    
     this.progressReporter.setListener(null);
     
     try {

@@ -102,12 +102,19 @@ public final class MoveWithShortcutsGuiMain {
                                   
       final GuiProgressReporter progressReporter = GuiProgressReporter.newInstance();
       
-      final AAppContext appContext = AppContext.newAppContext(GuiUserInputOutput.newInstance(progressReporter)
-                                                                    , screenLog, userLog, devLog);
-                                                                    
+      final GuiTextReporter textReporter = GuiTextReporter.newInstance();
+      
+      final AAppContext appContext = AppContext.newAppContext(
+                                         GuiUserInputOutput.newInstance(progressReporter, textReporter)
+                                       , screenLog, userLog, devLog);
+                                       
       if (verbosityOverride != null) {
       
         appContext.currentVerbosity = verbosityOverride.intValue();
+      }
+      else {
+      
+        appContext.currentVerbosity = MoveWithShortcutsMain.DEFAULT_VERBOSITY;
       }
       writeLogsHeaders(screenLog, userLog, devLog, APP_NAME, APP_DESCR);
       
@@ -123,7 +130,7 @@ public final class MoveWithShortcutsGuiMain {
       SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext, updater, originalPath
                                                                , destinationPath, searchPath
                                                                , shortcutFileNamePolicy, progressReporter
-                                                               , warningMessage));
+                                                               , textReporter, warningMessage));
     }
     catch (Exception e) {
     
