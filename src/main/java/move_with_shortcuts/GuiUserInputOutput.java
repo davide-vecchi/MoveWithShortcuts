@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotNull;
 import static dutil.number.NumberUtilities.MINUS1_i;
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.string.TextUtilities.CRChar;
+import static dutil.string.TextUtilities.LFChar;
 
 
 // @formatter:off
@@ -77,7 +79,7 @@ final class GuiUserInputOutput extends NeutralUserInputOutput {
    *
    * @param line The output line.
    *
-   * @return Always {@code null}.
+   * @return {@code null}; the text is forwarded to the GUI instead of being written to the console.
    */
   @Override
   public String outLine(String line) {
@@ -107,7 +109,7 @@ final class GuiUserInputOutput extends NeutralUserInputOutput {
    *
    * @param chars The user-output text.
    *
-   * @return Always {@code null}.
+   * @return {@code null}; the text is forwarded to the GUI instead of being written to the console.
    */
   @Override
   public String outChars(String chars) {
@@ -124,7 +126,7 @@ final class GuiUserInputOutput extends NeutralUserInputOutput {
    *
    * @param chars The warning text.
    *
-   * @return Always {@code null}.
+   * @return {@code null}; the text is forwarded to the GUI instead of being written to the console.
    */
   @Override
   public String warnChars(String chars) {
@@ -139,7 +141,7 @@ final class GuiUserInputOutput extends NeutralUserInputOutput {
    *
    * @param chars The error text.
    *
-   * @return Always {@code null}.
+   * @return {@code null}; the text is forwarded to the GUI instead of being written to the console.
    */
   @Override
   public String errChars(String chars) {
@@ -154,7 +156,7 @@ final class GuiUserInputOutput extends NeutralUserInputOutput {
    *
    * @param chars The as-is text.
    *
-   * @return Always {@code null}.
+   * @return {@code null}; the text is forwarded to the GUI instead of being written to the console.
    */
   @Override
   public String asIsChars(String chars) {
@@ -243,9 +245,9 @@ final class GuiUserInputOutput extends NeutralUserInputOutput {
     
       final String line = this.pendingText.substring(ZERO_i, lineBreakIndex);
       
-      final int lineBreakLength = this.pendingText.charAt(lineBreakIndex) == '\r'
+      final int lineBreakLength = this.pendingText.charAt(lineBreakIndex) == CRChar
                                && lineBreakIndex + ONE_i < this.pendingText.length()
-                               && this.pendingText.charAt(lineBreakIndex + ONE_i) == '\n' ? 2 : 1;
+                               && this.pendingText.charAt(lineBreakIndex + ONE_i) == LFChar ? 2 : 1;
                                
       this.pendingText.delete(ZERO_i, lineBreakIndex + lineBreakLength);
       
@@ -270,7 +272,7 @@ final class GuiUserInputOutput extends NeutralUserInputOutput {
     
       final char currentChar = text.charAt(i);
       
-      if (currentChar == '\n' || currentChar == '\r' && i < text.length() - ONE_i) {
+      if (currentChar == LFChar || currentChar == CRChar && i < text.length() - ONE_i) {
       
         result = i;
         
