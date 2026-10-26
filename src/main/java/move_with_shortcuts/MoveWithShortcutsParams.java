@@ -7,8 +7,6 @@ package move_with_shortcuts;
 import dlog.log.Log;
 import dparam.AParams;
 import dparam.ParamMono;
-import dparam.pvdc.change_loader.AValueChangeTextReader;
-import dparam.pvdc.change_loader.EmptyValueChangeTextReader;
 import dutil.string.value_parser.BooleanStringParser;
 import dutil.string.value_parser.NeutralStringParser;
 import jakarta.validation.constraints.NotNull;
@@ -77,11 +75,11 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   
     super(configurationMap, null, sourceDescr, log);
     
-    this.shortcutsUpdater = new ParamMono<>(this, SHORTCUTS_UPDATER_PARAM_NAME);
+    this.shortcutsUpdater = newParamMono(SHORTCUTS_UPDATER_PARAM_NAME);
     
-    this.createContextMenu = new ParamMono<>(this, CREATE_CONTEXT_MENU_PARAM_NAME);
+    this.createContextMenu = newParamMono(CREATE_CONTEXT_MENU_PARAM_NAME);
     
-    this.console = new ParamMono<>(this, CONSOLE_PARAM_NAME);
+    this.console = newParamMono(CONSOLE_PARAM_NAME);
   }
   
   
@@ -108,15 +106,6 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   public void validate() {
   
     // The selected implementation ID is validated when the updater is chosen.
-  }
-  
-  /**
-   * @see AParams#getDefaultValueChangeReader()
-   */
-  @Override
-  protected @NotNull AValueChangeTextReader<Object, ?> getDefaultValueChangeReader() {
-  
-    return new EmptyValueChangeTextReader<>(this.log);
   }
   
   /**
