@@ -41,13 +41,13 @@ MWS_VERSION="4.0.0-SNAPSHOT"
 # List of DLibs required by MoveWithShortcuts (direct + transitive)
 # Format: groupId/artifactId/version
 declare -a DEPS=(
-    "djavalibraries/dapplication/2.4.0-SNAPSHOT"
-    "djavalibraries/dutil/2.4.0-SNAPSHOT"
-    "djavalibraries/dcommandlinearg/1.0.0-SNAPSHOT"
-    "djavalibraries/dfile/2.5.0-SNAPSHOT"
-    "djavalibraries/dparam/2.2.3-SNAPSHOT"
+    "djavalibraries/dapplication/2.4.0"
+    "djavalibraries/dutil/2.4.0"
+    "djavalibraries/dcommandlinearg/1.0.0"
+    "djavalibraries/dfile/2.5.0"
+    "djavalibraries/dparam/2.2.3"
     "djavalibraries/dlog/2.3.0"
-    "djavalibraries/duserinputoutput/2.4.0-SNAPSHOT"
+    "djavalibraries/duserinputoutput/2.4.0"
     "javalibraries3rdparty/threadsafenumberformat/2.2.1"
 )
 
