@@ -5,7 +5,6 @@ package move_with_shortcuts;
 
 
 import application.AAppContext;
-import dfile.shortcut.IShortcutsUpdater;
 import dfile.shortcut.ShortcutFileNamePolicy;
 import dlog.log.Log;
 import dutil.value_holder.ObjectAndDescr;
@@ -125,9 +124,7 @@ public final class MoveWithShortcutsGuiMain {
       final ShortcutsUpdaterKind updaterKind = updaterKindOverride != null ? updaterKindOverride
                                               : MoveWithShortcutsMain.selectShortcutsUpdaterForGui(appContext);
                                               
-      final IShortcutsUpdater updater = updaterKind.newUpdater(appContext);
-      
-      SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext, updater, originalPath
+      SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext, updaterKind, originalPath
                                                                , destinationPath, searchPath
                                                                , shortcutFileNamePolicy, progressReporter
                                                                , textReporter, warningMessage));

@@ -5,18 +5,18 @@ package move_with_shortcuts;
 
 
 import application.AAppContext;
-import dfile.shortcut.IShortcutsUpdater;
 import dfile.shortcut.ShortcutFileNamePolicy;
 import dutil.exception.UserRequestedTermination;
 import dutil.system.OSUtilities;
 import dutil.value_holder.ObjectAndDescr;
 import jakarta.validation.constraints.NotNull;
-
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -56,6 +56,7 @@ import java.io.InputStream;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
@@ -104,9 +105,9 @@ final class MoveWithShortcutsGui {
   private final AAppContext appContext;
   
   /**
-   * The shortcuts updater implementation to use.
+   * The shortcuts updater implementation to use initially.
    */
-  private final IShortcutsUpdater updater;
+  private final ShortcutsUpdaterKind updaterKind;
   
   /**
    * The MWS instance that performs the operation.
@@ -114,7 +115,7 @@ final class MoveWithShortcutsGui {
   private final MoveWithShortcuts app;
   
   /**
-   * The shortcut-file name policy to use.
+   * The shortcut-file name policy to use initially.
    */
   private final ShortcutFileNamePolicy shortcutFileNamePolicy;
   
@@ -147,6 +148,16 @@ final class MoveWithShortcutsGui {
    * The field with the folder to scan for shortcuts.
    */
   private final PathTextField searchField;
+  
+  /**
+   * The combo that selects the shortcuts updater implementation.
+   */
+  private final JComboBox<ShortcutsUpdaterKind> updaterKindCombo;
+  
+  /**
+   * The combo that selects the shortcut-file name policy.
+   */
+  private final JComboBox<ShortcutFileNamePolicy> shortcutFileNamePolicyCombo;
   
   /**
    * The button that starts the operation.
@@ -219,7 +230,7 @@ final class MoveWithShortcutsGui {
    *
    * @param appContext The application context to use for logging.<br>
    *
-   * @param updater The shortcuts updater implementation to use.<br>
+   * @param updaterKind The shortcuts updater implementation to use initially.<br>
    *
    * @param originalPath The original path to prefill, or {@code null}.<br>
    *
@@ -227,7 +238,7 @@ final class MoveWithShortcutsGui {
    *
    * @param searchPath The search folder to prefill, or {@code null}.<br>
    *
-   * @param shortcutFileNamePolicy The shortcut-file name policy to use.<br>
+   * @param shortcutFileNamePolicy The shortcut-file name policy to use initially.<br>
    *
    * @param progressReporter The reporter of the progress of the operation.<br>
    *
@@ -235,13 +246,13 @@ final class MoveWithShortcutsGui {
    *
    * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
-  static void show(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater, String originalPath
+  static void show(@NotNull AAppContext appContext, @NotNull ShortcutsUpdaterKind updaterKind, String originalPath
                  , String destinationPath, String searchPath
                  , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy
                  , @NotNull GuiProgressReporter progressReporter, @NotNull GuiTextReporter textReporter
                  , String warningMessage) {
-                 
-    new MoveWithShortcutsGui(appContext, updater, originalPath, destinationPath, searchPath
+                  
+    new MoveWithShortcutsGui(appContext, updaterKind, originalPath, destinationPath, searchPath
                            , shortcutFileNamePolicy, progressReporter, textReporter, warningMessage);
   }
   
@@ -250,7 +261,7 @@ final class MoveWithShortcutsGui {
    *
    * @param appContext {@link #appContext}.<br>
    *
-   * @param updater {@link #updater}.<br>
+   * @param updaterKind {@link #updaterKind}.<br>
    *
    * @param originalPath The original path to prefill, or {@code null}.<br>
    *
@@ -266,15 +277,16 @@ final class MoveWithShortcutsGui {
    *
    * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
-  private MoveWithShortcutsGui(@NotNull AAppContext appContext, @NotNull IShortcutsUpdater updater
-                             , String originalPath, String destinationPath, String searchPath
+  private MoveWithShortcutsGui(@NotNull AAppContext            appContext, @NotNull ShortcutsUpdaterKind  updaterKind
+                                      , String                 originalPath
+                                      , String                 destinationPath,     String                searchPath
                              , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy
-                             , @NotNull GuiProgressReporter progressReporter
-                             , @NotNull GuiTextReporter     textReporter, String warningMessage) {
+                             , @NotNull GuiProgressReporter    progressReporter
+                             , @NotNull GuiTextReporter        textReporter,        String                warningMessage) {
                              
     this.appContext = assertNonNull(appContext);
     
-    this.updater =    assertNonNull(updater);
+    this.updaterKind = assertNonNull(updaterKind);
     
     this.app = MoveWithShortcuts.newInstance(appContext);
     
@@ -295,6 +307,49 @@ final class MoveWithShortcutsGui {
     this.destinationField = PathTextField.newInstance();
     
     this.searchField = PathTextField.newInstance();
+    
+    this.updaterKindCombo = new JComboBox<>(ShortcutsUpdaterKind.values());
+    
+    this.updaterKindCombo.setSelectedItem(this.updaterKind);
+    
+    this.updaterKindCombo.setToolTipText("The implementation used to update the shortcuts.");
+    
+    final DefaultListCellRenderer updaterKindRenderer = new DefaultListCellRenderer();
+    
+    this.updaterKindCombo.setRenderer((
+  list, value, index, isSelected
+                            , cellHasFocus) -> {
+    
+      final JLabel label = (JLabel) updaterKindRenderer.getListCellRendererComponent(list, value, index, isSelected
+                                                                                                       , cellHasFocus);
+      if (value instanceof ShortcutsUpdaterKind kind) {
+      
+        label.setText(kind.getId());
+      }
+      return label;
+    });
+    
+    this.shortcutFileNamePolicyCombo = new JComboBox<>(ShortcutFileNamePolicy.values());
+    
+    this.shortcutFileNamePolicyCombo.setSelectedItem(this.shortcutFileNamePolicy);
+    
+    this.shortcutFileNamePolicyCombo.setToolTipText(
+        "Whether and when the shortcut files themselves are renamed: never, exact or descendant.");
+        
+    final DefaultListCellRenderer shortcutFileNamePolicyRenderer = new DefaultListCellRenderer();
+    
+    this.shortcutFileNamePolicyCombo.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
+    
+      final JLabel label = (JLabel) shortcutFileNamePolicyRenderer.getListCellRendererComponent(
+                                                                              list, value, index, isSelected
+                                                                               , cellHasFocus);
+                                                                               
+      if (value instanceof ShortcutFileNamePolicy policy) {
+      
+        label.setText(policy.name().toLowerCase(Locale.ROOT));
+      }
+      return label;
+    });
     
     this.okButton = new JButton("Move / rename");
     
@@ -550,7 +605,7 @@ final class MoveWithShortcutsGui {
   }
   
   /**
-   * Creates the panel with the three path rows.
+   * Creates the panel with the path and option rows.
    *
    * @return The panel.
    */
@@ -580,6 +635,10 @@ final class MoveWithShortcutsGui {
         addPathRow(result, gbc, "Search folder", this.searchField, this::browseSearch
                  , "Browse for the search folder."));
                  
+    addComboRow(result, gbc, "Updater", this.updaterKindCombo);
+    
+    addComboRow(result, gbc, "Shortcut file policy", this.shortcutFileNamePolicyCombo);
+    
     return result;
   }
   
@@ -730,6 +789,43 @@ final class MoveWithShortcutsGui {
   }
   
   /**
+   * Adds one row with a label and a combo box to the given panel.
+   *
+   * @param panel The panel to add the row to.<br>
+   *
+   * @param gbc The constraints to use and update.<br>
+   *
+   * @param label The row label.<br>
+   *
+   * @param combo The combo box.
+   */
+  private static void addComboRow(@NotNull JPanel panel, @NotNull GridBagConstraints gbc, @NotNull String label
+                                , @NotNull JComboBox<?> combo) {
+                                
+    gbc.gridx = ZERO_i;
+    
+    gbc.weightx = 0.0;
+    
+    final JLabel labelComponent = new JLabel(label + ":");
+    
+    labelComponent.setToolTipText(combo.getToolTipText());
+    
+    panel.add(labelComponent, gbc);
+    
+    gbc.gridx = 1;
+    
+    gbc.weightx = 1.0;
+    
+    gbc.gridwidth = 2;
+    
+    panel.add(combo, gbc);
+    
+    gbc.gridwidth = 1;
+    
+    gbc.gridy++;
+  }
+  
+  /**
    * Lets the user choose the original file or folder.
    */
   private void browseOriginal() {
@@ -824,26 +920,41 @@ final class MoveWithShortcutsGui {
     
       final GuiMoveRequest request = built.object;
       
-      final int answer = JOptionPane.showConfirmDialog(this.frame, buildConfirmationMessage(request)
+      final ShortcutsUpdaterKind selectedUpdaterKind =
+                    assertNonNull((ShortcutsUpdaterKind) this.updaterKindCombo.getSelectedItem());
+                    
+      final ShortcutFileNamePolicy selectedShortcutFileNamePolicy =
+                    assertNonNull((ShortcutFileNamePolicy) this.shortcutFileNamePolicyCombo.getSelectedItem());
+                    
+      final int answer = JOptionPane.showConfirmDialog(this.frame
+                                                              , buildConfirmationMessage(request
+                                                                                       , selectedUpdaterKind
+                                                                                , selectedShortcutFileNamePolicy)
                                                               , "Confirm"
                                                           , JOptionPane.YES_NO_OPTION
                                                          , JOptionPane.QUESTION_MESSAGE);
       if (answer == JOptionPane.YES_OPTION) {
       
-        execute(request);
+        execute(request, selectedUpdaterKind, selectedShortcutFileNamePolicy);
       }
     }
   }
   
   /**
-   * Builds the confirmation message for the given request.
+   * Builds the confirmation message for the given request and selections.
    *
-   * @param request The request.
+   * @param request The request.<br>
+   *
+   * @param updaterKind The selected shortcuts updater implementation.<br>
+   *
+   * @param shortcutFileNamePolicy The selected shortcut-file name policy.
    *
    * @return The message.
    */
-  private static String buildConfirmationMessage(@NotNull GuiMoveRequest request) {
-  
+  private static String buildConfirmationMessage(@NotNull GuiMoveRequest request
+                                               , @NotNull ShortcutsUpdaterKind updaterKind
+                                               , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy) {
+                                               
     final String operation = request.mustMove()
                              ? "The file or folder will be renamed / moved, and the shortcuts will be updated."
                              : "The rename / move is assumed to have already been done, so only the shortcuts will"
@@ -853,16 +964,23 @@ final class MoveWithShortcutsGui {
                  + "Original: "      + dq(getCanonicalPath(             request.originalFileOrFolder()))    + NL2
                  + "Destination: "   + dq(getCanonicalPath(             request.destinationFileOrFolder())) + NL2
                  + "Search folder: " + dq(getCanonicalPath(request.searchFolder()))            + NL2
+                 + "Updater: "       + updaterKind.getId() + NL2
+                 + "Shortcut file policy: " + shortcutFileNamePolicy.name().toLowerCase(Locale.ROOT) + NL2
                  + "Continue?";
   }
   
   /**
    * Runs the operation in the background, showing the progress bar, then shows the summary or the error.
    *
-   * @param request The validated request.
+   * @param request The validated request.<br>
+   *
+   * @param updaterKind The selected shortcuts updater implementation.<br>
+   *
+   * @param shortcutFileNamePolicy The selected shortcut-file name policy.
    */
-  private void execute(@NotNull GuiMoveRequest request) {
-  
+  private void execute(@NotNull GuiMoveRequest request, @NotNull ShortcutsUpdaterKind updaterKind
+                     , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy) {
+                     
     setBusy(true);
     
     new SwingWorker<Void, Void>() {
@@ -884,8 +1002,8 @@ final class MoveWithShortcutsGui {
       
         try {
         
-          MoveWithShortcutsGui.this.app.runGui(MoveWithShortcutsGui.this.updater, request
-                       , MoveWithShortcutsGui.this.shortcutFileNamePolicy);
+          MoveWithShortcutsGui.this.app.runGui(updaterKind.newUpdater(MoveWithShortcutsGui.this.appContext)
+                                             , request, shortcutFileNamePolicy);
         }
         catch (UserRequestedTermination t) {
         
@@ -968,6 +1086,10 @@ final class MoveWithShortcutsGui {
     this.destinationField.setEnabled( ! busy);
     
     this.searchField.setEnabled(      ! busy);
+    
+    this.updaterKindCombo.setEnabled(             ! busy);
+    
+    this.shortcutFileNamePolicyCombo.setEnabled(  ! busy);
     
     this.okButton.setEnabled(         ! busy);
     
@@ -1087,7 +1209,7 @@ final class MoveWithShortcutsGui {
   }
   
   /**
-   * Appends one execution text to the operation-detail area, newest first, and trims the history.
+   * Appends one execution text to the operation-detail area in execution order, and trims the history.
    *
    * @param kind The kind of the text.<br>
    *
@@ -1103,11 +1225,11 @@ final class MoveWithShortcutsGui {
                           : kind == GuiTextKind.ERROR   ? "ERROR: "
                           :                               "";
                           
-      this.statusArea.insert(prefix + trimmed + NL, ZERO_i);
+      this.statusArea.append(prefix + trimmed + NL);
       
       trimStatusArea();
       
-      this.statusArea.setCaretPosition(ZERO_i);
+      this.statusArea.setCaretPosition(this.statusArea.getDocument().getLength());
       
       this.statusArea.setToolTipText(prefix + trimmed);
     }
@@ -1124,10 +1246,9 @@ final class MoveWithShortcutsGui {
     
       try {
       
-        final int removeFrom = this.statusArea.getLineStartOffset(MAX_STATUS_LINES);
+        final int removeTo = this.statusArea.getLineStartOffset(lineCount - MAX_STATUS_LINES);
         
-        this.statusArea.getDocument().remove(removeFrom
-                                           , this.statusArea.getDocument().getLength() - removeFrom);
+        this.statusArea.getDocument().remove(ZERO_i, removeTo);
       }
       catch (BadLocationException e) {
       

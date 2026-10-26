@@ -16,9 +16,12 @@
   options are honored; invalid GUI-mode values are reported in the operation-detail area. The console launchers add
   `-console`, and new GUI launchers use `javaw`.
 
-- In GUI mode the operation-detail area now shows the same execution messages as console mode, newest first, at the
+- In GUI mode the operation-detail area now shows the same execution messages as console mode, in execution order, at the
   GUI default verbosity of 1; warnings and errors are prefixed with `WARNING: ` / `ERROR: `, the raw progress lines
   stay in the progress bar, and the history is capped at 1000 lines.
+
+- The GUI now offers the shortcuts-updater and shortcut-file-name-policy combos; `-shortcuts-updater` and
+  `-shortcut-file-name` set their initial values, and the confirmation shows the selected values.
 
 
 ### Added
@@ -37,7 +40,7 @@
   subsequent starts are quiet.
 
 - Phase-labelled progress with the total number of shortcuts, a green `Completed` / red `Failed` progress bar, and an
-  operation-detail text area in the GUI that keeps the previous status lines, newest first. The Java updater loops now
+  operation-detail text area in the GUI that keeps the previous status lines, in execution order. The Java updater loops now
   also report their progress in the console.
 
 - Per-instance log folders named `<timestamp>_<original leaf>` : several GUI and console instances can run at the same
