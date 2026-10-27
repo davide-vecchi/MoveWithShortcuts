@@ -55,10 +55,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.number.NumberUtilities.ZERO_i;
@@ -66,6 +66,7 @@ import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.dq;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 
@@ -97,6 +98,11 @@ final class MoveWithShortcutsGui {
    * The maximum number of lines kept in the operation-detail area.
    */
   private static final int MAX_STATUS_LINES = 1000;
+  
+  /**
+   * The maximum length of a combo box label.
+   */
+  private static final int MAX_COMBO_LABEL_LENGTH = 100;
   
   
   /**
@@ -308,6 +314,12 @@ final class MoveWithShortcutsGui {
     
     this.searchField = PathTextField.newInstance();
     
+    final Map<ShortcutsUpdaterKind, String> updaterKindLabels = new EnumMap<>(ShortcutsUpdaterKind.class);
+    
+    for (final ShortcutsUpdaterKind kind : ShortcutsUpdaterKind.values()) {
+    
+      updaterKindLabels.put(kind, updaterKindLabel(kind, this.appContext));
+    }
     this.updaterKindCombo = new JComboBox<>(ShortcutsUpdaterKind.values());
     
     this.updaterKindCombo.setSelectedItem(this.updaterKind);
@@ -319,12 +331,12 @@ final class MoveWithShortcutsGui {
     this.updaterKindCombo.setRenderer((
   list, value, index, isSelected
                             , cellHasFocus) -> {
-    
+                            
       final JLabel label = (JLabel) updaterKindRenderer.getListCellRendererComponent(list, value, index, isSelected
                                                                                                        , cellHasFocus);
       if (value instanceof ShortcutsUpdaterKind kind) {
       
-        label.setText(kind.getId());
+        label.setText(updaterKindLabels.get(kind));
       }
       return label;
     });
@@ -335,18 +347,18 @@ final class MoveWithShortcutsGui {
     
     this.shortcutFileNamePolicyCombo.setToolTipText("Whether and when the shortcut files themselves are renamed: "
                                                     + ShortcutFileNamePolicy.getDescription() + ".");
-        
+                                                    
     final DefaultListCellRenderer shortcutFileNamePolicyRenderer = new DefaultListCellRenderer();
     
     this.shortcutFileNamePolicyCombo.setRenderer((
            list, value, index, isSelected
                                        , cellHasFocus) -> {
-    
+                                       
       final JLabel label = (JLabel) shortcutFileNamePolicyRenderer.getListCellRendererComponent(list,       value, index
                                                                                               , isSelected, cellHasFocus);
       if (value instanceof ShortcutFileNamePolicy policy) {
       
-        label.setText(policy.name().toLowerCase(Locale.ROOT));
+        label.setText(shortcutFileNamePolicyLabel(policy));
       }
       return label;
     });
@@ -789,6 +801,46 @@ final class MoveWithShortcutsGui {
   }
   
   /**
+   * Returns the combo-box label for the given shortcuts updater kind.
+   *
+   * @param kind The kind.<br>
+   *
+   * @param appContext The application context.
+   *
+   * @return The label, at most {@link #MAX_COMBO_LABEL_LENGTH} characters.
+   */
+  private static String updaterKindLabel(@NotNull ShortcutsUpdaterKind kind, @NotNull AAppContext appContext) {
+  
+    String description = kind.getDescription(appContext).strip();
+    
+    if (description.endsWith(".")) {
+    
+      description = description.substring(ZERO_i, description.length() - 1);
+    }
+    return abbreviate(kind.getId() + " (" + description + ")", MAX_COMBO_LABEL_LENGTH);
+  }
+  
+  /**
+   * Returns the combo-box label for the given shortcut-file name policy.
+   *
+   * @param policy The policy.
+   *
+   * @return The label, at most {@link #MAX_COMBO_LABEL_LENGTH} characters.
+   */
+  private static String shortcutFileNamePolicyLabel(@NotNull ShortcutFileNamePolicy policy) {
+  
+    final String label = switch (policy) {
+    
+      case NEVER ->      policy.displayName + " (only the Target and Work Folder fields of the shortcut are updated, not the shortcut file)";
+      
+      case EXACT ->      policy.displayName + " (also rename shortcut file if its name matches the old leaf and the target is the moved leaf)";
+      
+      case DESCENDANT -> policy.displayName + " (like exact, but rename also when the target points inside a moved folder)";
+    };
+    return abbreviate(label, MAX_COMBO_LABEL_LENGTH);
+  }
+  
+  /**
    * Adds one row with a label and a combo box to the given panel.
    *
    * @param panel The panel to add the row to.<br>
@@ -965,7 +1017,7 @@ final class MoveWithShortcutsGui {
                  + "Destination: "   + dq(getCanonicalPath(             request.destinationFileOrFolder())) + NL2
                  + "Search folder: " + dq(getCanonicalPath(request.searchFolder()))            + NL2
                  + "Updater: "       + updaterKind.getId() + NL2
-                 + "Shortcut file policy: " + shortcutFileNamePolicy.name().toLowerCase(Locale.ROOT) + NL2
+                 + "Shortcut file policy: " + shortcutFileNamePolicy.displayName + NL2
                  + "Continue?";
   }
   

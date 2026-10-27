@@ -42,7 +42,8 @@ Warnings and errors are prefixed with `WARNING: ` / `ERROR: `, the raw progress 
 history keeps the last 1000 lines. GUI mode uses verbosity 1 by default; `-verbosity` overrides it.
 
 The GUI also lets you choose the shortcuts updater implementation and the shortcut-file name policy; the
-`-shortcuts-updater` and `-shortcut-file-name` options set their initial values.
+`-shortcuts-updater` and `-shortcut-file-name` options set their initial values, and each choice shows a short
+description.
 
 The console flow can be started with `-console` and no other arguments, in which case it prompts for the needed values.
 When started with some named options, only the missing required options (`-from`, `-to`, `-search`) are asked for;

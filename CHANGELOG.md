@@ -31,7 +31,8 @@
   stay in the progress bar, and the history is capped at 1000 lines.
 
 - The GUI now offers the shortcuts-updater and shortcut-file-name-policy combos; `-shortcuts-updater` and
-  `-shortcut-file-name` set their initial values, and the confirmation shows the selected values.
+  `-shortcut-file-name` set their initial values, the confirmation shows the selected values, and each entry shows a
+  short description of the choice.
 
 
 ### Added
