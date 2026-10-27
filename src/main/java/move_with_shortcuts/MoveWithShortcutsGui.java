@@ -74,6 +74,7 @@ import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 import static dutil.string.TextUtilities.PERIOD;
 import static dutil.string.TextUtilities.dq;
+import static dutil.string.TextUtilities.removeEnd;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -828,12 +829,8 @@ final class MoveWithShortcutsGui {
    */
   private static String updaterKindLabel(@NotNull ShortcutsUpdaterKind kind, @NotNull AAppContext appContext) {
   
-    String description = kind.getDescription(appContext).strip();
+    String description = removeEnd(kind.getDescription(appContext), PERIOD).strip();
     
-    if (description.endsWith(".")) {
-    
-      description = description.substring(ZERO_i, description.length() - 1);
-    }
     return abbreviate(kind.getId() + " (" + description + ")", MAX_COMBO_LABEL_LENGTH);
   }
   
