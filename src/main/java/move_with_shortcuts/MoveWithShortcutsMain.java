@@ -30,6 +30,7 @@ import static dlog.log.Log.writeLogsHeaders;
 import static duser_input_output.AUserInputOutput.calcCancelCharsPrompt;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.list.text.TextListUtilities.listToString;
+import static dutil.number.NumberUtilities.I;
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.B;
@@ -253,8 +254,8 @@ public final class MoveWithShortcutsMain {
       final Boolean createContextMenu =     args != null &&   args.wasGiven( CREATE_CONTEXT_MENU_OPTION_NAME)
                                             ? B(args.getString(CREATE_CONTEXT_MENU_OPTION_NAME)) : null;
                                         
-      final Integer verbosity = args != null && args.wasGiven(VERBOSITY_OPTION_NAME)
-                                ? Integer.valueOf(args.getInt(VERBOSITY_OPTION_NAME)) : null;
+      final Integer verbosity =             args != null &&   args.wasGiven(VERBOSITY_OPTION_NAME)
+                                            ? I(     args.getInt(  VERBOSITY_OPTION_NAME)) : null;
                                 
       MoveWithShortcutsGuiMain.start(originalPath, destinationPath, searchPath, updaterKind, policy
                                    , createContextMenu, verbosity, warning);
