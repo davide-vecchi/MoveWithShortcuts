@@ -232,23 +232,23 @@ public final class MoveWithShortcutsMain {
     }
     else {
     
-      final String originalPath = args != null && args.wasGiven(FROM_OPTION_NAME)
-                                  ? args.getFile(FROM_OPTION_NAME).getPath() : null;
+      final String originalPath =    args != null && args.wasGiven(FROM_OPTION_NAME)
+                                                   ? args.getFile(FROM_OPTION_NAME).getPath()    : null;
                                   
-      final String destinationPath = args != null && args.wasGiven(TO_OPTION_NAME)
-                                     ? args.getString(TO_OPTION_NAME) : null;
+      final String destinationPath = args != null && args.wasGiven( TO_OPTION_NAME)
+                                                   ? args.getString(TO_OPTION_NAME)              : null;
                                      
-      final String searchPath = args != null && args.wasGiven(SEARCH_OPTION_NAME)
-                                ? args.getFile(SEARCH_OPTION_NAME).getPath() : null;
+      final String searchPath =      args != null && args.wasGiven(SEARCH_OPTION_NAME)
+                                                   ? args.getFile( SEARCH_OPTION_NAME).getPath() : null;
                                 
-      final ShortcutsUpdaterKind updaterKind = args != null && args.wasGiven(SHORTCUTS_UPDATER_OPTION_NAME)
+      final ShortcutsUpdaterKind updaterKind = args != null &&               args.wasGiven(SHORTCUTS_UPDATER_OPTION_NAME)
                                                ? ShortcutsUpdaterKind.parse(
-                                                          args.getString(SHORTCUTS_UPDATER_OPTION_NAME))
+                                                                        args.getString(SHORTCUTS_UPDATER_OPTION_NAME))
                                                : null;
                                                
-      final ShortcutFileNamePolicy policy = args != null && args.wasGiven(SHORTCUT_FILE_NAME_OPTION_NAME)
+      final ShortcutFileNamePolicy policy = args != null &&                args.wasGiven( SHORTCUT_FILE_NAME_OPTION_NAME)
                                             ? ShortcutFileNamePolicy.parse(
-                                                       args.getString(SHORTCUT_FILE_NAME_OPTION_NAME))
+                                                                    args.getString(SHORTCUT_FILE_NAME_OPTION_NAME))
                                             : ShortcutFileNamePolicy.NEVER;
                                             
       final Boolean createContextMenu =     args != null &&   args.wasGiven( CREATE_CONTEXT_MENU_OPTION_NAME)
@@ -257,8 +257,8 @@ public final class MoveWithShortcutsMain {
       final Integer verbosity =             args != null &&   args.wasGiven(VERBOSITY_OPTION_NAME)
                                             ? I(     args.getInt(  VERBOSITY_OPTION_NAME)) : null;
                                 
-      MoveWithShortcutsGuiMain.start(originalPath, destinationPath, searchPath, updaterKind, policy
-                                   , createContextMenu, verbosity, warning);
+      MoveWithShortcutsGuiMain.start(originalPath, destinationPath, searchPath, updaterKind, policy, createContextMenu
+                                   , verbosity,    warning);
     }
   }
   
@@ -316,10 +316,10 @@ public final class MoveWithShortcutsMain {
         
           ac.currentVerbosity = args != null ? args.getInt(VERBOSITY_OPTION_NAME) : DEFAULT_VERBOSITY;
           
-          final ShortcutFileNamePolicy shortcutFileNamePolicy = args != null
-                                                    ? ShortcutFileNamePolicy.parse(
-                                                              args.getString(SHORTCUT_FILE_NAME_OPTION_NAME))
-                                                    : ShortcutFileNamePolicy.NEVER;
+          final ShortcutFileNamePolicy shortcutFileNamePolicy = args != null ? ShortcutFileNamePolicy.parse(
+                                                                          args.getString(
+                                                                                          SHORTCUT_FILE_NAME_OPTION_NAME))
+                                                                             : ShortcutFileNamePolicy.NEVER;
                                                     
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
@@ -496,8 +496,7 @@ public final class MoveWithShortcutsMain {
                                                .allowedValues(ShortcutsUpdaterKind.ids()))
                            .addOption(OptionSpec.option(CREATE_CONTEXT_MENU_OPTION_NAME
                                                        , "Whether to create or update the Windows Explorer"
-                                                       + " right-click context-menu integration at startup"
-                                                       + " (default true).")
+                                                       + " right-click context-menu integration at startup (default true).")
                                                .allowedValues("true", "false")
                                                .defaultValue("true"))
                            .addOption(OptionSpec.option(CONSOLE_OPTION_NAME
@@ -641,8 +640,7 @@ public final class MoveWithShortcutsMain {
    *
    * @return The selected kind.
    */
-  static ShortcutsUpdaterKind selectShortcutsUpdater(ParsedArgs args, @NotNull AAppContext appContext)
-                                                          throws UserRequestedTermination {
+  static ShortcutsUpdaterKind selectShortcutsUpdater(ParsedArgs args, @NotNull AAppContext appContext) throws UserRequestedTermination {
                                                           
     if (args != null && args.wasGiven(SHORTCUTS_UPDATER_OPTION_NAME)) {
     
