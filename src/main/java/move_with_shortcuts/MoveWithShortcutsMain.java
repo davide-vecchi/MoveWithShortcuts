@@ -32,6 +32,7 @@ import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause
 import static dutil.list.text.TextListUtilities.listToString;
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.object.ObjectUtilities.B;
 import static dutil.string.TextUtilities.CHARSET_UTF_8;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
@@ -249,9 +250,8 @@ public final class MoveWithShortcutsMain {
                                                        args.getString(SHORTCUT_FILE_NAME_OPTION_NAME))
                                             : ShortcutFileNamePolicy.NEVER;
                                             
-      final Boolean createContextMenu = args != null && args.wasGiven(CREATE_CONTEXT_MENU_OPTION_NAME)
-                                        ? Boolean.valueOf(args.getString(CREATE_CONTEXT_MENU_OPTION_NAME))
-                                        : null;
+      final Boolean createContextMenu =     args != null &&   args.wasGiven( CREATE_CONTEXT_MENU_OPTION_NAME)
+                                            ? B(args.getString(CREATE_CONTEXT_MENU_OPTION_NAME)) : null;
                                         
       final Integer verbosity = args != null && args.wasGiven(VERBOSITY_OPTION_NAME)
                                 ? Integer.valueOf(args.getInt(VERBOSITY_OPTION_NAME)) : null;
