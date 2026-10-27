@@ -57,7 +57,7 @@ public final class MoveWithShortcutsGuiMain {
     final String originalPath = args.length > ZERO_i ? args[ZERO_i] : null;
     
     start(                    originalPath, null,                                      null
-         , null,   ShortcutFileNamePolicy.NEVER, null
+         , null,   ShortcutFileNamePolicy.EXACT, null
            , null,          null);
   }
   
@@ -84,7 +84,7 @@ public final class MoveWithShortcutsGuiMain {
   static void start(String                 originalPath,           String               destinationPath
                   , String                 searchPath,             ShortcutsUpdaterKind updaterKindOverride
                   , ShortcutFileNamePolicy shortcutFileNamePolicy, Boolean              createContextMenuOverride
-                  , Number                 verbosityOverride,      String               warningMessage) {
+                  , Number                 verbosityOverride,      String               warningMessage) {// NODIR 1305
     try {
     
       final File logFolder = resolveGuiLogFolder(originalPath);

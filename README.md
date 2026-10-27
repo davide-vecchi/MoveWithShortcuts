@@ -84,8 +84,8 @@ operation-detail area. `-help` prints the console usage text.
    
 5. `-shortcut-file-name` (optional) : What to do with the shortcut files' own names :
 
-   - `never` (default) : only the target and work folder fields are updated.
-   - `exact` : additionally rename a shortcut file whose name (minus `.lnk`) equals the old leaf's full name and whose
+   - `never` : only the target and work folder fields are updated.
+   - `exact` (default) : rename a shortcut file whose name (minus `.lnk`) equals the old leaf's full name and whose
      target is exactly the renamed / moved leaf.
    - `descendant` : like `exact`, and also when the shortcut's target is inside the renamed / moved folder.
    

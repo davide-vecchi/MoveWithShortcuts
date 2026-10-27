@@ -249,7 +249,7 @@ public final class MoveWithShortcutsMain {
       final ShortcutFileNamePolicy policy = args != null &&                args.wasGiven( SHORTCUT_FILE_NAME_OPTION_NAME)
                                             ? ShortcutFileNamePolicy.parse(
                                                                     args.getString(SHORTCUT_FILE_NAME_OPTION_NAME))
-                                            : ShortcutFileNamePolicy.NEVER;
+                                            : ShortcutFileNamePolicy.EXACT;
                                             
       final Boolean createContextMenu =     args != null &&   args.wasGiven( CREATE_CONTEXT_MENU_OPTION_NAME)
                                             ? B(args.getString(CREATE_CONTEXT_MENU_OPTION_NAME)) : null;
@@ -319,7 +319,7 @@ public final class MoveWithShortcutsMain {
           final ShortcutFileNamePolicy shortcutFileNamePolicy = args != null ? ShortcutFileNamePolicy.parse(
                                                                           args.getString(
                                                                                           SHORTCUT_FILE_NAME_OPTION_NAME))
-                                                                             : ShortcutFileNamePolicy.NEVER;
+                                                                             : ShortcutFileNamePolicy.EXACT;
                                                                              
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
@@ -484,12 +484,12 @@ public final class MoveWithShortcutsMain {
                                                .existingFolder())
                            .addOption(OptionSpec.option(SHORTCUT_FILE_NAME_OPTION_NAME
                                                        , "The shortcut file name policy : " + ShortcutFileNamePolicy.getDescription()
-                                                       + " (default " + ShortcutFileNamePolicy.NEVER.displayName + "). "
+                                                       + " (default " + ShortcutFileNamePolicy.EXACT.displayName + "). "
                                                        + ShortcutFileNamePolicy.EXACT.displayName + " / " + ShortcutFileNamePolicy.DESCENDANT.displayName + " rename a shortcut file"
                                                        + " named after the old leaf, preserving the Windows default"
                                                        + " \" - Shortcut\" part.")
                                                .allowedValues("never", "exact", "descendant")
-                                               .defaultValue("never"))
+                                               .defaultValue("exact"))
                            .addOption(OptionSpec.option(SHORTCUTS_UPDATER_OPTION_NAME
                                                        , "The shortcuts updater implementation to use. Default: "
                                                        + ShortcutsUpdaterKind.defaultKind().getId() + ".")

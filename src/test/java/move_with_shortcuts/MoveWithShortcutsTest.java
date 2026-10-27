@@ -1492,7 +1492,7 @@ public class MoveWithShortcutsTest {
                                                 .defaultValue(S(MAX_VERBOSITY)))
                            .addOption(OptionSpec.option("shortcut-file-name", "policy")
                                                 .allowedValues("never", "exact", "descendant")
-                                                .defaultValue("never"));
+                                                .defaultValue("exact"));
   }
   
   /**

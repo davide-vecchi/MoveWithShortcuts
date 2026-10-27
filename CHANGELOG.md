@@ -34,6 +34,10 @@
   `-shortcut-file-name` set their initial values, the confirmation shows the selected values, and each entry shows a
   short description of the choice.
 
+- The default shortcut-file name policy is now `exact` instead of `never`: a shortcut file whose name matches the old
+  leaf and whose target is the moved leaf is renamed by default; pass `-shortcut-file-name never` to keep the old
+  behavior.
+
 
 ### Added
 
