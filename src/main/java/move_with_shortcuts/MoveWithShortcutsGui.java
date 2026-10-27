@@ -1064,7 +1064,8 @@ final class MoveWithShortcutsGui {
       
         try {
         
-          MoveWithShortcutsGui.this.app.runGui(updaterKindToUse.newUpdater(MoveWithShortcutsGui.this.appContext)
+          MoveWithShortcutsGui.this.app.runGui(
+                         updaterKindToUse.newUpdater(MoveWithShortcutsGui.this.appContext)
                                              , request, shortcutFileNamePolicyToUse);
         }
         catch (UserRequestedTermination t) {
@@ -1124,7 +1125,6 @@ final class MoveWithShortcutsGui {
             JOptionPane.showMessageDialog(MoveWithShortcutsGui.this.frame, buildSummaryMessage()
                                                  , MoveWithShortcutsMain.APP_NAME
                                             , JOptionPane.INFORMATION_MESSAGE);
-                                            
             markProgressCompleted();
           }
         }
@@ -1143,19 +1143,19 @@ final class MoveWithShortcutsGui {
    */
   private void setBusy(boolean busy) {
   
-    this.originalField.setEnabled(    ! busy);
+    this.originalField.setEnabled(                ! busy);
     
-    this.destinationField.setEnabled( ! busy);
+    this.destinationField.setEnabled(             ! busy);
     
-    this.searchField.setEnabled(      ! busy);
+    this.searchField.setEnabled(                  ! busy);
     
     this.updaterKindCombo.setEnabled(             ! busy);
     
     this.shortcutFileNamePolicyCombo.setEnabled(  ! busy);
     
-    this.okButton.setEnabled(         ! busy);
+    this.okButton.setEnabled(                     ! busy);
     
-    this.cancelButton.setEnabled(     ! busy);
+    this.cancelButton.setEnabled(                 ! busy);
     
     for (final JButton button : this.processingDisabledButtons) {
     
