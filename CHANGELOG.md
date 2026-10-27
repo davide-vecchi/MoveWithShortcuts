@@ -7,6 +7,16 @@
 
 ### Changed
 
+- Update the `dutil` dependency to its latest version.
+
+- Update the `duserinputoutput` dependency to its latest version.
+
+- Update the `dcommandlinearg` dependency to its latest version.
+
+- Update the `dapplication` dependency to its latest version.
+
+- Update the `dfile` dependency to its latest version.
+
 - MWS now creates or updates its per-user Windows Explorer context-menu integration at startup, unless the new
   `CreateContextMenu` configuration parameter or the new `-create-context-menu <true|false>` command-line option
   disables it.
