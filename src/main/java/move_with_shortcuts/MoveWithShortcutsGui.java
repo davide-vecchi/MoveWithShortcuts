@@ -576,9 +576,10 @@ final class MoveWithShortcutsGui {
     
     this.frame.getRootPane().setDefaultButton(this.okButton);
     
-    this.frame.getRootPane().registerKeyboardAction(e -> cancel()
-                                                 , KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)
-                                                 , JComponent.WHEN_IN_FOCUSED_WINDOW);
+    this.frame.getRootPane().registerKeyboardAction(
+                              e -> cancel()
+                                       , KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, ZERO_i)
+                                       , JComponent.WHEN_IN_FOCUSED_WINDOW);
                                                  
     this.frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     
@@ -693,11 +694,11 @@ final class MoveWithShortcutsGui {
     
     leftPanel.add(this.helpButton);
     
-    gbc.gridx = ZERO_i;
+    gbc.gridx =   ZERO_i;
     
     gbc.weightx = ZERO_d;
     
-    gbc.fill = GridBagConstraints.NONE;
+    gbc.fill =   GridBagConstraints.NONE;
     
     gbc.anchor = GridBagConstraints.WEST;
     
@@ -721,7 +722,7 @@ final class MoveWithShortcutsGui {
     
     gbc.weightx = ONE_d;
     
-    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.fill =   GridBagConstraints.HORIZONTAL;
     
     gbc.anchor = GridBagConstraints.CENTER;
     
@@ -737,7 +738,7 @@ final class MoveWithShortcutsGui {
     
     gbc.weightx = ZERO_d;
     
-    gbc.fill = GridBagConstraints.NONE;
+    gbc.fill =   GridBagConstraints.NONE;
     
     gbc.anchor = GridBagConstraints.EAST;
     
@@ -785,7 +786,7 @@ final class MoveWithShortcutsGui {
                                   , @NotNull PathTextField field, @NotNull Runnable           browseAction
                                   , @NotNull String        browseTooltip) {
                                   
-    gbc.gridx = ZERO_i;
+    gbc.gridx =   ZERO_i;
     
     gbc.weightx = ZERO_d;
     
@@ -867,8 +868,7 @@ final class MoveWithShortcutsGui {
    */
   private static void addComboRow(@NotNull JPanel panel, @NotNull GridBagConstraints gbc, @NotNull String label
                                 , @NotNull JComboBox<?> combo) {
-                                
-    gbc.gridx = ZERO_i;
+    gbc.gridx =   ZERO_i;
     
     gbc.weightx = ZERO_d;
     
@@ -896,8 +896,8 @@ final class MoveWithShortcutsGui {
    */
   private void browseOriginal() {
   
-    browse(this.originalField, JFileChooser.FILES_AND_DIRECTORIES
-         , "Select the file or folder to move / rename", true);
+    browse(   this.originalField,                               JFileChooser.FILES_AND_DIRECTORIES
+     , "Select the file or folder to move / rename", true);
   }
   
   /**
@@ -905,7 +905,8 @@ final class MoveWithShortcutsGui {
    */
   private void browseDestination() {
   
-    browse(this.destinationField, JFileChooser.FILES_AND_DIRECTORIES, "Select the new path", true);
+    browse(   this.destinationField,     JFileChooser.FILES_AND_DIRECTORIES
+     , "Select the new path", true);
   }
   
   /**
@@ -913,8 +914,8 @@ final class MoveWithShortcutsGui {
    */
   private void browseSearch() {
   
-    browse(this.searchField, JFileChooser.DIRECTORIES_ONLY
-         , "Select the folder to scan for shortcuts", false);
+    browse(   this.searchField,                              JFileChooser.DIRECTORIES_ONLY
+     , "Select the folder to scan for shortcuts", false);
   }
   
   /**
@@ -928,8 +929,8 @@ final class MoveWithShortcutsGui {
    *
    * @param showFileTypeFilter Whether to show the "Files of type" filter list.
    */
-  private void browse(@NotNull PathTextField field, int selectionMode, @NotNull String title
-                    , boolean showFileTypeFilter) {
+  private void browse(@NotNull PathTextField field,             int selectionMode, @NotNull String title
+                             , boolean       showFileTypeFilter) {
                     
     final JFileChooser chooser = showFileTypeFilter ? new JFileChooser() : new FolderFileChooser();
     
@@ -1017,8 +1018,8 @@ final class MoveWithShortcutsGui {
    *
    * @return The message.
    */
-  private static String buildConfirmationMessage(@NotNull GuiMoveRequest request
-                                               , @NotNull ShortcutsUpdaterKind updaterKind
+  private static String buildConfirmationMessage(@NotNull GuiMoveRequest         request
+                                               , @NotNull ShortcutsUpdaterKind   updaterKind
                                                , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy) {
                                                
     final String operation = request.mustMove()
@@ -1030,7 +1031,7 @@ final class MoveWithShortcutsGui {
                  + "Original: "      + dq(getCanonicalPath(             request.originalFileOrFolder()))    + NL2
                  + "Destination: "   + dq(getCanonicalPath(             request.destinationFileOrFolder())) + NL2
                  + "Search folder: " + dq(getCanonicalPath(request.searchFolder()))            + NL2
-                 + "Updater: "       + updaterKind.getId() + NL2
+                 + "Updater: "              + updaterKind.getId()                + NL2
                  + "Shortcut file policy: " + shortcutFileNamePolicy.displayName + NL2
                  + "Continue?";
   }
@@ -1365,7 +1366,7 @@ final class MoveWithShortcutsGui {
     
     this.progressBar.setForeground(FAILURE_COLOR);
     
-    this.statusArea.setForeground(FAILURE_COLOR);
+    this.statusArea.setForeground( FAILURE_COLOR);
   }
   
   /**
@@ -1391,15 +1392,15 @@ final class MoveWithShortcutsGui {
    */
   private void logFinalSummary() {
   
-    this.appContext.outUser(NL + "Total shortcuts to process :     "        + this.app.numTotalShortcuts        + " .");
+    this.appContext.outUser(NL + "Total shortcuts to process :     "        + this.app.numTotalShortcuts         + " .");
     
-    this.appContext.outUser(NL + "Total shortcuts needing update : "        + this.app.numProcessedShortcuts    + " .");
+    this.appContext.outUser(NL + "Total shortcuts needing update : "        + this.app.numProcessedShortcuts     + " .");
     
-    this.appContext.outUser(NL + "Total shortcuts updated :        "        + this.app.numUpdatedShortcuts      + " .");
+    this.appContext.outUser(NL + "Total shortcuts updated :        "        + this.app.numUpdatedShortcuts       + " .");
     
-    this.appContext.outUser(NL + "Total shortcut files renamed :   "        + this.app.numRenamedShortcuts      + " .");
+    this.appContext.outUser(NL + "Total shortcut files renamed :   "        + this.app.numRenamedShortcuts       + " .");
     
-    this.appContext.outUser(NL + "Total shortcut-file rename collisions : " + this.app.numRenameCollisions      + " .");
+    this.appContext.outUser(NL + "Total shortcut-file rename collisions : " + this.app.numRenameCollisions       + " .");
     
     this.appContext.outUser(NL + "Total shortcut-file renames skipped : "   + this.app.numRenameSkippedShortcuts + " .");
     
@@ -1422,7 +1423,7 @@ final class MoveWithShortcutsGui {
       
       final File logFolder = logFile.getParentFile() == null ? logFile : logFile.getParentFile();
       
-      result = "Logs written to folder: " + dq(folderWithSeparator(logFolder));
+      result = "Logs written to folder: " + dq(folderWithSeparator(logFolder)) + ".";
     }
     return result;
   }
@@ -1461,7 +1462,7 @@ final class MoveWithShortcutsGui {
     
     final StringBuilder result = new StringBuilder();
     
-    result.append(MoveWithShortcutsMain.APP_NAME).append(NL2);
+    result.append(MoveWithShortcutsMain.APP_NAME ).append(NL2);
     
     result.append(MoveWithShortcutsMain.APP_DESCR).append(NL2);
     
@@ -1548,7 +1549,6 @@ final class MoveWithShortcutsGui {
     dialog.getRootPane().registerKeyboardAction(e -> dialog.dispose()
                                                  , KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)
                                                  , JComponent.WHEN_IN_FOCUSED_WINDOW);
-                                                 
     dialog.pack();
     
     dialog.setMinimumSize(new Dimension(400, 250));
@@ -1592,7 +1592,7 @@ final class MoveWithShortcutsGui {
    */
   private void closeAppContext() {
   
-    this.textReporter.setListener(null);
+    this.textReporter.setListener(    null);
     
     this.progressReporter.setListener(null);
     
