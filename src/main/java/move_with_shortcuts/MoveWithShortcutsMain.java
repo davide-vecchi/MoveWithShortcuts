@@ -484,8 +484,8 @@ public final class MoveWithShortcutsMain {
                                                .existingFolder())
                            .addOption(OptionSpec.option(SHORTCUT_FILE_NAME_OPTION_NAME
                                                        , "The shortcut file name policy : " + ShortcutFileNamePolicy.getDescription()
-                                                       + " (default " + ShortcutFileNamePolicy.NEVER.descr + "). "
-                                                       + ShortcutFileNamePolicy.EXACT.descr + " / " + ShortcutFileNamePolicy.DESCENDANT.descr + " rename a shortcut file"
+                                                       + " (default " + ShortcutFileNamePolicy.NEVER.displayName + "). "
+                                                       + ShortcutFileNamePolicy.EXACT.displayName + " / " + ShortcutFileNamePolicy.DESCENDANT.displayName + " rename a shortcut file"
                                                        + " named after the old leaf, preserving the Windows default"
                                                        + " \" - Shortcut\" part.")
                                                .allowedValues("never", "exact", "descendant")
