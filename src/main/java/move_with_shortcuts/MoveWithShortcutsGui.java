@@ -333,17 +333,16 @@ final class MoveWithShortcutsGui {
     
     this.shortcutFileNamePolicyCombo.setSelectedItem(this.shortcutFileNamePolicy);
     
-    this.shortcutFileNamePolicyCombo.setToolTipText(
-        "Whether and when the shortcut files themselves are renamed: never, exact or descendant.");
+    this.shortcutFileNamePolicyCombo.setToolTipText("Whether and when the shortcut files themselves are renamed: never, exact or descendant.");
         
     final DefaultListCellRenderer shortcutFileNamePolicyRenderer = new DefaultListCellRenderer();
     
-    this.shortcutFileNamePolicyCombo.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
+    this.shortcutFileNamePolicyCombo.setRenderer((
+           list, value, index, isSelected
+                                       , cellHasFocus) -> {
     
-      final JLabel label = (JLabel) shortcutFileNamePolicyRenderer.getListCellRendererComponent(
-                                                                              list, value, index, isSelected
-                                                                               , cellHasFocus);
-                                                                               
+      final JLabel label = (JLabel) shortcutFileNamePolicyRenderer.getListCellRendererComponent(list,       value, index
+                                                                                              , isSelected, cellHasFocus);
       if (value instanceof ShortcutFileNamePolicy policy) {
       
         label.setText(policy.name().toLowerCase(Locale.ROOT));
@@ -385,8 +384,8 @@ final class MoveWithShortcutsGui {
     
     final Font statusFont = this.statusArea.getFont();
     
-    this.statusArea.setFont(new Font("Tahoma", Font.PLAIN, statusFont != null ? statusFont.getSize() : 12));
-    
+    this.statusArea.setFont(new Font("Tahoma", Font.PLAIN, statusFont != null ? statusFont.getSize()
+                                                                                                 : 12));
     this.defaultStatusForeground = this.statusArea.getForeground();
     
     this.originalField.setToolTipText("The file or folder to move / rename, or the path it had before.");
