@@ -454,7 +454,7 @@ final class MoveWithShortcutsGui {
     }
     catch (IOException e) {
     
-      result = null;
+      // result stays null .
     }
     return result;
   }
