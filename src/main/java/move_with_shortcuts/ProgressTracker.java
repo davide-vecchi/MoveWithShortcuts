@@ -53,6 +53,16 @@ final class ProgressTracker {
   static final String PHASE_FINALIZING = "Finalizing";
   
   /**
+   * The phase label for the Java loop that parses the rows of the file with the shortcuts read by PowerShell.
+   */
+  static final String PHASE_PARSING = "Parsing read results";
+  
+  /**
+   * The phase label for the Java loop that shows the reading outcomes.
+   */
+  static final String PHASE_SUMMARIZING = "Summarizing read results";
+  
+  /**
    * The percentage value that means "the exact percentage is not known yet".
    */
   static final int UNKNOWN_PERCENTAGE = -1;
@@ -66,6 +76,16 @@ final class ProgressTracker {
    * The prefix of the progress lines written by the Java finalize loop.
    */
   private static final String FINALIZING_PREFIX = PHASE_FINALIZING + ": ";
+  
+  /**
+   * The prefix of the progress lines written by the Java read-results parsing loop.
+   */
+  private static final String PARSING_PREFIX = PHASE_PARSING + ": ";
+  
+  /**
+   * The prefix of the progress lines written by the Java read-results summarizing loop.
+   */
+  private static final String SUMMARIZING_PREFIX = PHASE_SUMMARIZING + ": ";
   
   /**
    * The prefix of the PowerShell script's reading phase line.
@@ -164,6 +184,14 @@ final class ProgressTracker {
     
       reportProgress(PHASE_FINALIZING, text);
     }
+    else if (text.startsWith(PARSING_PREFIX)) {
+    
+      reportProgress(PHASE_PARSING, text);
+    }
+    else if (text.startsWith(SUMMARIZING_PREFIX)) {
+    
+      reportProgress(PHASE_SUMMARIZING, text);
+    }
     else if (text.startsWith(COMPLETED_PREFIX)) {
     
       final int completed = parseHeaderTotal(text, COMPLETED_TOTAL_PREFIX, TOTAL_SUFFIX);
@@ -222,7 +250,9 @@ final class ProgressTracker {
     
       final String text = line.strip();
       
-      result = text.endsWith("%)") || text.startsWith(ANALYZING_PREFIX) || text.startsWith(FINALIZING_PREFIX);
+      result = text.endsWith("%)")
+            || text.startsWith(ANALYZING_PREFIX)    || text.startsWith(FINALIZING_PREFIX)
+            || text.startsWith(PARSING_PREFIX)      || text.startsWith(SUMMARIZING_PREFIX);
     }
     return result;
   }

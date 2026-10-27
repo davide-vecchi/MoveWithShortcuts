@@ -58,6 +58,9 @@
   operation-detail text area in the GUI that keeps the previous status lines, in execution order. The Java updater loops now
   also report their progress in the console.
 
+- The GUI progress bar now shows the `Parsing read results` and `Summarizing read results` phases while the read results
+  are parsed and summarized, instead of staying on `Reading shortcuts: 100%` until the analysis starts.
+
 - Per-instance log folders named `<timestamp>_<original leaf>` : several GUI and console instances can run at the same
   time without sharing log files. The summary shows the actual log folder with a trailing separator.
 

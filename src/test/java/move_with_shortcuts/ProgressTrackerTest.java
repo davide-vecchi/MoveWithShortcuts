@@ -123,6 +123,10 @@ public class ProgressTrackerTest {
     
     Assert.assertTrue(ProgressTracker.isProgressLine("Finalizing: 1 / 2 (50,00%)"));
     
+    Assert.assertTrue(ProgressTracker.isProgressLine("Parsing read results: 1 / 4 (25,00%)"));
+    
+    Assert.assertTrue(ProgressTracker.isProgressLine("Summarizing read results: 1 / 4 (25,00%)"));
+    
     Assert.assertFalse(ProgressTracker.isProgressLine("Starting reading targets of 4 shortcuts..."));
     
     Assert.assertFalse(ProgressTracker.isProgressLine(""));
@@ -157,5 +161,29 @@ public class ProgressTrackerTest {
     Assert.assertEquals(updates, List.of("Searching shortcuts=0=-1", "Reading shortcuts=4=-1"
                                         , "Reading shortcuts=4=25", "Analyzing shortcuts=4=25"
                                         , "Finalizing=2=50", "Finalizing=2=100"));
+  }
+  
+  /**
+   * Tests the phase, total and percentage updates for the read-results parsing and summarizing lines.
+   */
+  @Test
+  void trackerReportsParsingAndSummarizingPhases() {
+  
+    final List<String> updates = new ArrayList<>();
+    
+    final ProgressTracker tracker = new ProgressTracker(
+                                        update -> updates.add(update.phase() + "=" + update.total() + "="
+                                                            + update.percentage()));
+                                                            
+    tracker.accept("Parsing read results: 1 / 900 (0,11%)");
+    
+    tracker.accept("Parsing read results: 900 / 900 (100,00%)");
+    
+    tracker.accept("Summarizing read results: 1 / 900 (0,11%)");
+    
+    tracker.accept("Summarizing read results: 900 / 900 (100,00%)");
+    
+    Assert.assertEquals(updates, List.of("Parsing read results=900=0"    , "Parsing read results=900=100"
+                                       , "Summarizing read results=900=0", "Summarizing read results=900=100"));
   }
 }

@@ -114,6 +114,16 @@ final class MoveWithShortcutsGui {
    */
   private static final int MAX_COMBO_LABEL_LENGTH = 100;
   
+  /**
+   * The suffix of the phase labels that count shortcuts.
+   */
+  private static final String SHORTCUTS_SUFFIX = " shortcuts";
+  
+  /**
+   * The suffix of the phase labels that count read results.
+   */
+  private static final String READ_RESULTS_SUFFIX = " read results";
+  
   
   /**
    * The application context to use for logging.
@@ -1234,22 +1244,26 @@ final class MoveWithShortcutsGui {
    *
    * @return The label.
    */
-  private static String buildPhaseLabel(@NotNull String phase, int total) {
+  static String buildPhaseLabel(@NotNull String phase, int total) {
   
-    String result = phase;
+    final String result;
     
     if (total > ZERO_i) {
     
-      final String suffix = " shortcuts";
+      final String suffix = phase.endsWith(READ_RESULTS_SUFFIX) ? READ_RESULTS_SUFFIX : SHORTCUTS_SUFFIX;
       
       if (phase.endsWith(suffix)) {
       
-        result = phase.substring(0, phase.length() - suffix.length()) + " " + total + suffix;
+        result = phase.substring(ZERO_i, phase.length() - suffix.length()) + " " + total + suffix;
       }
       else {
       
         result = phase + " " + total + suffix;
       }
+    }
+    else {
+    
+      result = phase;
     }
     return result;
   }

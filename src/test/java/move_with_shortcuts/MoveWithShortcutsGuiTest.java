@@ -535,6 +535,31 @@ public class MoveWithShortcutsGuiTest {
   }
   
   /**
+   * Tests that the phase label inserts the total before the phase's counted noun, for shortcuts and for read results,
+   * and that it leaves the label unchanged when the total is not known.
+   */
+  @Test
+  void buildPhaseLabelInsertsTotalBeforeCountedNoun() {
+  
+    Assert.assertEquals(MoveWithShortcutsGui.buildPhaseLabel("Reading shortcuts", 908)
+                      , "Reading 908 shortcuts");
+                      
+    Assert.assertEquals(MoveWithShortcutsGui.buildPhaseLabel("Analyzing shortcuts", 908)
+                      , "Analyzing 908 shortcuts");
+                      
+    Assert.assertEquals(MoveWithShortcutsGui.buildPhaseLabel("Finalizing", 2), "Finalizing 2 shortcuts");
+    
+    Assert.assertEquals(MoveWithShortcutsGui.buildPhaseLabel("Parsing read results", 908)
+                      , "Parsing 908 read results");
+                      
+    Assert.assertEquals(MoveWithShortcutsGui.buildPhaseLabel("Summarizing read results", 908)
+                      , "Summarizing 908 read results");
+                      
+    Assert.assertEquals(MoveWithShortcutsGui.buildPhaseLabel("Parsing read results", 0)
+                      , "Parsing read results");
+  }
+  
+  /**
    * Creates and populates the configuration parameters from the given map.
    *
    * @param configurationMap The configuration map.
