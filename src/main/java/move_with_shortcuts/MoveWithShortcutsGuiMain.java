@@ -56,7 +56,9 @@ public final class MoveWithShortcutsGuiMain {
     
     final String originalPath = args.length > ZERO_i ? args[ZERO_i] : null;
     
-    start(originalPath, null, null, null, ShortcutFileNamePolicy.NEVER, null, null, null);
+    start(                    originalPath, null,                                      null
+         , null,   ShortcutFileNamePolicy.NEVER, null
+           , null,          null);
   }
   
   /**
@@ -79,25 +81,25 @@ public final class MoveWithShortcutsGuiMain {
    *
    * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
-  static void start(String originalPath, String destinationPath, String searchPath
-                  , ShortcutsUpdaterKind updaterKindOverride, ShortcutFileNamePolicy shortcutFileNamePolicy
-                  , Boolean createContextMenuOverride, Integer verbosityOverride, String warningMessage) {
-                  
+  static void start(String                 originalPath,           String               destinationPath
+                  , String                 searchPath,             ShortcutsUpdaterKind updaterKindOverride
+                  , ShortcutFileNamePolicy shortcutFileNamePolicy, Boolean              createContextMenuOverride
+                  , Number                 verbosityOverride,      String               warningMessage) {
     try {
     
       final File logFolder = resolveGuiLogFolder(originalPath);
       
       final Log screenLog = new Log(APP_DESCR + " - screen log"
-                                  , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_screen-log.LOG")
-                                  , true);
+                                        , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_screen-log.LOG")
+                                 , true);
                                   
       final Log userLog =   new Log(APP_DESCR + " - user log"
-                                  , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_user-log.LOG")
-                                  , true);
+                                        , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_user-log.LOG")
+                                 , true);
                                   
       final Log devLog =    new Log(APP_DESCR + " - developer log"
-                                  , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_dev-log.LOG")
-                                  , true);
+                                        , MoveWithShortcutsLogs.fileName(logFolder, APP_NAME + "_dev-log.LOG")
+                                 , true);
                                   
       final GuiProgressReporter progressReporter = GuiProgressReporter.newInstance();
       
@@ -105,8 +107,7 @@ public final class MoveWithShortcutsGuiMain {
       
       final AAppContext appContext = AppContext.newAppContext(
                                          GuiUserInputOutput.newInstance(progressReporter, textReporter)
-                                       , screenLog, userLog, devLog);
-                                       
+                                               , screenLog, userLog, devLog);
       if (verbosityOverride != null) {
       
         appContext.currentVerbosity = verbosityOverride.intValue();
@@ -121,13 +122,15 @@ public final class MoveWithShortcutsGuiMain {
       
       installOrUpdateContextMenu(appContext, createContextMenuOverride);
       
-      final ShortcutsUpdaterKind updaterKind = updaterKindOverride != null ? updaterKindOverride
-                                              : MoveWithShortcutsMain.selectShortcutsUpdaterForGui(appContext);
+      final ShortcutsUpdaterKind updaterKind = updaterKindOverride != null ?
+                                               updaterKindOverride
+                                             : MoveWithShortcutsMain.selectShortcutsUpdaterForGui(appContext);
                                               
-      SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext, updaterKind, originalPath
-                                                               , destinationPath, searchPath
-                                                               , shortcutFileNamePolicy, progressReporter
-                                                               , textReporter, warningMessage));
+      SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext,       updaterKind
+                                                                      , originalPath,     destinationPath
+                                                                      , searchPath,       shortcutFileNamePolicy
+                                                                      , progressReporter, textReporter
+                                                                      , warningMessage));
     }
     catch (Exception e) {
     
@@ -153,7 +156,8 @@ public final class MoveWithShortcutsGuiMain {
     
     if (appFolder != null) {
     
-      result = createLogFolder(new File(appFolder, MoveWithShortcutsLogs.LOG_FOLDER_NAME), originalPath);
+      result = createLogFolder(new File(appFolder, MoveWithShortcutsLogs.LOG_FOLDER_NAME)
+                                             , originalPath);
     }
     if (result == null) {
     
@@ -162,7 +166,8 @@ public final class MoveWithShortcutsGuiMain {
       if (userHome != null) {
       
         result = createLogFolder(new File(new File(userHome, "MoveWithShortcuts")
-                                        , MoveWithShortcutsLogs.LOG_FOLDER_NAME), originalPath);
+                                                         , MoveWithShortcutsLogs.LOG_FOLDER_NAME)
+                                               , originalPath);
       }
     }
     return result;

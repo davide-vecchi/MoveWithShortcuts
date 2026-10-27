@@ -333,7 +333,8 @@ final class MoveWithShortcutsGui {
     
     this.shortcutFileNamePolicyCombo.setSelectedItem(this.shortcutFileNamePolicy);
     
-    this.shortcutFileNamePolicyCombo.setToolTipText("Whether and when the shortcut files themselves are renamed: " + ShortcutFileNamePolicy.getDescription() + ".");
+    this.shortcutFileNamePolicyCombo.setToolTipText("Whether and when the shortcut files themselves are renamed: "
+                                                    + ShortcutFileNamePolicy.getDescription() + ".");
         
     final DefaultListCellRenderer shortcutFileNamePolicyRenderer = new DefaultListCellRenderer();
     
