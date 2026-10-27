@@ -641,22 +641,24 @@ public final class MoveWithShortcutsMain {
    * @return The selected kind.
    */
   static ShortcutsUpdaterKind selectShortcutsUpdater(ParsedArgs args, @NotNull AAppContext appContext) throws UserRequestedTermination {
-                                                          
+  
+    ShortcutsUpdaterKind result;
+    
     if (args != null && args.wasGiven(SHORTCUTS_UPDATER_OPTION_NAME)) {
     
-      return ShortcutsUpdaterKind.parse(args.getString(SHORTCUTS_UPDATER_OPTION_NAME));
+      result = ShortcutsUpdaterKind.parse(args.getString(SHORTCUTS_UPDATER_OPTION_NAME));
     }
-    final ShortcutsUpdaterKind configuredKind = configuredUpdaterOrNull(appContext);
+    else {
     
-    if (configuredKind != null) {
-    
-      return configuredKind;
+      result = configuredUpdaterOrNull(appContext);
+      
+      if (result == null) {
+      
+        result = args == null && ShortcutsUpdaterKind.ids().length > ONE_i ? askShortcutsUpdater(appContext)
+                                                                           : ShortcutsUpdaterKind.defaultKind();
+      }
     }
-    if (args == null && ShortcutsUpdaterKind.ids().length > ONE_i) {
-    
-      return askShortcutsUpdater(appContext);
-    }
-    return ShortcutsUpdaterKind.defaultKind();
+    return result;
   }
   
   /**
