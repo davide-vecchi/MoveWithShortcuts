@@ -470,13 +470,17 @@ final class MoveWithShortcutsGui {
    */
   private static ImageIcon scaleIcon(ImageIcon icon, int size) {
   
-    ImageIcon result = null;
+    final ImageIcon result;
     
     if (icon != null && icon.getIconWidth() > ZERO_i && icon.getIconHeight() > ZERO_i) {
     
       final Image scaled = icon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
       
       result = new ImageIcon(scaled);
+    }
+    else {
+      
+      result = null;
     }
     return result;
   }
@@ -492,13 +496,17 @@ final class MoveWithShortcutsGui {
    */
   private static Icon scaleIcon(Icon icon, int size) {
   
-    Icon result = icon;
+    final Icon result;
     
     if (icon instanceof ImageIcon imageIcon) {
     
       final Image scaled = imageIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
       
       result = new ImageIcon(scaled);
+    }
+    else {
+      
+      result = icon;
     }
     return result;
   }
