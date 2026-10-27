@@ -234,13 +234,13 @@ public final class MoveWithShortcutsMain {
     
       final String originalPath =    args != null && args.wasGiven(FROM_OPTION_NAME)
                                                    ? args.getFile(FROM_OPTION_NAME).getPath()    : null;
-                                  
+                                                   
       final String destinationPath = args != null && args.wasGiven( TO_OPTION_NAME)
                                                    ? args.getString(TO_OPTION_NAME)              : null;
-                                     
+                                                   
       final String searchPath =      args != null && args.wasGiven(SEARCH_OPTION_NAME)
                                                    ? args.getFile( SEARCH_OPTION_NAME).getPath() : null;
-                                
+                                                   
       final ShortcutsUpdaterKind updaterKind = args != null &&               args.wasGiven(SHORTCUTS_UPDATER_OPTION_NAME)
                                                ? ShortcutsUpdaterKind.parse(
                                                                         args.getString(SHORTCUTS_UPDATER_OPTION_NAME))
@@ -253,10 +253,10 @@ public final class MoveWithShortcutsMain {
                                             
       final Boolean createContextMenu =     args != null &&   args.wasGiven( CREATE_CONTEXT_MENU_OPTION_NAME)
                                             ? B(args.getString(CREATE_CONTEXT_MENU_OPTION_NAME)) : null;
-                                        
+                                            
       final Integer verbosity =             args != null &&   args.wasGiven(VERBOSITY_OPTION_NAME)
                                             ? I(     args.getInt(  VERBOSITY_OPTION_NAME)) : null;
-                                
+                                            
       MoveWithShortcutsGuiMain.start(originalPath, destinationPath, searchPath, updaterKind, policy, createContextMenu
                                    , verbosity,    warning);
     }
@@ -320,7 +320,7 @@ public final class MoveWithShortcutsMain {
                                                                           args.getString(
                                                                                           SHORTCUT_FILE_NAME_OPTION_NAME))
                                                                              : ShortcutFileNamePolicy.NEVER;
-                                                    
+                                                                             
           writeLogsHeaders(ac.screenLog, ac.userLog, ac.devLog, APP_NAME, APP_DESCR);
           
           installOrUpdateContextMenuIfEnabled(args, ac);
