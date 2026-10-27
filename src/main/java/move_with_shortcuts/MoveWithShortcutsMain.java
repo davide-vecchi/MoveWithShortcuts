@@ -482,8 +482,9 @@ public final class MoveWithShortcutsMain {
                                                        , "The folder to scan for " + WIN_SHORTCUT_EXTENSION + " shortcuts to update.")
                                                .existingFolder())
                            .addOption(OptionSpec.option(SHORTCUT_FILE_NAME_OPTION_NAME
-                                                       , "The shortcut file name policy : never, exact or descendant"
-                                                       + " (default never). exact / descendant rename a shortcut file"
+                                                       , "The shortcut file name policy : " + ShortcutFileNamePolicy.getDescription()
+                                                       + " (default " + ShortcutFileNamePolicy.NEVER.descr + "). "
+                                                       + ShortcutFileNamePolicy.EXACT.descr + " / " + ShortcutFileNamePolicy.DESCENDANT.descr + " rename a shortcut file"
                                                        + " named after the old leaf, preserving the Windows default"
                                                        + " \" - Shortcut\" part.")
                                                .allowedValues("never", "exact", "descendant")
