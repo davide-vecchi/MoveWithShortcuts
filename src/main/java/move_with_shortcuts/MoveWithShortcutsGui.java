@@ -62,11 +62,19 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
+import static dutil.number.NumberUtilities.HUNDRED_i;
+import static dutil.number.NumberUtilities.ONE_d;
+import static dutil.number.NumberUtilities.ONE_i;
+import static dutil.number.NumberUtilities.TWO_i;
+import static dutil.number.NumberUtilities.ZERO_d;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
+import static dutil.string.TextUtilities.COLON;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
+import static dutil.string.TextUtilities.PERIOD;
 import static dutil.string.TextUtilities.dq;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -686,7 +694,7 @@ final class MoveWithShortcutsGui {
     
     gbc.gridx = ZERO_i;
     
-    gbc.weightx = 0.0;
+    gbc.weightx = ZERO_d;
     
     gbc.fill = GridBagConstraints.NONE;
     
@@ -708,9 +716,9 @@ final class MoveWithShortcutsGui {
     
     progressPanel.add(this.progressBar, BorderLayout.CENTER);
     
-    gbc.gridx = 1;
+    gbc.gridx =   ONE_i;
     
-    gbc.weightx = 1.0;
+    gbc.weightx = ONE_d;
     
     gbc.fill = GridBagConstraints.HORIZONTAL;
     
@@ -724,9 +732,9 @@ final class MoveWithShortcutsGui {
     
     rightPanel.add(this.cancelButton);
     
-    gbc.gridx = 2;
+    gbc.gridx =   TWO_i;
     
-    gbc.weightx = 0.0;
+    gbc.weightx = ZERO_d;
     
     gbc.fill = GridBagConstraints.NONE;
     
@@ -778,7 +786,7 @@ final class MoveWithShortcutsGui {
                                   
     gbc.gridx = ZERO_i;
     
-    gbc.weightx = 0.0;
+    gbc.weightx = ZERO_d;
     
     final JLabel labelComponent = new JLabel(label + ":");
     
@@ -786,15 +794,15 @@ final class MoveWithShortcutsGui {
     
     panel.add(labelComponent, gbc);
     
-    gbc.gridx = 1;
+    gbc.gridx =   ONE_i;
     
-    gbc.weightx = 1.0;
+    gbc.weightx = ONE_d;
     
     panel.add(field, gbc);
     
-    gbc.gridx = 2;
+    gbc.gridx =   TWO_i;
     
-    gbc.weightx = 0.0;
+    gbc.weightx = ZERO_d;
     
     final JButton browseButton = new JButton("...");
     
@@ -865,23 +873,23 @@ final class MoveWithShortcutsGui {
                                 
     gbc.gridx = ZERO_i;
     
-    gbc.weightx = 0.0;
+    gbc.weightx = ZERO_d;
     
-    final JLabel labelComponent = new JLabel(label + ":");
+    final JLabel labelComponent = new JLabel(label + COLON);
     
     labelComponent.setToolTipText(combo.getToolTipText());
     
     panel.add(labelComponent, gbc);
     
-    gbc.gridx = 1;
+    gbc.gridx =     ONE_i;
     
-    gbc.weightx = 1.0;
+    gbc.weightx =   ONE_d;
     
-    gbc.gridwidth = 2;
+    gbc.gridwidth = TWO_i;
     
     panel.add(combo, gbc);
     
-    gbc.gridwidth = 1;
+    gbc.gridwidth = ONE_i;
     
     gbc.gridy++;
   }
@@ -1255,7 +1263,7 @@ final class MoveWithShortcutsGui {
   
     this.progressBar.setIndeterminate(false);
     
-    this.progressBar.setValue(100);
+    this.progressBar.setValue(HUNDRED_i);
     
     this.progressBar.setString(buildPhaseLabel(this.lastPhase, this.lastTotal) + ": 100%");
   }
@@ -1285,7 +1293,7 @@ final class MoveWithShortcutsGui {
     
       final String prefix = kind == GuiTextKind.WARNING ? "WARNING: "
                           : kind == GuiTextKind.ERROR   ? "ERROR: "
-                          :                               "";
+                          :                               EMPTY;
                           
       this.statusArea.append(prefix + trimmed + NL);
       
@@ -1340,7 +1348,7 @@ final class MoveWithShortcutsGui {
   
     this.progressBar.setIndeterminate(false);
     
-    this.progressBar.setValue(100);
+    this.progressBar.setValue(HUNDRED_i);
     
     this.progressBar.setString("Completed");
     
@@ -1628,7 +1636,7 @@ final class MoveWithShortcutsGui {
      */
     private StatusTextArea() {
     
-      super(0, 40);
+      super(ZERO_i, 40);
     }
     
     
