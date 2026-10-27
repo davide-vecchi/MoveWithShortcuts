@@ -214,7 +214,7 @@ public final class MoveWithShortcutsGuiMain {
       }
       catch (URISyntaxException e) {
       
-        result = null;
+        // : result stays null.
       }
     }
     return result;
