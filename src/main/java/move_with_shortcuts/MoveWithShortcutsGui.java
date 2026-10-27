@@ -1033,14 +1033,15 @@ final class MoveWithShortcutsGui {
   /**
    * Runs the operation in the background, showing the progress bar, then shows the summary or the error.
    *
-   * @param request The validated request.<br>
+   * @param request                     The validated request.<br>
    *
-   * @param updaterKind The selected shortcuts updater implementation.<br>
+   * @param updaterKindToUse            The selected shortcuts updater implementation.<br>
    *
-   * @param shortcutFileNamePolicy The selected shortcut-file name policy.
+   * @param shortcutFileNamePolicyToUse The selected shortcut-file name policy.
    */
-  private void execute(@NotNull GuiMoveRequest request, @NotNull ShortcutsUpdaterKind updaterKind
-                     , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy) {
+  private void execute(@NotNull GuiMoveRequest         request
+                     , @NotNull ShortcutsUpdaterKind   updaterKindToUse
+                     , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicyToUse) {
                      
     setBusy(true);
     
@@ -1063,8 +1064,8 @@ final class MoveWithShortcutsGui {
       
         try {
         
-          MoveWithShortcutsGui.this.app.runGui(updaterKind.newUpdater(MoveWithShortcutsGui.this.appContext)
-                                             , request, shortcutFileNamePolicy);
+          MoveWithShortcutsGui.this.app.runGui(updaterKindToUse.newUpdater(MoveWithShortcutsGui.this.appContext)
+                                             , request, shortcutFileNamePolicyToUse);
         }
         catch (UserRequestedTermination t) {
         
