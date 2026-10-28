@@ -461,7 +461,7 @@ final class MoveWithShortcutsGui {
   
     ImageIcon result = null;
     
-    try (InputStream input = MoveWithShortcutsGui.class.getResourceAsStream("/MWS.png")) {
+    try (final InputStream input = MoveWithShortcutsGui.class.getResourceAsStream("/MWS.png")) {
     
       if (input != null) {
       
