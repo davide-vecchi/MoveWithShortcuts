@@ -222,7 +222,7 @@ final class ProgressTracker {
         
           this.total = parsedTotal;
         }
-        this.progressConsumer.accept(new ProgressUpdate(this.phase, this.total, percentage));
+        this.progressConsumer.accept(new ProgressUpdate(this.phase, this.total, percentage.intValue()));
       }
     }
   }
@@ -297,7 +297,7 @@ final class ProgressTracker {
     final Integer percentage = parsePercentage(line);
     
     this.progressConsumer.accept(new ProgressUpdate(this.phase, this.total
-                                                  , percentage == null ? UNKNOWN_PERCENTAGE : percentage));
+                                          , percentage == null ? UNKNOWN_PERCENTAGE : percentage.intValue()));
   }
   
   /**
