@@ -9,7 +9,12 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.function.Consumer;
 
+import static dutil.number.NumberUtilities.HUNDRED_d;
+import static dutil.number.NumberUtilities.I;
+import static dutil.number.NumberUtilities.ZERO_d;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.string.TextUtilities.COMMA;
+import static dutil.string.TextUtilities.STD_DECIMAL_POINT;
 
 
 // @formatter:off
@@ -321,17 +326,17 @@ final class ProgressTracker {
         
         if (openIndex >= 0) {
         
-          final String number = line.substring(openIndex + 1, percentIndex).trim().replace(',', '.');
-          
+          final String number = line.substring(openIndex + 1, percentIndex).trim().replace(COMMA
+                                                                                         , STD_DECIMAL_POINT);
           try {
           
             final double value = Double.parseDouble(number);
             
-            result = (int) Math.round(Math.max(0.0, Math.min(100.0, value)));
+            result = I(Math.toIntExact(Math.round(Math.clamp(value, ZERO_d, HUNDRED_d))));
           }
           catch (NumberFormatException e) {
           
-            result = null;
+            // result stays null.
           }
         }
       }
