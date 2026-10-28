@@ -1120,6 +1120,8 @@ final class MoveWithShortcutsGui {
         finally {
         
           logFinalSummary();
+          
+          MoveWithShortcutsGui.this.appContext.releaseLogs();
         }
         if (success) {
         

@@ -80,6 +80,10 @@
 - The three `...` browse buttons, the Help button and the About button are now disabled while an operation is running,
   like the path fields.
 
+- The GUI now releases the screen, user and developer log file handles when an operation ends, so the logs can be
+  opened, copied, renamed or deleted while the application stays open; the next operation reopens them in append
+  mode.
+
 
 ### Internal changes
 
