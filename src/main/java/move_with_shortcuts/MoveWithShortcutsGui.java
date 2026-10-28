@@ -69,6 +69,7 @@ import static dutil.number.NumberUtilities.TWO_i;
 import static dutil.number.NumberUtilities.ZERO_d;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNonNull;
+import static dutil.object.ObjectUtilities.assertNull;
 import static dutil.string.TextUtilities.COLON;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
@@ -473,8 +474,8 @@ final class MoveWithShortcutsGui {
       }
     }
     catch (IOException e) {
-    
-      // result stays null .
+      
+      assertNull(result);
     }
     return result;
   }

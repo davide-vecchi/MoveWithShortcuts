@@ -24,6 +24,7 @@ import static dlog.log.Log.writeLogsHeaders;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.object.ObjectUtilities.assertNull;
 import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static move_with_shortcuts.MoveWithShortcutsMain.APP_DESCR;
 import static move_with_shortcuts.MoveWithShortcutsMain.APP_NAME;
@@ -213,8 +214,8 @@ public final class MoveWithShortcutsGuiMain {
         result = location.isFile() ? location.getParentFile() : location;
       }
       catch (URISyntaxException e) {
-      
-        // : result stays null.
+        
+        assertNull(result);
       }
     }
     return result;

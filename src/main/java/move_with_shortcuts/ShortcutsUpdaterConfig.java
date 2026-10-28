@@ -17,6 +17,7 @@ import java.util.Map;
 import static dfile.file.FileUtilities.calcPath;
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dfile.file.FileUtilities.getCanonicalPathAsDescr;
+import static dutil.object.ObjectUtilities.assertNull;
 import static dutil.properties.PropertiesUtilities.readProperties;
 import static dutil.properties.PropertiesUtilities.toMap;
 import static dutil.string.TextUtilities.NL;
@@ -215,8 +216,8 @@ final class ShortcutsUpdaterConfig {
           }
         }
         catch (URISyntaxException e) {
-        
-          // Do nothing, result stays null.
+          
+          assertNull(result);
         }
       }
     }

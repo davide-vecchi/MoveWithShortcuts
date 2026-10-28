@@ -14,6 +14,7 @@ import static dutil.number.NumberUtilities.I;
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_d;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.object.ObjectUtilities.assertNull;
 import static dutil.string.TextUtilities.COMMA;
 import static dutil.string.TextUtilities.STD_DECIMAL_POINT;
 
@@ -337,7 +338,7 @@ final class ProgressTracker {
           }
           catch (NumberFormatException e) {
           
-            // result stays null.
+            assertNull(result);
           }
         }
       }

@@ -22,6 +22,7 @@ import java.util.function.Function;
 
 import static dfile.file.FileUtilities.getCanonicalPath;
 import static dutil.number.NumberUtilities.ZERO_i;
+import static dutil.object.ObjectUtilities.assertNull;
 import static dutil.string.TextUtilities.DQ;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.dq;
@@ -323,7 +324,7 @@ final class ExplorerContextMenu {
       }
       catch (URISyntaxException ignored) {
       
-        // Do nothing, result stays null.
+        assertNull(result);
       }
     }
     if (result == null) {
