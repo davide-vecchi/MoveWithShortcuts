@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 import static dutil.number.NumberUtilities.HUNDRED_d;
 import static dutil.number.NumberUtilities.I;
+import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_d;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.string.TextUtilities.COMMA;
@@ -326,8 +327,8 @@ final class ProgressTracker {
         
         if (openIndex >= 0) {
         
-          final String number = line.substring(openIndex + 1, percentIndex).trim().replace(COMMA
-                                                                                         , STD_DECIMAL_POINT);
+          final String number = line.substring(openIndex + ONE_i, percentIndex)
+                                    .trim().replace(COMMA, STD_DECIMAL_POINT);
           try {
           
             final double value = Double.parseDouble(number);
