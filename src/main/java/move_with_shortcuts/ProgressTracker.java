@@ -154,16 +154,24 @@ final class ProgressTracker {
    */
   void accept(String line) {
   
-    if (line == null) {
+    if (line != null) {
     
-      return;
+      final String text = line.strip();
+      
+      if (! text.isEmpty()) {
+      
+        acceptText(text);
+      }
     }
-    final String text = line.strip();
-    
-    if (text.isEmpty()) {
-    
-      return;
-    }
+  }
+  
+  /**
+   * Parses one non-empty stripped output line and reports a phase or progress update when the line carries one.
+   *
+   * @param text The non-empty stripped output line.
+   */
+  private void acceptText(@NotNull String text) {
+  
     if (text.startsWith(READING_PREFIX)) {
     
       this.total = parseHeaderTotal(text, READING_TOTAL_PREFIX, TOTAL_SUFFIX);
