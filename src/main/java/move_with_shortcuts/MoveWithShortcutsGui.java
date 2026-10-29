@@ -339,7 +339,7 @@ final class MoveWithShortcutsGui {
     
     for (final ShortcutsUpdaterKind kind : ShortcutsUpdaterKind.values()) {
     
-      updaterKindLabels.put(kind, updaterKindLabel(kind, this.appContext));
+      updaterKindLabels.put(kind, updaterKindLabel(kind));
     }
     this.updaterKindCombo = new JComboBox<>(ShortcutsUpdaterKind.values());
     
@@ -833,15 +833,13 @@ final class MoveWithShortcutsGui {
   /**
    * Returns the combo-box label for the given shortcuts updater kind.
    *
-   * @param kind The kind.<br>
-   *
-   * @param appContext The application context.
+   * @param kind The kind.
    *
    * @return The label, at most {@link #MAX_COMBO_LABEL_LENGTH} characters.
    */
-  private static String updaterKindLabel(@NotNull ShortcutsUpdaterKind kind, @NotNull AAppContext appContext) {
+  private static String updaterKindLabel(@NotNull ShortcutsUpdaterKind kind) {
   
-    String description = removeEnd(kind.getDescription(appContext), PERIOD).strip();
+    String description = removeEnd(kind.getDescription(), PERIOD).strip();
     
     return abbreviate(kind.getId() + " (" + description + ")", MAX_COMBO_LABEL_LENGTH);
   }

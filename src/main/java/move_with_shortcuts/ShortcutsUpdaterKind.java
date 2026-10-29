@@ -29,26 +29,37 @@ enum ShortcutsUpdaterKind {
    * The PowerShell-based updater that processes all shortcuts in one process.
    */
   PS_SCRIPTS_MULTI(    "ps-scripts-multi"
-    , ac -> WinShortcutsUpdater_PSScriptsMulti.newInstance(null
-                                                                                            , ac));
+    , "PowerShell, one process for all shortcuts (WScript.Shell COM)."
+    , ac -> WinShortcutsUpdater_PSScriptsMulti.newInstance(null, ac));
   // The JNA-based implementation will be added by TASK-28.
   
   @Getter
   private final String id;
   
+  /**
+   * The description shown by the GUI combo box and by the command-line selection prompt.
+   */
+  @Getter
+  private final String description;
+  
   private final Function<AAppContext, IShortcutsUpdater> factory;
   
   
   /**
-   * @param id {@link #id}.<br>
+   * @param id          {@link #id}.<br>
    *
-   * @param factory The factory that creates an updater of this kind.
+   * @param description {@link #description}.<br>
+   *
+   * @param factory     The factory that creates an updater of this kind.
    */
-  ShortcutsUpdaterKind(@NotBlank String id, @NotNull Function<AAppContext, IShortcutsUpdater> factory) {
-  
-    this.id =      assertNonBlank(id);
+  ShortcutsUpdaterKind(@NotBlank String id,                                       @NotBlank String description
+                     , @NotNull  Function<AAppContext, IShortcutsUpdater> factory) {
+                     
+    this.id =          assertNonBlank(id);
     
-    this.factory = assertNonNull(   factory);
+    this.description = assertNonBlank(description);
+    
+    this.factory =     assertNonNull(   factory);
   }
   
   
@@ -103,18 +114,6 @@ enum ShortcutsUpdaterKind {
   IShortcutsUpdater newUpdater(@NotNull AAppContext appContext) {
   
     return this.factory.apply(appContext);
-  }
-  
-  /**
-   * Returns the human-readable description of this kind.
-   *
-   * @param appContext The application context to use to instantiate the updater.
-   *
-   * @return The description.
-   */
-  String getDescription(@NotNull AAppContext appContext) {
-  
-    return newUpdater(appContext).getDescription();
   }
   
 }

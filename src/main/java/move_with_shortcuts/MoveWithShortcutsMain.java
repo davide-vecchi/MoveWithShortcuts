@@ -726,7 +726,7 @@ public final class MoveWithShortcutsMain {
                                           
     for (final ShortcutsUpdaterKind kind : ShortcutsUpdaterKind.values()) {
     
-      prompt.append(NL2T).append(kind.getId()).append(" : ").append(kind.getDescription(appContext));
+      prompt.append(NL2T).append(kind.getId()).append(" : ").append(kind.getDescription());
     }
     prompt.append(NL2T).append("Press Enter to use ").append(ShortcutsUpdaterKind.defaultKind().getId()).append(".");
     

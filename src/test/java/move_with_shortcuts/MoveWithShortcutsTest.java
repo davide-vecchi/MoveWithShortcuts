@@ -41,10 +41,10 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -1432,7 +1432,12 @@ public class MoveWithShortcutsTest {
     
     Assert.assertEquals(ShortcutsUpdaterKind.defaultKind(), ShortcutsUpdaterKind.PS_SCRIPTS_MULTI);
     
-    Assert.assertFalse(ShortcutsUpdaterKind.PS_SCRIPTS_MULTI.getDescription(this.mockAppContext).isBlank());
+    Assert.assertFalse(ShortcutsUpdaterKind.PS_SCRIPTS_MULTI.getDescription().isBlank());
+    
+    for (final ShortcutsUpdaterKind kind : ShortcutsUpdaterKind.values()) {
+    
+      Assert.assertFalse(kind.getDescription().isBlank());
+    }
     
     Assert.expectThrows(IllegalArgumentException.class, () -> ShortcutsUpdaterKind.parse("bogus"));
   }
