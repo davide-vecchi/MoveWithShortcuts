@@ -1542,7 +1542,7 @@ public class MoveWithShortcutsTest {
    */
   private static int countContaining(List<String> prompts, String fragment) {
   
-    return (int) prompts.stream().filter(prompt -> prompt.contains(fragment)).count();
+    return Math.toIntExact(prompts.stream().filter(prompt -> prompt.contains(fragment)).count());
   }
   
   /**

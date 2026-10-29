@@ -615,7 +615,9 @@ final class MoveWithShortcutsGui {
     
     this.frame.setMinimumSize(preferredSize);
     
-    this.frame.setSize((int) Math.round(preferredSize.width * WIDER_FRAME_FACTOR), preferredSize.height);
+    final int widerWidth = Math.toIntExact(Math.round(preferredSize.width * WIDER_FRAME_FACTOR));
+    
+    this.frame.setSize(widerWidth, preferredSize.height);
     
     this.frame.setLocationRelativeTo(null);
     
