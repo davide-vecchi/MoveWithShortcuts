@@ -273,11 +273,11 @@ final class MoveWithShortcutsGui {
    *
    * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
-  static void show(@NotNull AAppContext appContext, @NotNull ShortcutsUpdaterKind updaterKind, String originalPath
-                 , String destinationPath, String searchPath
-                 , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy
-                 , @NotNull GuiProgressReporter progressReporter, @NotNull GuiTextReporter textReporter
-                 , String warningMessage) {
+  static void show(@NotNull AAppContext         appContext,       @NotNull ShortcutsUpdaterKind   updaterKind
+                          , String              originalPath,              String                 destinationPath
+                          , String              searchPath,       @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy
+                 , @NotNull GuiProgressReporter progressReporter, @NotNull GuiTextReporter        textReporter
+                          , String              warningMessage) {
                   
     new MoveWithShortcutsGui(appContext, updaterKind, originalPath, destinationPath, searchPath
                            , shortcutFileNamePolicy, progressReporter, textReporter, warningMessage);
