@@ -1561,8 +1561,7 @@ public class MoveWithShortcutsTest {
   private String runWithArgsAndCaptureConfirmationPrompt(@NotNull File original
                                                        , @NotNull File destination
                                                        , @NotNull File searchFolder
-                                                       , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy)
-                                                       throws Throwable {
+                                                       , @NotNull ShortcutFileNamePolicy shortcutFileNamePolicy) throws Throwable {
                                                        
     clearInvocations(this.mockUserIO);
     

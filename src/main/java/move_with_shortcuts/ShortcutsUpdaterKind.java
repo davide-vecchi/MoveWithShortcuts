@@ -52,7 +52,7 @@ enum ShortcutsUpdaterKind {
    *
    * @param factory     The factory that creates an updater of this kind.
    */
-  ShortcutsUpdaterKind(@NotBlank String id,                                       @NotBlank String description
+  ShortcutsUpdaterKind(@NotBlank String                                   id,     @NotBlank String description
                      , @NotNull  Function<AAppContext, IShortcutsUpdater> factory) {
                      
     this.id =          assertNonBlank(id);
