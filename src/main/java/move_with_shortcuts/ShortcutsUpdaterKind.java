@@ -85,15 +85,12 @@ enum ShortcutsUpdaterKind {
   
     final String trimmedId = id.trim();
     
-    for (final ShortcutsUpdaterKind kind : values()) {
-    
-      if (kind.id.equalsIgnoreCase(trimmedId)) {
-      
-        return kind;
-      }
-    }
-    throw new IllegalArgumentException("Unknown shortcuts updater implementation " + dq(id)
-                                       + " ; expected one of " + String.join(", ", ids()) + ".");
+    return Arrays.stream(values())
+                 .filter(kind -> kind.id.equalsIgnoreCase(trimmedId))
+                 .findFirst()
+                 .orElseThrow(() -> new IllegalArgumentException(
+                                                     "Unknown shortcuts updater implementation " + dq(id)
+                                                   + " ; expected one of " + String.join(", ", ids()) + "."));
   }
   
   /**
