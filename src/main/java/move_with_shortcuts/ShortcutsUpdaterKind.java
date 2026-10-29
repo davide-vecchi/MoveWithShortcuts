@@ -33,6 +33,9 @@ enum ShortcutsUpdaterKind {
     , ac -> WinShortcutsUpdater_PSScriptsMulti.newInstance(null, ac));
   // The JNA-based implementation will be added by TASK-28.
   
+  /**
+   * The identifier used on the command line and in the configuration to select this kind.
+   */
   @Getter
   private final String id;
   
@@ -42,6 +45,9 @@ enum ShortcutsUpdaterKind {
   @Getter
   private final String description;
   
+  /**
+   * The factory that creates a new updater of this kind.
+   */
   private final Function<AAppContext, IShortcutsUpdater> factory;
   
   
@@ -50,7 +56,7 @@ enum ShortcutsUpdaterKind {
    *
    * @param description {@link #description}.<br>
    *
-   * @param factory     The factory that creates an updater of this kind.
+   * @param factory     {@link #factory}.
    */
   ShortcutsUpdaterKind(@NotBlank String                                   id,     @NotBlank String description
                      , @NotNull  Function<AAppContext, IShortcutsUpdater> factory) {
