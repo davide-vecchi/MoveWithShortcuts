@@ -86,6 +86,9 @@
   opened, copied, renamed or deleted while the application stays open; the next operation reopens them in append
   mode.
 
+- The captured PowerShell output is now hidden at verbosity 0, in the console and in the GUI operation-detail area,
+  while the progress lines keep flowing; at verbosity 1 and above it is shown as before.
+
 
 ### Internal changes
 
