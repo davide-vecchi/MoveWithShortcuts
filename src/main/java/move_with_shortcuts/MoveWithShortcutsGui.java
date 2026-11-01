@@ -11,6 +11,7 @@ import dutil.system.OSUtilities;
 import dutil.value_holder.ObjectAndDescr;
 import jakarta.validation.constraints.NotNull;
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
@@ -22,8 +23,10 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -47,6 +50,7 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -412,7 +416,7 @@ final class MoveWithShortcutsGui {
     
     this.statusArea.setWrapStyleWord(true);
     
-    this.statusArea.setFocusable(false);
+    this.statusArea.setComponentPopupMenu(newStatusAreaPopup(this.statusArea));
     
     this.statusArea.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
     
@@ -578,6 +582,8 @@ final class MoveWithShortcutsGui {
   private void initFrame() {
   
     this.okButton.addActionListener(    e -> onOk());
+    
+    bindStatusAreaEnter();
     
     this.cancelButton.addActionListener(e -> cancel());
     
@@ -776,6 +782,97 @@ final class MoveWithShortcutsGui {
     result.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     
     return result;
+  }
+  
+  /**
+   * Creates the right-click menu of the operation-detail area.
+   *
+   * @param area The operation-detail area.<br>
+   *
+   * @return The popup menu.
+   */
+  private static JPopupMenu newStatusAreaPopup(@NotNull JTextArea area) {
+  
+    final JPopupMenu result = new JPopupMenu();
+    
+    final JMenuItem copyItem = new JMenuItem("Copy");
+    
+    copyItem.addActionListener(e -> area.copy());
+    
+    final JMenuItem copyAllItem = new JMenuItem("Copy all");
+    
+    copyAllItem.addActionListener(e -> copyAllText(area));
+    
+    final JMenuItem selectAllItem = new JMenuItem("Select all");
+    
+    selectAllItem.addActionListener(e -> area.selectAll());
+    
+    result.add(copyItem);
+    
+    result.add(copyAllItem);
+    
+    result.addSeparator();
+    
+    result.add(selectAllItem);
+    
+    return result;
+  }
+  
+  /**
+   * Copies the whole text of the given area, then restores the selection it had.
+   *
+   * @param area The area whose text must be copied.<br>
+   */
+  private static void copyAllText(@NotNull JTextArea area) {
+  
+    final int selectionStart = area.getSelectionStart();
+    
+    final int selectionEnd = area.getSelectionEnd();
+    
+    area.selectAll();
+    
+    area.copy();
+    
+    area.select(selectionStart, selectionEnd);
+  }
+  
+  /**
+   * Binds the Enter key of the operation-detail area to the {@code Move / rename} action.
+   */
+  private void bindStatusAreaEnter() {
+  
+    this.statusArea.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, ZERO_i)
+                                                           , "performOkIfEnabled");
+                                                           
+    final AbstractAction action = new AbstractAction() {
+    
+      @Serial
+      private static final long serialVersionUID = 1L;
+      
+      /**
+       * Runs the {@code Move / rename} action.
+       *
+       * @param e The action event.<br>
+       */
+      @Override
+      public void actionPerformed(ActionEvent e) {
+      
+        performOkIfEnabled();
+      }
+    };
+    
+    this.statusArea.getActionMap().put("performOkIfEnabled", action);
+  }
+  
+  /**
+   * Runs the {@code Move / rename} action when its button is enabled.
+   */
+  private void performOkIfEnabled() {
+  
+    if (this.okButton.isEnabled()) {
+    
+      onOk();
+    }
   }
   
   /**

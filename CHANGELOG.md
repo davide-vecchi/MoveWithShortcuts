@@ -73,6 +73,10 @@
   with the MWS icon in the title bar. The usage text, including the console `-help` output, now has one empty line
   before each option description.
 
+- The GUI operation-detail text is now selectable and copyable : drag selection, `Ctrl+A`, `Ctrl+C` / `Ctrl+Insert`
+  and a right-click menu with `Copy`, `Copy all` and `Select all` ; `Enter` in the text area still starts the
+  operation.
+
 
 ### Removed
 
