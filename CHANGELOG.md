@@ -45,6 +45,9 @@
 - At the start of each operation, the operation-detail output now starts with a blank line, a row of 50 dashes,
   a blank line, the current date and a blank line, before the existing messages.
 
+- The GUI path fields now reject a drop of more than one file or folder with a warning, and the Help dialog explains
+  that they accept files and folders dropped from Windows Explorer.
+
 
 ### Added
 

@@ -10,6 +10,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -162,7 +163,7 @@ final class PathTextField extends JTextField {
   
   
   /**
-   * Drop target listener that accepts the first file or folder of a dropped file list.
+   * Drop target listener that accepts a dropped file or folder, rejecting a drop of more than one item.
    */
   private final class PathDropTargetListener extends DropTargetAdapter {
   
@@ -190,7 +191,7 @@ final class PathTextField extends JTextField {
     }
     
     /**
-     * Sets this field's text to the full path of the first dropped file or folder.
+     * Sets this field's text to the full path of the dropped file or folder, rejecting a drop of more than one item.
      *
      * @param dtde The drop event.
      */
@@ -214,7 +215,7 @@ final class PathTextField extends JTextField {
           
           final List<File> files = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
           
-          if (! files.isEmpty()) {
+          if (files.size() == 1) {
           
             final PathTextField target = PathTextField.this;
             
@@ -227,6 +228,12 @@ final class PathTextField extends JTextField {
             target.requestFocusInWindow();
             
             success = true;
+          }
+          else if (files.size() > 1) {
+          
+            JOptionPane.showMessageDialog(PathTextField.this
+                                        , "Please drop only one file or folder at a time."
+                                        , "Drop not accepted", JOptionPane.WARNING_MESSAGE);
           }
         }
         catch (UnsupportedFlavorException | IOException e) {

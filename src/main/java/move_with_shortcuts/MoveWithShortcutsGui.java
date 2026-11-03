@@ -129,7 +129,13 @@ final class MoveWithShortcutsGui {
    */
   private static final String READ_RESULTS_SUFFIX = " read results";
   
-  
+  /**
+   * The note at the top of the Help dialog about the files and folders that the path fields accept.
+   */
+  private static final String DROP_NOTE = "The Original, Destination and Search folder fields accept files and folders"
+                                        + " dropped from Windows Explorer.";
+                                        
+                                        
   /**
    * The application context to use for logging.
    */
@@ -1555,7 +1561,7 @@ final class MoveWithShortcutsGui {
    */
   private void showHelp() {
   
-    showTextDialog("Help", MoveWithShortcutsMain.getUsageText(), this.aboutIcon);
+    showTextDialog("Help", DROP_NOTE + NL2 + MoveWithShortcutsMain.getUsageText(), this.aboutIcon);
   }
   
   /**
