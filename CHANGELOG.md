@@ -40,6 +40,8 @@
   leaf and whose target is the moved leaf is renamed by default; pass `-shortcut-file-name never` to keep the old
   behavior.
 
+- The GUI's `Cancel` button is now `Close`, with the tooltip `Close this window (Esc).`
+
 
 ### Added
 

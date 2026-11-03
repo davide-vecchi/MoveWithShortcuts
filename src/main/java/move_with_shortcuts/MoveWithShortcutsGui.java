@@ -390,7 +390,7 @@ final class MoveWithShortcutsGui {
     
     this.okButton = new JButton("Move / rename");
     
-    this.cancelButton = new JButton("Cancel");
+    this.cancelButton = new JButton("Close");
     
     this.aboutButton = new JButton("About");
     
@@ -434,7 +434,7 @@ final class MoveWithShortcutsGui {
     
     this.okButton.setToolTipText("Rename / move the file or folder and update the shortcuts (Enter).");
     
-    this.cancelButton.setToolTipText("Close without performing the operation (Esc).");
+    this.cancelButton.setToolTipText("Close this window (Esc).");
     
     this.aboutButton.setToolTipText("Show program information.");
     
