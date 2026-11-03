@@ -39,6 +39,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -61,7 +63,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +136,11 @@ final class MoveWithShortcutsGui {
    * The suffix of the phase labels that count read results.
    */
   private static final String READ_RESULTS_SUFFIX = " read results";
+  
+  /**
+   * The format of the timestamp in the suggested file name for the saved operation-detail text.
+   */
+  private static final String SAVE_FILE_TIMESTAMP_FORMAT = "yyyy-MM-dd_HH-mm-ss";
   
   /**
    * The note at the top of the Help dialog about the files and folders that the path fields accept.
@@ -222,6 +233,16 @@ final class MoveWithShortcutsGui {
    * The checkbox that clears the operation-detail text before each operation.
    */
   private final JCheckBox clearStatusAreaCheckBox;
+  
+  /**
+   * The button that saves the operation-detail text to a file.
+   */
+  private final JButton saveTextButton;
+  
+  /**
+   * Whether an operation is running.
+   */
+  private boolean busy;
   
   /**
    * The buttons to disable while an operation is running.
@@ -417,6 +438,10 @@ final class MoveWithShortcutsGui {
     
     this.clearStatusAreaCheckBox.setToolTipText("Clear the operation-detail text before each move / rename.");
     
+    this.saveTextButton = new JButton("Save text...");
+    
+    this.saveTextButton.setToolTipText("Save the operation-detail text to a file.");
+    
     this.processingDisabledButtons.add(this.aboutButton);
     
     this.processingDisabledButtons.add(this.helpButton);
@@ -608,6 +633,31 @@ final class MoveWithShortcutsGui {
     
     this.helpButton.addActionListener(e -> showHelp());
     
+    this.saveTextButton.addActionListener(e -> saveStatusArea());
+    
+    this.statusArea.getDocument().addDocumentListener(new DocumentListener() {
+    
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+      
+        updateSaveTextButton();
+      }
+      
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+      
+        updateSaveTextButton();
+      }
+      
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+      
+        updateSaveTextButton();
+      }
+    });
+    
+    updateSaveTextButton();
+    
     this.frame.getRootPane().setDefaultButton(this.okButton);
     
     this.frame.getRootPane().registerKeyboardAction(
@@ -733,6 +783,10 @@ final class MoveWithShortcutsGui {
     leftPanel.add(Box.createHorizontalStrut(8));
     
     leftPanel.add(this.clearStatusAreaCheckBox);
+    
+    leftPanel.add(Box.createHorizontalStrut(8));
+    
+    leftPanel.add(this.saveTextButton);
     
     gbc.gridx =   ZERO_i;
     
@@ -1287,6 +1341,8 @@ final class MoveWithShortcutsGui {
    */
   private void setBusy(boolean busy) {
   
+    this.busy = busy;
+    
     this.originalField.setEnabled(                ! busy);
     
     this.destinationField.setEnabled(             ! busy);
@@ -1324,6 +1380,8 @@ final class MoveWithShortcutsGui {
       this.progressBar.setString(ProgressTracker.PHASE_WORKING + "...");
     }
     this.progressBar.setVisible(true);
+    
+    updateSaveTextButton();
   }
   
   /**
@@ -1590,6 +1648,47 @@ final class MoveWithShortcutsGui {
   private void showHelp() {
   
     showTextDialog("Help", DROP_NOTE + NL2 + MoveWithShortcutsMain.getUsageText(), this.aboutIcon);
+  }
+  
+  /**
+   * Saves the operation-detail text to a file chosen by the user.
+   */
+  private void saveStatusArea() {
+  
+    final String text = this.statusArea.getText();
+    
+    if (! text.isBlank()) {
+    
+      final JFileChooser chooser = new JFileChooser();
+      
+      chooser.setDialogTitle("Save operation-detail text");
+      
+      chooser.setSelectedFile(new File("operation-detail-" + new SimpleDateFormat(SAVE_FILE_TIMESTAMP_FORMAT).format(new Date()) + ".txt"));
+      
+      if (chooser.showSaveDialog(this.frame) == JFileChooser.APPROVE_OPTION) {
+      
+        final File file = chooser.getSelectedFile();
+        
+        try {
+        
+          Files.writeString(file.toPath(), text, StandardCharsets.UTF_8);
+        }
+        catch (IOException e) {
+        
+          JOptionPane.showMessageDialog(this.frame, "Cannot save the operation-detail text to " + dq(file.getPath())
+                                                  + " :" + NL2 + e.getLocalizedMessage()
+                                      , "Save failed", JOptionPane.ERROR_MESSAGE);
+        }
+      }
+    }
+  }
+  
+  /**
+   * Enables the save button only when the operation-detail text is not blank and no operation is running.
+   */
+  private void updateSaveTextButton() {
+  
+    this.saveTextButton.setEnabled(! this.busy && ! this.statusArea.getText().isBlank());
   }
   
   /**

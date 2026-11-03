@@ -90,6 +90,9 @@
 - The GUI now has a `Clear operation-detail text before each move / rename` checkbox : unchecked by default, its
   state is not persisted, and the text is cleared only when the operation actually starts.
 
+- The GUI now has a `Save text...` button that saves the operation-detail text to a file (UTF-8, suggested name
+  `operation-detail-<timestamp>.txt`); it is disabled when the text is empty or an operation is running.
+
 
 ### Removed
 
