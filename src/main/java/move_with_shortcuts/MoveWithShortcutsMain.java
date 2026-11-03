@@ -12,7 +12,6 @@ import dcommandlinearg.ParsedArgs;
 import dfile.shortcut.IShortcutsUpdater;
 import dfile.shortcut.ShortcutFileNamePolicy;
 import dlog.log.Log;
-import duser_input_output.impl.consoleUserIO.ColorConsoleUserIO;
 import dutil.exception.UserRequestedTermination;
 import dutil.io.ConditionallyCloseablePrintStream;
 import dutil.system.OSUtilities;
@@ -304,7 +303,7 @@ public final class MoveWithShortcutsMain {
                                                                              System.err,   true
                                                                                         , CHARSET_UTF_8, false);
       final AAppContext ac = AppContext.newAppContext(
-                       ColorConsoleUserIO.newInstance1(System.in,         out,                 err
+                       MoveWithShortcutsConsoleUserIO.newInstance(System.in,         out,                 err
                                                            , CYAN,   BLACK,   RED
                                                            , BLACK, YELLOW, BLACK)
                                                                       , screenLog,          userLog,            devLog))

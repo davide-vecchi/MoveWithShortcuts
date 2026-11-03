@@ -1413,6 +1413,10 @@ final class MoveWithShortcutsGui {
                           : kind == GuiTextKind.ERROR   ? "ERROR: "
                           :                               EMPTY;
                           
+      if (kind == GuiTextKind.WARNING || kind == GuiTextKind.ERROR) {
+      
+        this.statusArea.append(NL);
+      }
       this.statusArea.append(prefix + trimmed + NL);
       
       trimStatusArea();
