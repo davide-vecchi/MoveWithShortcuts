@@ -13,10 +13,12 @@ import jakarta.validation.constraints.NotNull;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -217,6 +219,11 @@ final class MoveWithShortcutsGui {
   private final JButton helpButton;
   
   /**
+   * The checkbox that clears the operation-detail text before each operation.
+   */
+  private final JCheckBox clearStatusAreaCheckBox;
+  
+  /**
    * The buttons to disable while an operation is running.
    */
   private final List<JButton> processingDisabledButtons = new ArrayList<>();
@@ -405,6 +412,10 @@ final class MoveWithShortcutsGui {
     this.helpButton = questionIcon != null ? new JButton(scaleIcon(questionIcon, 16)) : new JButton("?");
     
     this.helpButton.getAccessibleContext().setAccessibleName("Help");
+    
+    this.clearStatusAreaCheckBox = new JCheckBox("Clear operation-detail text before each move / rename");
+    
+    this.clearStatusAreaCheckBox.setToolTipText("Clear the operation-detail text before each move / rename.");
     
     this.processingDisabledButtons.add(this.aboutButton);
     
@@ -718,6 +729,10 @@ final class MoveWithShortcutsGui {
     leftPanel.add(this.aboutButton);
     
     leftPanel.add(this.helpButton);
+    
+    leftPanel.add(Box.createHorizontalStrut(8));
+    
+    leftPanel.add(this.clearStatusAreaCheckBox);
     
     gbc.gridx =   ZERO_i;
     
@@ -1116,6 +1131,13 @@ final class MoveWithShortcutsGui {
                                                          , JOptionPane.QUESTION_MESSAGE);
       if (answer == JOptionPane.YES_OPTION) {
       
+        if (this.clearStatusAreaCheckBox.isSelected()) {
+        
+          this.statusArea.setText(EMPTY);
+          
+          this.statusArea.setToolTipText(null);
+        }
+        
         execute(request, selectedUpdaterKind, selectedShortcutFileNamePolicy);
       }
     }
@@ -1274,6 +1296,8 @@ final class MoveWithShortcutsGui {
     this.updaterKindCombo.setEnabled(             ! busy);
     
     this.shortcutFileNamePolicyCombo.setEnabled(  ! busy);
+    
+    this.clearStatusAreaCheckBox.setEnabled(      ! busy);
     
     this.okButton.setEnabled(                     ! busy);
     

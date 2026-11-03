@@ -87,6 +87,9 @@
   and a right-click menu with `Copy`, `Copy all` and `Select all` ; `Enter` in the text area still starts the
   operation.
 
+- The GUI now has a `Clear operation-detail text before each move / rename` checkbox : unchecked by default, its
+  state is not persisted, and the text is cleared only when the operation actually starts.
+
 
 ### Removed
 
