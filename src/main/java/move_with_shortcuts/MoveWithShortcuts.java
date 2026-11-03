@@ -54,6 +54,7 @@ import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.B;
 import static dutil.object.ObjectUtilities.assertNonNull;
 import static dutil.object.ObjectUtilities.assertTrue;
+import static dutil.string.TextUtilities.DASH50;
 import static dutil.string.TextUtilities.FMT0DG;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
@@ -569,6 +570,8 @@ public class MoveWithShortcuts {
     
     try {
     
+      this.appContext.outUser(NL2 + DASH50 + NL2 + new Date() + NL);
+      
       if (mustRenameMove) {
       
         // Do the requested renaming / moving :

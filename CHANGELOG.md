@@ -42,6 +42,9 @@
 
 - The GUI's `Cancel` button is now `Close`, with the tooltip `Close this window (Esc).`
 
+- At the start of each operation, the operation-detail output now starts with a blank line, a row of 50 dashes,
+  a blank line, the current date and a blank line, before the existing messages.
+
 
 ### Added
 
