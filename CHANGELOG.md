@@ -50,6 +50,8 @@
 
 - Warnings and errors are now preceded by a blank line in the GUI operation-detail area and in the console.
 
+- The GUI Help dialog now places the drop-aware note after the first usage paragraph, before the usage and option lines.
+
 
 ### Added
 

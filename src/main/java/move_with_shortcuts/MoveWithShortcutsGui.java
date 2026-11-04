@@ -143,7 +143,7 @@ final class MoveWithShortcutsGui {
   private static final String SAVE_FILE_TIMESTAMP_FORMAT = "yyyy-MM-dd_HH-mm-ss";
   
   /**
-   * The note at the top of the Help dialog about the files and folders that the path fields accept.
+   * The note in the Help dialog about the files and folders that the path fields accept.
    */
   private static final String DROP_NOTE = "The Original, Destination and Search folder fields accept files and folders"
                                         + " dropped from Windows Explorer.";
@@ -1647,7 +1647,21 @@ final class MoveWithShortcutsGui {
    */
   private void showHelp() {
   
-    showTextDialog("Help", DROP_NOTE + NL2 + MoveWithShortcutsMain.getUsageText(), this.aboutIcon);
+    final String usage = MoveWithShortcutsMain.getUsageText();
+    
+    final int firstParagraphEnd = usage.indexOf(NL2);
+    
+    final String helpText;
+    
+    if (firstParagraphEnd < 0) {
+    
+      helpText = usage + NL2 + DROP_NOTE;
+    }
+    else {
+    
+      helpText = usage.substring(0, firstParagraphEnd) + NL2 + DROP_NOTE + usage.substring(firstParagraphEnd);
+    }
+    showTextDialog("Help", helpText, this.aboutIcon);
   }
   
   /**
@@ -1684,11 +1698,11 @@ final class MoveWithShortcutsGui {
   }
   
   /**
-   * Enables the save button only when the operation-detail text is not blank and no operation is running.
+   * Enables the save button only when the operation-detail text is not empty and no operation is running.
    */
   private void updateSaveTextButton() {
   
-    this.saveTextButton.setEnabled(! this.busy && ! this.statusArea.getText().isBlank());
+    this.saveTextButton.setEnabled(! this.busy && this.statusArea.getDocument().getLength() > ZERO_i);
   }
   
   /**
