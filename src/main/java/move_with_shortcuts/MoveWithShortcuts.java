@@ -138,7 +138,13 @@ public class MoveWithShortcuts {
   @ToString.Exclude
   private final @NotNull AAppContext appContext;
   
-  
+  /**
+   * The default search folder resolution to use when the console prompts for the search folder.
+   */
+  private SearchPathDefaults.Resolution defaultSearchPath =
+                                    new SearchPathDefaults.Resolution(System.getProperty("user.home"), null);
+                                    
+                                    
   /**
    * Private constructor.
    *
@@ -158,6 +164,16 @@ public class MoveWithShortcuts {
   public static MoveWithShortcuts newInstance(@NotNull AAppContext appContext) {
   
     return new MoveWithShortcuts(appContext);
+  }
+  
+  /**
+   * Sets the default search folder resolution to use when the console prompts for the search folder.
+   *
+   * @param defaultSearchPath The resolution.
+   */
+  void setDefaultSearchPath(@NotNull SearchPathDefaults.Resolution defaultSearchPath) {
+  
+    this.defaultSearchPath = assertNonNull(defaultSearchPath);
   }
   
   /**
@@ -405,10 +421,11 @@ public class MoveWithShortcuts {
                                                                    , originalFileOrFolder)
                                                             : askDestinationFileOrFolderRepeatedly(originalFileOrFolder);
                                                             
-    final File searchFolder = args.wasGiven(MoveWithShortcutsMain.SEARCH_OPTION_NAME) ?
-                                resolveSearchFolder(args.getFile(MoveWithShortcutsMain.SEARCH_OPTION_NAME)
-                                                                                                                .getPath())
-                                                                                      : askSearchFolderRepeatedly();
+    final File searchFolder = args.wasGiven(MoveWithShortcutsMain.SEARCH_OPTION_NAME)
+                              ? resolveSearchFolder(args.getFile(MoveWithShortcutsMain.SEARCH_OPTION_NAME).getPath())
+                              : args.wasGiven(MoveWithShortcutsMain.DEFAULT_SEARCH_OPTION_NAME)
+                                ? new File(this.defaultSearchPath.path())
+                                : askSearchFolderRepeatedly();
                                                                                       
     if (askStartConfirmation(originalFileOrFolder, destinationFileOrFolder, searchFolder, shortcutFileNamePolicy)) {
     
@@ -916,8 +933,8 @@ public class MoveWithShortcuts {
     final String searchPath = this.appContext.userIO.in(
                                                 "Enter the path of the folder to scan for " + WIN_SHORTCUT_EXTENSION
                                                         + " shortcuts to update (if the \"new name\" entered in the previous question included a parent path, and that path does not exist so some folders will be created, this path to scan must refer to the new folder tree)"
-                                                        + " or press Enter for the default, or type " + calcCancelCharsPrompt(CANCEL_CHARS)
-                                         , getCurrentFolder(), CANCEL_CHARS);
+                                                        + " or press Enter for the default (" + dq(this.defaultSearchPath.path()) + "), or type " + calcCancelCharsPrompt(CANCEL_CHARS)
+                                         , this.defaultSearchPath.path(), CANCEL_CHARS);
     if (searchPath == null) {
     
       throw new UserRequestedTermination();

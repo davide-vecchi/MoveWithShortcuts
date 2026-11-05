@@ -7,13 +7,10 @@ package move_with_shortcuts;
 import dutil.value_holder.ObjectAndDescr;
 import jakarta.validation.constraints.NotNull;
 
-import java.io.File;
 import java.nio.file.InvalidPathException;
 
-import static dfile.file.FileUtilities.getCanonicalPath;
 import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause;
 import static dutil.string.TextUtilities.dq;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 
 // @formatter:off
@@ -60,39 +57,6 @@ final class MoveWithShortcutsGuiController {
     catch (RuntimeException e) {
     
       result = new ObjectAndDescr<>(null, errorDescription(e));
-    }
-    return result;
-  }
-  
-  /**
-   * Returns the default value for the search-folder field : the parent folder of the selected item, or the user's home
-   * folder when no item was selected.
-   *
-   * @param originalPath The path received from Explorer, or {@code null} when started standalone.
-   *
-   * @return The default search-folder path.
-   */
-  static String defaultSearchPath(String originalPath) {
-  
-    String result = System.getProperty("user.home");
-    
-    if (isNotBlank(originalPath)) {
-    
-      final File original = new File(originalPath);
-      
-      final File parent = original.getParentFile();
-      
-      if (parent != null) {
-      
-        try {
-        
-          result = getCanonicalPath(parent);
-        }
-        catch (RuntimeException e) {
-        
-          result = parent.getPath();
-        }
-      }
     }
     return result;
   }

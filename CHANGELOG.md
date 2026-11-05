@@ -52,8 +52,17 @@
 
 - The GUI Help dialog now places the drop-aware note after the first usage paragraph, before the usage and option lines.
 
+- The GUI search field and the console prompt now default to `DefaultSearchPath` / `-default-search-path` /
+  `user.home` instead of the Explorer item's parent / the current folder; an unusable default falls back to
+  `user.home` with a warning at startup.
+
 
 ### Added
+
+- The new `DefaultSearchPath` configuration parameter and `-default-search-path` command-line option set the default
+  folder to scan for shortcuts.
+
+
 
 - A Swing GUI entry point (`MoveWithShortcutsGuiMain`) with original, destination and search-folder fields : each field
   accepts a dropped file or folder and has a browse button ; the search folder defaults to the current folder. The

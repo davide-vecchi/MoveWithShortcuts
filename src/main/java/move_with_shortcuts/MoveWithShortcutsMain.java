@@ -96,6 +96,11 @@ public final class MoveWithShortcutsMain {
   static final String SEARCH_OPTION_NAME = "search";
   
   /**
+   * The name of the option that gives the default folder to scan for shortcuts.
+   */
+  static final String DEFAULT_SEARCH_OPTION_NAME = "default-search-path";
+  
+  /**
    * The name of the option that starts the console mode.
    */
   static final String CONSOLE_OPTION_NAME = "console";
@@ -240,6 +245,9 @@ public final class MoveWithShortcutsMain {
       final String searchPath =      args != null && args.wasGiven(SEARCH_OPTION_NAME)
                                                    ? args.getFile( SEARCH_OPTION_NAME).getPath() : null;
                                                    
+      final String defaultSearchPath = args != null && args.wasGiven(DEFAULT_SEARCH_OPTION_NAME)
+                                       ? args.getFile(DEFAULT_SEARCH_OPTION_NAME).getPath() : null;
+                                       
       final ShortcutsUpdaterKind updaterKind = args != null &&               args.wasGiven(SHORTCUTS_UPDATER_OPTION_NAME)
                                                ? ShortcutsUpdaterKind.parse(
                                                                         args.getString(SHORTCUTS_UPDATER_OPTION_NAME))
@@ -256,8 +264,8 @@ public final class MoveWithShortcutsMain {
       final Integer verbosity =             args != null &&   args.wasGiven(VERBOSITY_OPTION_NAME)
                                             ? I(     args.getInt(  VERBOSITY_OPTION_NAME)) : null;
                                             
-      MoveWithShortcutsGuiMain.start(originalPath, destinationPath, searchPath, updaterKind, policy, createContextMenu
-                                   , verbosity,    warning);
+      MoveWithShortcutsGuiMain.start(originalPath, destinationPath, searchPath, defaultSearchPath, updaterKind
+                                   , policy, createContextMenu, verbosity, warning);
     }
   }
   
@@ -336,6 +344,25 @@ public final class MoveWithShortcutsMain {
           
           
           showStartupMessages(ac, shortcutsTargetUpdater, originalArgs, shortcutFileNamePolicy);
+          
+          final String configuredDefaultSearchPath =
+                                args != null && args.wasGiven(DEFAULT_SEARCH_OPTION_NAME)
+                                ? args.getFile(DEFAULT_SEARCH_OPTION_NAME).getPath()
+                                : ShortcutsUpdaterConfig.readConfiguredDefaultSearchPath(ac);
+                                
+          final String defaultSearchPathSource =
+                                args != null && args.wasGiven(DEFAULT_SEARCH_OPTION_NAME)
+                                ? "command-line option -" + DEFAULT_SEARCH_OPTION_NAME
+                                : "configuration parameter " + MoveWithShortcutsParams.DEFAULT_SEARCH_PATH_PARAM_NAME;
+                                
+          final SearchPathDefaults.Resolution defaultSearchPath =
+                                SearchPathDefaults.resolveDefaultSearchPath(configuredDefaultSearchPath, defaultSearchPathSource);
+                                
+          if (defaultSearchPath.warning() != null) {
+          
+            ac.warnUser(NL + defaultSearchPath.warning());
+          }
+          app.setDefaultSearchPath(defaultSearchPath);
           
           // Perform the renaming operation using the chosen updater :
           
@@ -481,6 +508,14 @@ public final class MoveWithShortcutsMain {
                            .addOption(OptionSpec.option(SEARCH_OPTION_NAME
                                                        , "The folder to scan for " + WIN_SHORTCUT_EXTENSION + " shortcuts to update.")
                                                .existingFolder())
+                           .addOption(OptionSpec.option(DEFAULT_SEARCH_OPTION_NAME
+                                                       , "The default folder to scan for " + WIN_SHORTCUT_EXTENSION
+                                                       + " shortcuts when -" + SEARCH_OPTION_NAME + " is not given; it"
+                                                       + " is used to prefill the GUI search field and as the console"
+                                                       + " prompt default. If absent, the user's home folder is used."
+                                                       + " An unusable value falls back to the user's home folder"
+                                                       + " with a startup warning.")
+                                               .fileOrFolderPath())
                            .addOption(OptionSpec.option(SHORTCUT_FILE_NAME_OPTION_NAME
                                                        , "The shortcut file name policy : " + ShortcutFileNamePolicy.getDescription()
                                                        + " (default " + ShortcutFileNamePolicy.EXACT.displayName + "). "

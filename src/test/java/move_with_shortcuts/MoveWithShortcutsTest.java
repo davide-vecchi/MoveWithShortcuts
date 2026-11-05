@@ -1490,6 +1490,8 @@ public class MoveWithShortcutsTest {
                            .addOption(OptionSpec.option(MoveWithShortcutsMain.TO_OPTION_NAME, "to").required())
                            .addOption(OptionSpec.option(MoveWithShortcutsMain.SEARCH_OPTION_NAME, "search")
                                                 .required().existingFolder())
+                           .addOption(OptionSpec.option(MoveWithShortcutsMain.DEFAULT_SEARCH_OPTION_NAME, "default")
+                                                .fileOrFolderPath())
                            .addOption(OptionSpec.option(MoveWithShortcutsMain.SHORTCUTS_UPDATER_OPTION_NAME, "updater")
                                                 .allowedValues("ps-scripts-multi"))
                            .addOption(OptionSpec.option("verbosity", "verbosity")

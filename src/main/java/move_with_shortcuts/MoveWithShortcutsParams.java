@@ -44,6 +44,11 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   static final String CONSOLE_PARAM_NAME = "Console";
   
   /**
+   * The name of the parameter giving the default folder to scan for shortcuts.
+   */
+  static final String DEFAULT_SEARCH_PATH_PARAM_NAME = "DefaultSearchPath";
+  
+  /**
    * The shortcuts updater implementation ID, or the default if the parameter is missing.
    */
   @Getter
@@ -63,6 +68,11 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   @Getter
   private final ParamMono<Object, Boolean> console;
   
+  /**
+   * The default folder to scan for shortcuts, or {@code null} if the parameter is missing.
+   */
+  private final ParamMono<Object, String> defaultSearchPath;
+  
   
   /**
    * @param configurationMap {@link #configurationMap}.<br>
@@ -80,6 +90,8 @@ final class MoveWithShortcutsParams extends AParams<Object> {
     this.createContextMenu = newParamMono(CREATE_CONTEXT_MENU_PARAM_NAME);
     
     this.console = newParamMono(CONSOLE_PARAM_NAME);
+    
+    this.defaultSearchPath = newParamMono(DEFAULT_SEARCH_PATH_PARAM_NAME);
   }
   
   
@@ -97,6 +109,9 @@ final class MoveWithShortcutsParams extends AParams<Object> {
                           
     this.console.setValueParser(new BooleanStringParser())
                 .loadOptionalValue(FALSE);
+                
+    this.defaultSearchPath.setValueParser(new NeutralStringParser())
+                          .loadOptionalValue(null);
   }
   
   /**
@@ -136,5 +151,15 @@ final class MoveWithShortcutsParams extends AParams<Object> {
   boolean isConsole() {
   
     return this.console.value.booleanValue();
+  }
+  
+  /**
+   * Returns the configured default search folder.
+   *
+   * @return The configured value, or {@code null} if the parameter is absent.
+   */
+  String getDefaultSearchPath() {
+  
+    return this.defaultSearchPath.value;
   }
 }

@@ -25,9 +25,12 @@ import static dutil.exception.ExceptionUtilities.getFullDescriptionWithRootCause
 import static dutil.number.NumberUtilities.ONE_i;
 import static dutil.number.NumberUtilities.ZERO_i;
 import static dutil.object.ObjectUtilities.assertNull;
+import static dutil.string.TextUtilities.NL2;
 import static dutil.system.OSUtilities.setSystemEncodingUTF8;
 import static move_with_shortcuts.MoveWithShortcutsMain.APP_DESCR;
 import static move_with_shortcuts.MoveWithShortcutsMain.APP_NAME;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 
 // @formatter:off
@@ -57,9 +60,9 @@ public final class MoveWithShortcutsGuiMain {
     
     final String originalPath = args.length > ZERO_i ? args[ZERO_i] : null;
     
-    start(                    originalPath, null,                                      null
-         , null,   ShortcutFileNamePolicy.EXACT, null
-           , null,          null);
+    start(originalPath, null, null, null
+        , null, ShortcutFileNamePolicy.EXACT, null
+        , null, null);
   }
   
   /**
@@ -83,9 +86,11 @@ public final class MoveWithShortcutsGuiMain {
    * @param warningMessage A message to show in the operation-detail area, or {@code null}.
    */
   static void start(String                 originalPath,           String               destinationPath
-                  , String                 searchPath,             ShortcutsUpdaterKind updaterKindOverride
-                  , ShortcutFileNamePolicy shortcutFileNamePolicy, Boolean              createContextMenuOverride
-                  , Number                 verbosityOverride,      String               warningMessage) {// NODIR 1305
+                  , String                 searchPath,             String               defaultSearchPathArg
+                  , ShortcutsUpdaterKind   updaterKindOverride,    ShortcutFileNamePolicy shortcutFileNamePolicy
+                  , Boolean                createContextMenuOverride, Number            verbosityOverride
+                  , String                 warningMessage) {// NODIR 1305
+                  
     try {
     
       final File logFolder = resolveGuiLogFolder(originalPath);
@@ -127,11 +132,26 @@ public final class MoveWithShortcutsGuiMain {
                                                updaterKindOverride
                                              : MoveWithShortcutsMain.selectShortcutsUpdaterForGui(appContext);
                                               
+      final String configuredDefaultSearchPath = isNotBlank(defaultSearchPathArg)
+                                               ? defaultSearchPathArg
+                                               : ShortcutsUpdaterConfig.readConfiguredDefaultSearchPath(appContext);
+                                               
+      final String defaultSearchPathSource = isNotBlank(defaultSearchPathArg)
+                                          ? "command-line option -" + MoveWithShortcutsMain.DEFAULT_SEARCH_OPTION_NAME
+                                          : "configuration parameter " + MoveWithShortcutsParams.DEFAULT_SEARCH_PATH_PARAM_NAME;
+                                          
+      final SearchPathDefaults.Resolution defaultSearchPath =
+                                        SearchPathDefaults.resolveDefaultSearchPath(configuredDefaultSearchPath, defaultSearchPathSource);
+                                        
+      final String searchPrefill = isNotBlank(searchPath) ? searchPath : defaultSearchPath.path();
+      
+      final String combinedWarning = combineWarnings(warningMessage, defaultSearchPath.warning());
+      
       SwingUtilities.invokeLater(() -> MoveWithShortcutsGui.show(appContext,       updaterKind
                                                                       , originalPath,     destinationPath
-                                                                      , searchPath,       shortcutFileNamePolicy
+                                                                      , searchPrefill,    shortcutFileNamePolicy
                                                                       , progressReporter, textReporter
-                                                                      , warningMessage));
+                                                                      , combinedWarning));
     }
     catch (Exception e) {
     
@@ -139,6 +159,34 @@ public final class MoveWithShortcutsGuiMain {
       
       System.exit(ONE_i);
     }
+  }
+  
+  /**
+   * Combines two optional warning messages.
+   *
+   * @param first The first warning, or {@code null}.<br>
+   *
+   * @param second The second warning, or {@code null}.
+   *
+   * @return The combined warning, or {@code null}.
+   */
+  private static String combineWarnings(String first, String second) {
+  
+    final String result;
+    
+    if (isBlank(first)) {
+    
+      result = second;
+    }
+    else if (isBlank(second)) {
+    
+      result = first;
+    }
+    else {
+    
+      result = first + NL2 + second;
+    }
+    return result;
   }
   
   /**

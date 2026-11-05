@@ -20,7 +20,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static dfile.file.FileUtilities.getCanonicalPath;
 import static dutil.string.TextUtilities.NL;
 import static dutil.string.TextUtilities.NL2;
 
@@ -238,6 +237,37 @@ public class MoveWithShortcutsGuiTest {
   }
   
   /**
+   * Tests that the default search path is absent by default.
+   */
+  @Test
+  void defaultSearchPathDefaultsToNull() {
+  
+    Assert.assertNull(createParams(Map.of(MoveWithShortcutsParams.SHORTCUTS_UPDATER_PARAM_NAME
+                                        , ShortcutsUpdaterKind.defaultKind().getId()))
+                                        .getDefaultSearchPath());
+  }
+  
+  /**
+   * Tests that the default search path reads the configured value.
+   */
+  @Test
+  void defaultSearchPathReadsValue() {
+  
+    Assert.assertEquals(createParams(Map.of(MoveWithShortcutsParams.DEFAULT_SEARCH_PATH_PARAM_NAME, "C:\\example"))
+                                        .getDefaultSearchPath(), "C:\\example");
+  }
+  
+  /**
+   * Tests that a blank default search path is read as blank, so the resolver can treat it as invalid.
+   */
+  @Test
+  void defaultSearchPathReadsBlankValue() {
+  
+    Assert.assertTrue(createParams(Map.of(MoveWithShortcutsParams.DEFAULT_SEARCH_PATH_PARAM_NAME, "  "))
+                                        .getDefaultSearchPath().isBlank());
+  }
+  
+  /**
    * Tests the console/GUI mode decision.
    */
   @Test
@@ -267,6 +297,8 @@ public class MoveWithShortcutsGuiTest {
     Assert.assertTrue(usage.contains("-help"));
     
     Assert.assertTrue(usage.contains("-from"));
+    
+    Assert.assertTrue(usage.contains("-default-search-path"));
   }
   
   /**
@@ -301,9 +333,9 @@ public class MoveWithShortcutsGuiTest {
     final File destination = new File(searchFolder, "new.txt");
     
     final ObjectAndDescr<GuiMoveRequest> built = MoveWithShortcutsGuiController.buildRequest(
-                                                       original.getPath(), destination.getPath()
-                                                     , searchFolder.getPath());
-                                                     
+                                                                                original    .getPath()
+                                                                           , destination  .getPath()
+                                                                                , searchFolder.getPath());
     Assert.assertNull(built.description);
     
     Assert.assertNotNull(built.object);
@@ -410,61 +442,6 @@ public class MoveWithShortcutsGuiTest {
     Assert.assertNotNull(built.description);
     
     Assert.assertNull(built.object);
-  }
-  
-  /**
-   * Tests that the default search path is the user's home folder when no original path is given.
-   */
-  @Test
-  void defaultSearchPathUsesUserHomeWhenNoOriginal() {
-  
-    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath(null), System.getProperty("user.home"));
-    
-    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath("  "), System.getProperty("user.home"));
-  }
-  
-  /**
-   * Tests that the default search path is the parent folder of a selected file.
-   *
-   * @throws IOException If the test file cannot be created.
-   */
-  @Test
-  void defaultSearchPathUsesParentOfFile() throws IOException {
-  
-    final File folder = newFolder("searchFileParent");
-    
-    final File file = new File(folder, "file.txt");
-    
-    Files.writeString(file.toPath(), "content");
-    
-    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath(file.getPath()), getCanonicalPath(folder));
-  }
-  
-  /**
-   * Tests that the default search path is the parent folder of a selected folder.
-   *
-   * @throws IOException If the test folder cannot be created.
-   */
-  @Test
-  void defaultSearchPathUsesParentOfFolder() throws IOException {
-  
-    final File folder = newFolder("searchFolderParent");
-    
-    final File child = new File(folder, "child");
-    
-    Files.createDirectories(child.toPath());
-    
-    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath(child.getPath()), getCanonicalPath(folder));
-  }
-  
-  /**
-   * Tests that the default search path falls back to the user's home folder when the path has no parent.
-   */
-  @Test
-  void defaultSearchPathUsesUserHomeForPathWithoutParent() {
-  
-    Assert.assertEquals(MoveWithShortcutsGuiController.defaultSearchPath("relative.txt")
-                      , System.getProperty("user.home"));
   }
   
   /**

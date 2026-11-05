@@ -151,6 +151,21 @@ final class ShortcutsUpdaterConfig {
   }
   
   /**
+   * Returns the default search folder configured in the configuration file, or {@code null} if there is no usable
+   * configuration file or the parameter is absent.
+   *
+   * @param appContext The application context to use for logging and warnings.
+   *
+   * @return The configured default search folder, or {@code null}.
+   */
+  static String readConfiguredDefaultSearchPath(@NotNull AAppContext appContext) {
+  
+    final MoveWithShortcutsParams params = readConfiguredParams(appContext);
+    
+    return params == null ? null : params.getDefaultSearchPath();
+  }
+  
+  /**
    * Finds the configuration file : next to the running JAR, or in the module resources when running from the IDE.
    *
    * @return The existing configuration file, or {@code null}.

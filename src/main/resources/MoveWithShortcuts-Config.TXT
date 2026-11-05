@@ -23,3 +23,11 @@ CreateContextMenu = true
 # true / yes makes console mode the default; a -gui command line arg overrides it.
 #
 Console = false
+
+#
+# DefaultSearchPath : the default folder to scan for shortcuts when -search / -default-search-path is not given.
+# It is used to prefill the GUI search field and as the console prompt default. If absent, the user's home folder is
+# used. A value that is blank, missing, not a folder or invalid falls back to the user's home folder and produces a
+# warning at startup.
+#
+DefaultSearchPath = H:\Users\Davide\Davide

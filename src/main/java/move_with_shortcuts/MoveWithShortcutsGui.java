@@ -608,10 +608,6 @@ final class MoveWithShortcutsGui {
     
       this.searchField.setText(searchPath);
     }
-    else {
-    
-      this.searchField.setText(MoveWithShortcutsGuiController.defaultSearchPath(originalPath));
-    }
     if (isNotBlank(warningMessage)) {
     
       appendConsoleText(GuiTextKind.WARNING, warningMessage);
